@@ -8,7 +8,14 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.1" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.1" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\GraduateProject.Application\GraduateProject.Application.csproj" />
+      <ProjectReference Include="..\GraduateProject.Infrastructure\GraduateProject.Infrastructure.csproj" />
     </ItemGroup>
 
 </Project>

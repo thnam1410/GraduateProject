@@ -1,5 +1,7 @@
 using GraduateProject.Extensions;
+using GraduateProject.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace GraduateProject.Controllers;
 
@@ -13,10 +15,11 @@ public class WeatherForecastController : ControllerBase
     };
 
     private readonly ILogger<WeatherForecastController> _logger;
-
-    public WeatherForecastController(ILogger<WeatherForecastController> logger)
+    private readonly AppDbContext _dbContext;
+    public WeatherForecastController(ILogger<WeatherForecastController> logger, AppDbContext dbContext)
     {
         _logger = logger;
+        _dbContext = dbContext;
     }
 
     [HttpGet(Name = "GetWeatherForecast")]
@@ -34,6 +37,8 @@ public class WeatherForecastController : ControllerBase
     [HttpGet("test")]
     public async Task<ApiResponse<object>> TestAction()
     {
+        var canConnect = await _dbContext.Database.CanConnectAsync();
+        
         return ApiResponse<object>.Ok("ok babi");
     }
 }
