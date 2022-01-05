@@ -1,0 +1,11 @@
+#FrontEnd
+
+#Backend
+*/*/appsettings.Development.json
+*/*/appsettings.local.json
+*/*/bin
+*/*/obj
+*/.vs
+*/*/*/bin
+*/*/*/obj
+/backend/.idea
