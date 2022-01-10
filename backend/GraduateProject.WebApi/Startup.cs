@@ -1,13 +1,14 @@
-﻿using GraduateProject.Infrastructure.Extensions;
+﻿using GraduateProject.Authentication;
+using GraduateProject.Infrastructure.Extensions;
 using Microsoft.OpenApi.Models;
 
 namespace GraduateProject;
 
 public class Startup
 {
-    
     private readonly IHostEnvironment _env;
     public static string connectionString { get; private set; }
+
     public Startup(IConfiguration configuration, IHostEnvironment env)
     {
         Configuration = configuration;
@@ -22,6 +23,7 @@ public class Startup
     {
         services.AddControllers();
         services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo {Title = "Graduation Project", Version = "v1"}); });
+        services.RegisterAuthentication(Configuration); // include jwt && identity config
         services.SetupInfrastructure(connectionString);
     }
 

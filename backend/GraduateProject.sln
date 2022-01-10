@@ -8,6 +8,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GraduateProject.Infrastruct
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GraduateProject.Domain", "GraduateProject.Domain\GraduateProject.Domain.csproj", "{26978E5D-DC1C-4DC8-81EC-8C7AF05F1100}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GraduateProject.Migrator", "GraduateProject.Migrator\GraduateProject.Migrator.csproj", "{B87B455B-1244-47F6-8607-7C21B93D095D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +32,9 @@ Global
 		{26978E5D-DC1C-4DC8-81EC-8C7AF05F1100}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{26978E5D-DC1C-4DC8-81EC-8C7AF05F1100}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{26978E5D-DC1C-4DC8-81EC-8C7AF05F1100}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B87B455B-1244-47F6-8607-7C21B93D095D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B87B455B-1244-47F6-8607-7C21B93D095D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B87B455B-1244-47F6-8607-7C21B93D095D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B87B455B-1244-47F6-8607-7C21B93D095D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
