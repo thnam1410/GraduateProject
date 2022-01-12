@@ -1,4 +1,5 @@
-﻿using GraduateProject.Infrastructure;
+﻿using GraduateProject.Authentication;
+using GraduateProject.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 
 namespace GraduateProject.Migrator
@@ -21,9 +22,7 @@ namespace GraduateProject.Migrator
             Console.WriteLine("================================");
             Console.WriteLine(connectionString);
 
-            services.AddDbContext<AppDbContext>(
-                options => { options.UseSqlServer(connectionString, b => b.MigrationsAssembly(migrationsAssembly)); }
-            );
+            services.AddDbContext<AppDbContext>(options => { options.UseSqlServer(connectionString, b => b.MigrationsAssembly(migrationsAssembly)); });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

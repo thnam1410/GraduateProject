@@ -20,4 +20,8 @@
       <ProjectReference Include="..\GraduateProject.Infrastructure\GraduateProject.Infrastructure.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Common\Dto" />
+    </ItemGroup>
+
 </Project>

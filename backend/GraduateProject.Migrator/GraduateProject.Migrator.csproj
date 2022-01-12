@@ -16,6 +16,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\GraduateProject.Infrastructure\GraduateProject.Infrastructure.csproj" />
+      <ProjectReference Include="..\GraduateProject.WebApi\GraduateProject.WebApi.csproj" />
     </ItemGroup>
 
     <ItemGroup>

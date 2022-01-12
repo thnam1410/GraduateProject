@@ -9,7 +9,6 @@
 
     <ItemGroup>
       <Folder Include="AppEntities\Repositories" />
-      <Folder Include="Ums\Repositories" />
     </ItemGroup>
 
     <ItemGroup>

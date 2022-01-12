@@ -11,4 +11,13 @@
       <ProjectReference Include="..\GraduateProject.Domain\GraduateProject.Domain.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Ums\Extensions" />
+      <Folder Include="Ums\Services" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="FluentValidation" Version="10.3.6" />
+    </ItemGroup>
+
 </Project>

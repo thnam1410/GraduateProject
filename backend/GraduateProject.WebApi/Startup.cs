@@ -23,8 +23,8 @@ public class Startup
     {
         services.AddControllers();
         services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo {Title = "Graduation Project", Version = "v1"}); });
-        services.RegisterAuthentication(Configuration); // include jwt && identity config
         services.SetupInfrastructure(connectionString);
+        services.RegisterAuthentication(Configuration); // include jwt && identity config
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

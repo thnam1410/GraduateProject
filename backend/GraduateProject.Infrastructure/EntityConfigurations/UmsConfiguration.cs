@@ -1,24 +1,13 @@
 ﻿using GraduateProject.Domain.Ums.Entities;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
-namespace GraduateProject.Authentication;
+namespace GraduateProject.Infrastructure.EntityConfigurations;
 
-public class IdentityContext : IdentityDbContext<UserAccount, Role, Guid, UserClaim, UserRole, UserLogin, RoleClaim, UserToken>
+public static class UmsConfiguration
 {
     public static string UmsSchemaName = "Ums";
 
-    public IdentityContext(DbContextOptions<IdentityContext> options) : base(options)
-    {
-    }
-
-    protected override void OnModelCreating(ModelBuilder builder)
-    {
-        base.OnModelCreating(builder);
-        ConfigIdentityContext(builder);
-    }
-
-    private void ConfigIdentityContext(ModelBuilder builder)
+    public static void ConfigureUmsEntities(this ModelBuilder builder)
     {
         builder.Entity<UserAccount>(entity =>
         {
