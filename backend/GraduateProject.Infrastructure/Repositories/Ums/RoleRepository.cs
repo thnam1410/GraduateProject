@@ -9,10 +9,12 @@ namespace GraduateProject.Infrastructure.Repositories.Ums;
 public class RoleRepository : EfRepository<Role, Guid>, IRoleRepository
 {
     private readonly DbSet<UserRole> _dbSetUserRole;
+    private readonly AppDbContext _testDbContext;
 
     public RoleRepository(AppDbContext dbContext) : base(dbContext)
     {
         _dbSetUserRole = dbContext.Set<UserRole>();
+        _testDbContext = dbContext;
     }
 
     public async Task<Role> GetUserRole()
@@ -23,7 +25,7 @@ public class RoleRepository : EfRepository<Role, Guid>, IRoleRepository
     public async Task AddUserRole(Guid newUserId, Guid userRoleId)
     {
         var newEntity = new UserRole() {RoleId = userRoleId, UserId = newUserId};
-        await _dbSetUserRole.AddAsync(newEntity);
-        await _dbContext.SaveChangesAsync();
+        await _dbContext.AddAsync(newEntity);
+        // await _dbContext.SaveChangesAsync();
     }
 }

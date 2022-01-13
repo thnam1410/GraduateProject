@@ -1,12 +1,14 @@
-﻿using GraduateProject.Application.Ums.Dto;
+﻿using GraduateProject.Application.Extensions;
+using GraduateProject.Application.Ums.Dto;
 using GraduateProject.Domain.Common;
 using GraduateProject.Domain.Ums.Entities;
 using GraduateProject.Domain.Ums.Repositories;
 using GraduateProject.Extensions;
-using GraduateProject.Infrastructure;
+using GraduateProject.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace GraduateProject.Controllers;
 
@@ -19,27 +21,41 @@ public class IdentityController : ControllerBase
     private readonly SignInManager<UserAccount> _signInManager;
     private readonly IRoleRepository _roleRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IObjectMapper _mapper;
+    private readonly ICurrentUser<Guid> _currentUser;
 
     public IdentityController(IUserAccountRepository userAccountRepository, UserManager<UserAccount> userManager, SignInManager<UserAccount> signInManager,
-        IRoleRepository roleRepository, IUnitOfWork unitOfWork)
+        IRoleRepository roleRepository, IUnitOfWork unitOfWork, IObjectMapper mapper, ICurrentUser<Guid> currentUser)
     {
         _userAccountRepository = userAccountRepository;
         _userManager = userManager;
         _signInManager = signInManager;
         _roleRepository = roleRepository;
         _unitOfWork = unitOfWork;
+        _mapper = mapper;
+        _currentUser = currentUser;
     }
-    // [AllowAnonymous]
-    // [HttpPost("login")]
-    // public async Task<IActionResult> LoginAction([FromBody] LoginForm form)
-    // {
-    //     if (ModelState.IsValid)
-    //     {
-    //         
-    //     }
-    //
-    //     return Ok();
-    // }
+
+    [AllowAnonymous]
+    [HttpPost("login")]
+    public async Task<ApiResponse<object>> LoginAction([FromBody] LoginForm form)
+    {
+        if (ModelState.IsValid)
+        {
+            var user = await _userAccountRepository.Queryable()
+                .Include(x => x.UserRoles).ThenInclude(x => x.Role)
+                .FirstOrDefaultAsync(x => x.UserName == form.UserName);
+            if (user is null) return ApiResponse<object>.Fail("User not found!");
+            var identityResult = await _signInManager.PasswordSignInAsync(form.UserName, form.Password, form.RememberMe, false);
+            if (identityResult.Succeeded)
+            {
+                return ApiResponse<object>.Ok(await this.GetUserProfile(user));
+            }
+        }
+
+        return ApiResponse<object>.Fail(string.Empty);
+    }
+
 
 
     [AllowAnonymous]
@@ -58,16 +74,15 @@ public class IdentityController : ControllerBase
             {
                 await _unitOfWork.BeginTransactionAsync();
                 var identityResult = await _userManager.CreateAsync(newUser, form.Password);
-                await _unitOfWork.SaveChangesAsync();
+                // await _unitOfWork.SaveChangesAsync();
                 if (identityResult.Succeeded)
                 {
                     var userRole = await _roleRepository.GetUserRole();
                     await _roleRepository.AddUserRole(newUser.Id, userRole.Id);
                     await _unitOfWork.SaveChangesAsync();
-                    await _signInManager.SignInAsync(newUser, false);
-                    var userProfile = await GetUserProfile(newUser);
                     await _unitOfWork.CommitTransactionAsync();
-                    return ApiResponse<object>.Ok(userProfile);
+                    // var userProfile = await GetUserProfile(newUser);
+                    return ApiResponse<object>.Ok();
                 }
                 else
                 {
@@ -84,24 +99,25 @@ public class IdentityController : ControllerBase
         return ApiResponse<object>.Fail("Register fail");
     }
 
-    private async Task<ApiResponse<object>> GetUserProfile(UserAccount userAccount)
+    private async Task<object> GetUserProfile(UserAccount userAccount)
     {
-        var user = await _userAccountRepository.GetUserWithAuthInfo(userAccount.Id);
         List<string> claims;
-        if (user.HasRoleAdminSystem())
+        if (userAccount.HasRoleAdminSystem())
         {
             var allRoles = await _roleRepository.ToListAsync();
             claims = allRoles.Select(x => x.Code).ToList();
         }
         else
         {
-            claims = user.GetRoles().Select(x => x.Code).ToList();
+            claims = userAccount.GetRoles().Select(x => x.Code).ToList();
         }
 
-        return ApiResponse<object>.Ok(new
+        var userAccountDto = _mapper.Map<UserAccount, UserInfoDto>(userAccount);
+        return new
         {
-            user,
-            claims
-        });
+            user = userAccountDto, 
+            rights = claims,
+            isAdmin = userAccount.HasRoleAdminSystem(),
+        };
     }
 }
