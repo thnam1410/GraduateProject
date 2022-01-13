@@ -8,8 +8,6 @@ public interface ICurrentUser<TKey> where TKey: struct
     bool IsAuthenticated { get; }
     string? GetId();
     string UserName { get; }
-    string PhoneNumber { get; }
-    string FullName { get; }
     IEnumerable<string> Roles { get; }
     IEnumerable<Claim> GetAllClaims();
 }
