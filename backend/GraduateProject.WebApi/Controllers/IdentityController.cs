@@ -1,4 +1,5 @@
-﻿using GraduateProject.Application.Extensions;
+﻿using System.Net;
+using GraduateProject.Application.Extensions;
 using GraduateProject.Application.Ums.Dto;
 using GraduateProject.Domain.Common;
 using GraduateProject.Domain.Ums.Entities;
@@ -62,11 +63,19 @@ public class IdentityController : ControllerBase
     [HttpGet("check-login")]
     public async Task<ApiResponse<object>> CheckLoginAction()
     {
-        if (!_currentUser.IsAuthenticated) return ApiResponse<object>.Fail("Login fail!");
+        if (!_currentUser.IsAuthenticated) return ApiResponse<object>.Fail("Login fail!", null, (int) HttpStatusCode.Unauthorized);
         var user = await _userAccountRepository.Queryable()
             .Include(x => x.UserRoles).ThenInclude(x => x.Role)
             .FirstOrDefaultAsync(x => x.Id == _currentUser.Id);
         return ApiResponse<object>.Ok(await this.GetUserProfile(user));
+    }
+    
+    [AllowAnonymous]
+    [HttpPost("logout")]
+    public async Task<ApiResponse> Logout()
+    {
+        await _signInManager.SignOutAsync();
+        return ApiResponse.Ok();
     }
 
 
