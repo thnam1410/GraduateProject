@@ -23,9 +23,10 @@ public class IdentityController : ControllerBase
     private readonly IUnitOfWork _unitOfWork;
     private readonly IObjectMapper _mapper;
     private readonly ICurrentUser<Guid> _currentUser;
+    private readonly IValidator _validator;
 
     public IdentityController(IUserAccountRepository userAccountRepository, UserManager<UserAccount> userManager, SignInManager<UserAccount> signInManager,
-        IRoleRepository roleRepository, IUnitOfWork unitOfWork, IObjectMapper mapper, ICurrentUser<Guid> currentUser)
+        IRoleRepository roleRepository, IUnitOfWork unitOfWork, IObjectMapper mapper, ICurrentUser<Guid> currentUser, IValidator validator)
     {
         _userAccountRepository = userAccountRepository;
         _userManager = userManager;
@@ -34,13 +35,14 @@ public class IdentityController : ControllerBase
         _unitOfWork = unitOfWork;
         _mapper = mapper;
         _currentUser = currentUser;
+        _validator = validator;
     }
 
     [AllowAnonymous]
     [HttpPost("login")]
     public async Task<ApiResponse<object>> LoginAction([FromBody] LoginForm form)
     {
-        if (ModelState.IsValid)
+        if (ModelState.IsValid && _validator.Validate<LoginForm>(form, out var validateResult))
         {
             var user = await _userAccountRepository.Queryable()
                 .Include(x => x.UserRoles).ThenInclude(x => x.Role)
@@ -56,6 +58,16 @@ public class IdentityController : ControllerBase
         return ApiResponse<object>.Fail(string.Empty);
     }
 
+    [AllowAnonymous]
+    [HttpGet("check-login")]
+    public async Task<ApiResponse<object>> CheckLoginAction()
+    {
+        if (!_currentUser.IsAuthenticated) return ApiResponse<object>.Fail("Login fail!");
+        var user = await _userAccountRepository.Queryable()
+            .Include(x => x.UserRoles).ThenInclude(x => x.Role)
+            .FirstOrDefaultAsync(x => x.Id == _currentUser.Id);
+        return ApiResponse<object>.Ok(await this.GetUserProfile(user));
+    }
 
 
     [AllowAnonymous]
@@ -74,7 +86,6 @@ public class IdentityController : ControllerBase
             {
                 await _unitOfWork.BeginTransactionAsync();
                 var identityResult = await _userManager.CreateAsync(newUser, form.Password);
-                // await _unitOfWork.SaveChangesAsync();
                 if (identityResult.Succeeded)
                 {
                     var userRole = await _roleRepository.GetUserRole();
@@ -115,7 +126,7 @@ public class IdentityController : ControllerBase
         var userAccountDto = _mapper.Map<UserAccount, UserInfoDto>(userAccount);
         return new
         {
-            user = userAccountDto, 
+            user = userAccountDto,
             rights = claims,
             isAdmin = userAccount.HasRoleAdminSystem(),
         };

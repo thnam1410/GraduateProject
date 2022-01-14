@@ -13,6 +13,7 @@ public static class UmsConfiguration
         {
             entity.ToTable("UserAccount", UmsSchemaName);
             entity.Property(x => x.Id).HasDefaultValueSql("NEWID()");
+            entity.Property(x => x.Active).HasDefaultValue(true);
             entity.HasMany<UserRole>().WithOne().HasForeignKey(x => x.UserId).IsRequired();
         });
         builder.Entity<Role>(entity =>

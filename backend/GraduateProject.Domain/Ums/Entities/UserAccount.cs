@@ -9,7 +9,7 @@ public class UserAccount : IdentityUser<Guid>, ITrackableEntity<Guid>, IEntity<G
     public string? FullName { get; set; }
     public string? Email { get; set; }
     public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
-    public bool Active { get; set; }
+    public bool? Active { get; set; } = true;
 
     public DateTime? CreatedTime { get; set; }
     public string? CreatedBy { get; set; }

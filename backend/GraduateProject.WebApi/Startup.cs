@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 using GraduateProject.Application.Extensions;
+using GraduateProject.Application.Ums.Dto;
 using GraduateProject.Authentication;
 using GraduateProject.Infrastructure.Extensions;
 using GraduateProject.Services;
@@ -35,6 +36,7 @@ public class Startup
                 options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
                 options.SerializerSettings.Converters.Add(new StringEnumConverter());
             })
+            .AddValidation(typeof(LoginForm).Assembly)
             .AddJsonOptions(options =>
             {
                 options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
