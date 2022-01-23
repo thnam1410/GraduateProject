@@ -48,7 +48,16 @@ public class Startup
         services.SetupInfrastructure(connectionString);
         services.RegisterAuthentication(Configuration); // include jwt && identity config
         services.AddScoped<ICurrentUser<Guid>, CurrentUser>();
-
+        services.AddCors(options =>
+        {
+            options.AddPolicy("FrontendCors",
+                builder => builder
+                    .WithOrigins("http://localhost:3000")
+                    .AllowAnyHeader()
+                    .AllowAnyMethod()
+                    .AllowCredentials()
+            );
+        });
         services.AddServiceCollections();
     }
 
@@ -67,6 +76,7 @@ public class Startup
             });
         }
 
+        app.UseCors("FrontendCors");
         app.UseHttpsRedirection();
 
         app.UseRouting();
