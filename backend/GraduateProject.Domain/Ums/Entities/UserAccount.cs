@@ -23,7 +23,7 @@ public class UserAccount : IdentityUser<Guid>, ITrackableEntity<Guid>, IEntity<G
 
 
 
-    public bool HasRoleAdminSystem() => GetRoles().FirstOrDefault(x => x.Code == RoleConstants.ADMIN_ROLE) != null;
+    public bool HasRoleAdminSystem() => GetRoles().FirstOrDefault(x => x.Code.ToLower() == RoleConstants.ADMIN_ROLE.ToLower()) != null;
 
     public IEnumerable<Role> GetRoles() => UserRoles.Select(x => x.Role).ToList();
 }
