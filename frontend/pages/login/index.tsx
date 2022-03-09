@@ -1,12 +1,12 @@
-import React, { ReactNode } from "react";
-import { Form, Input, Button, Checkbox, notification } from "antd";
+import React from "react";
+import { Button, Form, Input } from "antd";
 import "antd/dist/antd.css";
 import useMergeState from "~/hooks/useMergeState";
-import NotifyUtils from "~/utils/NotifyUtils";
-import { CHECK_LOGIN_API, LOGIN_API } from "~/constants/apis/auth.api";
-import axios from "axios";
-import AxiosClient from "~/utils/ApiUtil";
-import { TEST_API } from "~/constants/apis/test.api";
+import { LOGIN_API } from "~/constants/apis/auth.api";
+import { ApiUtil } from "~/utils/ApiUtil";
+import { ApiResponse } from "~/types/api.type";
+import { useRouter } from "next/router";
+import { NextPage } from "next";
 
 interface IFormInput {
 	userName: string;
@@ -15,15 +15,20 @@ interface IFormInput {
 interface IState {
 	errorMessage: string;
 }
-const LoginPage = () => {
+const LoginPage: NextPage = () => {
 	const [state, setState] = useMergeState<IState>({
 		errorMessage: "",
 	});
+	const router = useRouter();
 	const onFinish = (values: IFormInput) => {
-		console.log("Success:", values);
-		AxiosClient.post(LOGIN_API, values, { withCredentials: true })
+		ApiUtil.Axios.post<ApiResponse>(LOGIN_API, values, { withCredentials: true })
 			.then((res) => {
-				console.log(res);
+				if (res.data.success) {
+					ApiUtil.ToastSuccess("Đăng nhập thành công");
+					router.push("/");
+				} else {
+					ApiUtil.ToastError("Đăng nhập thất bại! Vui lòng thử lại");
+				}
 			})
 			.catch((err) => {
 				console.log(err);
@@ -34,6 +39,7 @@ const LoginPage = () => {
 		console.log("Failed:", errorInfo);
 	};
 
+	const onRedirectRegister = () => router.push("/register");
 	return (
 		<div className="min-h-full flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
 			<div className="max-w-md w-full space-y-8">
@@ -60,23 +66,17 @@ const LoginPage = () => {
 						<Input.Password placeholder={"Mật khẩu"} />
 					</Form.Item>
 					<span className="text-red-400">{state.errorMessage}</span>
-					<Form.Item wrapperCol={{ offset: 10 }}>
-						<Button type="primary" htmlType="submit">
-							Submit
-						</Button>
+					<Form.Item>
+						<div className={"flex items-center justify-around"}>
+							<Button type="primary" htmlType="submit">
+								Đăng nhập
+							</Button>
+							<Button type="primary" danger onClick={onRedirectRegister}>
+								Đăng ký
+							</Button>
+						</div>
 					</Form.Item>
 				</Form>
-				<button
-					onClick={async () => {
-						const res = await AxiosClient.get(CHECK_LOGIN_API).catch((err) => console.log(err));
-						console.log("res", res);
-					}}
-				>
-					AA
-				</button>
-				<div className="class-container" style={{width: 200, height: 200}}>
-					<div>a</div>
-				</div>
 			</div>
 		</div>
 	);
