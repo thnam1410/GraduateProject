@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 namespace GraduateProject.Controllers;
 
 [ApiController]
-[Route("test")]
+[Route("/api/test")]
 public class WeatherForecastController : ControllerBase
 {
     private static readonly string[] Summaries = new[]
@@ -22,7 +22,7 @@ public class WeatherForecastController : ControllerBase
         _dbContext = dbContext;
     }
 
-    [HttpGet(Name = "GetWeatherForecast")]
+    [HttpGet]
     public IEnumerable<WeatherForecast> Get()
     {
         return Enumerable.Range(1, 5).Select(index => new WeatherForecast
