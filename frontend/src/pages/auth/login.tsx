@@ -46,7 +46,7 @@ export default function Login() {
 						<input {...register("password")} type="password" id="password" placeholder="Password" />
 					</InputGroup>
 					<Group>
-						<Checkbox checked onChange={onCheckbox}>
+						<Checkbox checked onChange={() => console.log('')}>
 							Lưu mật khẩu
 						</Checkbox>
 						<Link href="/auth/request-password">
