@@ -118,6 +118,18 @@ const UserAccount = () => {
 			width: 300,
 			minWidth: 120,
 		},
+		{
+			title: "Hành động",
+			dataIndex: "phoneNumberConfirmed",
+			key: "phoneNumberConfirmed",
+			width: 300,
+			minWidth: 120,
+			render: (text: any, record: any) => (
+				<button className="bg-blue-500 text-white font-bold py-2 px-4 rounded" onClick={() => console.log(record)}>
+					{"Button Text"}
+				</button>
+			),
+		},
 	];
 
 	const onSearch = async (info: { values: any; page: number; pageSize: number }) => {
@@ -130,7 +142,32 @@ const UserAccount = () => {
 		<Layout title="Input">
 			<Col breakPoint={{ xs: 12 }}>
 				<Card>
+					<button className="bg-red-500 text-white font-bold py-2 px-4 rounded;">My Tailwind Button</button>
+
 					<Tabs activeIndex={0} fullWidth>
+						<Tab
+							title="Lưới thông tin"
+							icon="icon ion-ios-star-outline"
+							badge={{ status: "Info", title: "11", position: "bottomEnd" }}
+							responsive
+						>
+							<div
+								style={{
+									display: "block",
+									padding: 30,
+								}}
+							>
+								<Row>
+									<Col key={"Success"} style={style} breakPoint={{ xs: true }}>
+										<Button appearance="hero" status={"Success"}>
+											{"Tạo mới"}
+										</Button>
+									</Col>
+								</Row>
+								{/* <h4>ReactJS Ant-Design Table Component</h4> */}
+								<Table style={{ width: "auto" }} dataSource={dataSource} columns={columns} />
+							</div>
+						</Tab>
 						<Tab
 							title="Thông tin"
 							icon="icon ion-ios-home"
@@ -261,29 +298,7 @@ const UserAccount = () => {
 								</Col>
 							</Row>
 						</Tab>
-						<Tab
-							title="Lưới thông tin"
-							icon="icon ion-ios-star-outline"
-							badge={{ status: "Info", title: "11", position: "bottomEnd" }}
-							responsive
-						>
-							<div
-								style={{
-									display: "block",
-									padding: 30,
-								}}
-							>
-								<Row>
-									<Col key={"Success"} style={style} breakPoint={{ xs: true }}>
-										<Button appearance="hero" status={"Success"}>
-											{"Success"}
-										</Button>
-									</Col>
-								</Row>
-								{/* <h4>ReactJS Ant-Design Table Component</h4> */}
-								<Table style={{ width: "auto" }} dataSource={dataSource} columns={columns} />
-							</div>
-						</Tab>
+
 						<Tab
 							title="Lưới thông tin"
 							icon="icon ion-ios-switch"
