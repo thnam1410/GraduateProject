@@ -6,7 +6,7 @@ public class LoginForm
 {
     public string UserName { get; set; }
     public string Password { get; set; }
-    public bool? RememberMe = false;
+    public bool RememberMe = false;
 }
 
 public class ValidateLoginForm : AbstractValidator<LoginForm>

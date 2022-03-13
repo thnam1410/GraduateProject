@@ -24,11 +24,13 @@
 		"react-redux": "^7.2.6",
 		"sass": "^1.49.7",
 		"styled-components": "^5.3.3",
-		"tailwindcss": "^3.0.15"
+		"tailwindcss": "^3.0.15",
+		"ts-nameof": "^5.0.0"
 	},
 	"devDependencies": {
 		"@types/node": "17.0.10",
 		"@types/react": "17.0.38",
+		"@types/ts-nameof": "^4.2.1",
 		"eslint": "8.7.0",
 		"eslint-config-next": "12.0.8",
 		"http-proxy-middleware": "^2.0.3",
