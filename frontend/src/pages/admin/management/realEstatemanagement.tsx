@@ -36,7 +36,7 @@ const Input = styled(InputGroup)`
 	margin-bottom: 10px;
 `;
 
-const UserAccount = () => {
+const RealEstatemanagement = () => {
 	const [checkbox, setCheckbox] = useState({
 		1: false,
 		2: false,
@@ -310,4 +310,4 @@ const UserAccount = () => {
 		</Layout>
 	);
 };
-export default UserAccount;
+export default RealEstatemanagement;

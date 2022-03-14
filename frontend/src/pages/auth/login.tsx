@@ -1,15 +1,15 @@
-import {Button} from "@paljs/ui/Button";
-import {useForm} from "react-hook-form";
-import {InputGroup} from "@paljs/ui/Input";
-import {Checkbox} from "@paljs/ui/Checkbox";
+import { Button } from "@paljs/ui/Button";
+import { useForm } from "react-hook-form";
+import { InputGroup } from "@paljs/ui/Input";
+import { Checkbox } from "@paljs/ui/Checkbox";
 import React from "react";
 import Link from "next/link";
-import {ApiUtil} from "~/src/pages/utils/ApiUtil";
-import Auth, {Group} from "../../components/Auth";
+import { ApiUtil } from "~/src/pages/utils/ApiUtil";
+import Auth, { Group } from "../../components/Auth";
 import Layout from "../../Layout";
-import {LOGIN_API} from "~/src/constants/apis/auth.api";
-import {useRouter} from "next/router";
-import {ApiResponse} from "~/src/pages/types/api.type";
+import { LOGIN_API } from "~/src/constants/apis/auth.api";
+import { useRouter } from "next/router";
+import { ApiResponse } from "~/src/pages/types/api.type";
 
 interface IFormInput {
 	userName: string;
@@ -26,7 +26,7 @@ export default function Login() {
 				console.log("check Re", res);
 				if (res.data.success) {
 					ApiUtil.ToastSuccess("Đăng nhập thành công");
-					router.push("/");
+					router.push("/admin/account/user-account");
 				} else {
 					ApiUtil.ToastError("Đăng nhập thất bại! Vui lòng thử lại");
 				}
@@ -46,7 +46,7 @@ export default function Login() {
 						<input {...register("password")} type="password" id="password" placeholder="Password" />
 					</InputGroup>
 					<Group>
-						<Checkbox checked onChange={() => console.log('')}>
+						<Checkbox checked onChange={() => console.log("")}>
 							Lưu mật khẩu
 						</Checkbox>
 						<Link href="/auth/request-password">

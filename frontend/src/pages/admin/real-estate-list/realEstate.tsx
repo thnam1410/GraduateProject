@@ -16,11 +16,6 @@ import { Status, Size, Shape } from "@paljs/ui/types";
 import { Table } from "antd";
 import { configureStore } from "@reduxjs/toolkit";
 
-const options = [
-	{ value: "chocolate", label: "Chocolate" },
-	{ value: "strawberry", label: "Strawberry" },
-	{ value: "vanilla", label: "Vanilla" },
-];
 const style = { marginBottom: "1.5rem", width: 35 };
 
 const type: SearchProps["type"][] = [
@@ -36,7 +31,7 @@ const Input = styled(InputGroup)`
 	margin-bottom: 10px;
 `;
 
-const UserAccount = () => {
+const RealEstate = () => {
 	const [checkbox, setCheckbox] = useState({
 		1: false,
 		2: false,
@@ -310,4 +305,4 @@ const UserAccount = () => {
 		</Layout>
 	);
 };
-export default UserAccount;
+export default RealEstate;

@@ -1,11 +1,6 @@
 module.exports = {
-	reactStrictMode: true,
+	// reactStrictMode: true,
 	async rewrites() {
-		return [
-			
-				{ source: '/api/proxy/:path*', destination: 'http://localhost:5000/:path*' }
-
-			  ,
-		];
+		return [{ source: "/api/:path*", destination: "https://localhost:5000/:path*" }];
 	},
 };
