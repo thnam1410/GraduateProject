@@ -9,6 +9,7 @@ using GraduateProject.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 
 namespace GraduateProject.Controllers;
@@ -54,9 +55,13 @@ public class IdentityController : ControllerBase
             {
                 return ApiResponse<object>.Ok(await this.GetUserProfile(user));
             }
+            else
+            {
+                ModelState.AddModelError("IncorrectCredentials", "Tài khoản hoặc mật khẩu sai. Vui lòng nhập lại!");
+                return ApiResponse<object>.Fail(GetModelStateMessages(ModelState));
+            }
         }
-
-        return ApiResponse<object>.Fail(string.Empty);
+        return ApiResponse<object>.Fail(GetModelStateMessages(ModelState));
     }
 
     [AllowAnonymous]
@@ -69,7 +74,7 @@ public class IdentityController : ControllerBase
             .FirstOrDefaultAsync(x => x.Id == _currentUser.Id);
         return ApiResponse<object>.Ok(await this.GetUserProfile(user));
     }
-    
+
     [AllowAnonymous]
     [HttpPost("logout")]
     public async Task<ApiResponse> Logout()
@@ -140,4 +145,7 @@ public class IdentityController : ControllerBase
             isAdmin = userAccount.HasRoleAdminSystem(),
         };
     }
+    private string GetModelStateMessages(ModelStateDictionary modelStateDictionary) => string.Join(" | ", modelStateDictionary.Values
+        .SelectMany(v => v.Errors)
+        .Select(e => e.ErrorMessage));
 }

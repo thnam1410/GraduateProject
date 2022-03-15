@@ -77,7 +77,7 @@ public class Startup
         }
 
         app.UseCors("FrontendCors");
-        app.UseHttpsRedirection();
+        // app.UseHttpsRedirection();
 
         app.UseRouting();
         app.UseAuthentication();
