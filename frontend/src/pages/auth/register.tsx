@@ -4,6 +4,7 @@ import { ApiUtil } from "~/src/pages/utils/ApiUtil";
 import { ApiResponse } from "~/src/pages/types/api.type";
 
 import { REGISTER_API } from "~/src/constants/apis/auth.api";
+import TextArea from "antd/lib/input/TextArea";
 
 interface IFormInput {
 	userName: string;
@@ -102,7 +103,7 @@ export default function Register() {
 								<input
 									className="w-full px-3 py-2 mb-3 text-sm leading-tight text-gray-700 border rounded shadow appearance-none focus:outline-none focus:shadow-outline"
 									id="phoneNumber"
-									type="phoneNumber"
+									type="number"
 									placeholder="Số điện thoại"
 								/>
 							</div>
@@ -113,7 +114,7 @@ export default function Register() {
 								<input
 									className="w-full px-3 py-2 mb-3 text-sm leading-tight text-gray-700 border rounded shadow appearance-none focus:outline-none focus:shadow-outline"
 									id="decriptions"
-									type="decriptions"
+									type="text"
 									placeholder="Mô tả dịch vụ"
 								/>
 							</div>
@@ -121,10 +122,10 @@ export default function Register() {
 								<label className="block mb-2 text-sm font-bold text-gray-700" htmlFor="referralMember">
 									Thành viên giới thiệu
 								</label>
-								<input
+								<TextArea
 									className="w-full px-3 py-2 mb-3 text-sm leading-tight text-gray-700 border rounded shadow appearance-none focus:outline-none focus:shadow-outline"
 									id="referralMember"
-									type="referralMember"
+									// type="text"
 									placeholder="Thành viên giới thiệu"
 								/>
 							</div>
