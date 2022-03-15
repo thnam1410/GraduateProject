@@ -8,7 +8,6 @@ import {UserSession} from "~/src/types/UserInfo";
 export async function middleware(req: NextApiRequest | Pick<NextApiRequest, "cookies" | "headers">, event: NextFetchEvent) {
 	const session = await getToken({ req, secret: process.env.NEXTAUTH_SECRET }) || {};
 	const userInfo = session?.user as UserSession
-	console.log('userInfo',userInfo)
 	if(!userInfo) return NextResponse.redirect("/");
 	return NextResponse.next();
 }

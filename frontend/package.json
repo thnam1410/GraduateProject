@@ -10,9 +10,11 @@
 	"dependencies": {
 		"@hookform/error-message": "^2.0.0",
 		"@reduxjs/toolkit": "^1.7.1",
+		"@types/lodash": "^4.14.180",
 		"antd": "^4.18.6",
 		"autoprefixer": "^10.4.2",
 		"axios": "^0.25.0",
+		"lodash": "^4.17.21",
 		"next": "12.0.8",
 		"next-auth": "^4.2.1",
 		"postcss": "^8.4.5",

@@ -1,19 +1,28 @@
 import { useForm } from "react-hook-form";
-import React from "react";
+import React, { useEffect } from "react";
 import { useRouter } from "next/router";
-import { signIn, useSession } from "next-auth/react";
+import { getSession, signIn, useSession } from "next-auth/react";
 import { SignInResponse } from "next-auth/react/types";
 import { ApiUtil } from "~/src/pages/utils/ApiUtil";
 import { UserSession } from "~/src/types/UserInfo";
 import { Role } from "~/src/constants/constants";
 import { ErrorMessage } from "@hookform/error-message";
-import Link from 'next/link'
+import Link from "next/link";
+import { GetServerSideProps, NextApiRequest } from "next";
+import { getToken } from "next-auth/jwt";
+import { isEmpty } from "lodash";
 
 interface IFormInput {
 	userName: string;
 	password: string;
 }
-export default function Login() {
+
+interface Props {
+	isAuthenticate: boolean;
+	userSession: UserSession | null;
+}
+
+const Login = (props: Props) => {
 	const router = useRouter();
 	const session = useSession();
 	const {
@@ -26,6 +35,20 @@ export default function Login() {
 			password: "",
 		},
 	});
+
+	useEffect(() => {
+		if (props.isAuthenticate && props.userSession != null) {
+			redirectByRights(props.userSession);
+		}
+	}, [props]);
+
+	const redirectByRights = (userSession: UserSession) => {
+		if (userSession.rights.includes(Role.ADMIN)) {
+			return router.push("/admin");
+		}
+		return router.push("/");
+	};
+
 	const onFinish = handleSubmit(async (values: IFormInput) => {
 		const { userName, password } = values;
 		const res: SignInResponse | undefined = await signIn("credentials", {
@@ -36,10 +59,7 @@ export default function Login() {
 		if (res!.ok) {
 			if (session?.data?.user) {
 				const userSession = session.data.user as UserSession;
-				if (userSession.rights.includes(Role.ADMIN)) {
-					return router.push("/admin");
-				}
-				return router.push("/");
+				await redirectByRights(userSession);
 			} else {
 				ApiUtil.ToastError("Có lỗi xảy ra vui lòng liên hệ quản trị viên!");
 			}
@@ -125,9 +145,7 @@ export default function Login() {
 								</Link>
 							</div>
 							<div className="text-center">
-								<a className="inline-block text-sm text-blue-500 align-baseline hover:text-blue-800">
-									Quên mất khẩu
-								</a>
+								<a className="inline-block text-sm text-blue-500 align-baseline hover:text-blue-800">Quên mất khẩu</a>
 							</div>
 						</form>
 					</div>
@@ -135,86 +153,17 @@ export default function Login() {
 			</div>
 		</div>
 	);
-}
-// <div className="h-screen w-screen flex flex-col items-center justify-center">
-{
-	/*<h1 style={{fontSize: 30}}>Đăng nhập</h1>*/
-}
-{
-	/*<Form*/
-}
-{
-	/*	name="basic"*/
-}
-{
-	/*	labelCol={{ span: 8 }}*/
-}
-{
-	/*	wrapperCol={{ span: 16 }}*/
-}
-{
-	/*	initialValues={{ remember: true }}*/
-}
-{
-	/*	onFinish={onFinish}*/
-}
-{
-	/*	onFinishFailed={onFinishFailed}*/
-}
-{
-	/*	autoComplete="off"*/
-}
-{
-	/*>*/
-}
-{
-	/*	<Form.Item label="Username" name="username" rules={[{ required: true, message: "Please input your username!" }]}>*/
-}
-{
-	/*		<Input />*/
-}
-{
-	/*	</Form.Item>*/
-}
-
-{
-	/*	<Form.Item label="Password" name="password" rules={[{ required: true, message: "Please input your password!" }]}>*/
-}
-{
-	/*		<Input.Password />*/
-}
-{
-	/*	</Form.Item>*/
-}
-
-{
-	/*	<Form.Item name="remember" valuePropName="checked" wrapperCol={{ offset: 8, span: 16 }}>*/
-}
-{
-	/*		<Checkbox>Remember me</Checkbox>*/
-}
-{
-	/*	</Form.Item>*/
-}
-
-{
-	/*	<Form.Item wrapperCol={{ offset: 8, span: 16 }}>*/
-}
-{
-	/*		<Button type="primary" htmlType="submit">*/
-}
-{
-	/*			Submit*/
-}
-{
-	/*		</Button>*/
-}
-{
-	/*	</Form.Item>*/
-}
-{
-	/*</Form>*/
-}
-{
-	/*</div>*/
-}
+};
+export const getServerSideProps: GetServerSideProps = async (context) => {
+	const req = context.req as NextApiRequest | Pick<NextApiRequest, "cookies" | "headers">;
+	const session = (await getToken({ req, secret: process.env.NEXTAUTH_SECRET })) || {};
+	const userSession = session?.user;
+	const isAuthenticate = !isEmpty(userSession);
+	return {
+		props: {
+			isAuthenticate,
+			userSession,
+		}, // will be passed to the page component as props
+	};
+};
+export default Login;
