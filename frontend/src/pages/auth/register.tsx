@@ -14,8 +14,8 @@ interface IFormInput {
 	phoneNumber: string;
 	password: string;
 	confirmPassword: string;
-	decriptions: string;
-	referralMember: string;
+	// decriptions: string;
+	// referralMember: string;
 }
 
 export default function Register() {
@@ -34,29 +34,23 @@ export default function Register() {
 		console.log("Failed:", errorInfo);
 	};
 
-	// const dataSource: IFormInput = {
-	// 	userName: "Pham Ngoc Danh",
-	// 	email: "check ",
-	// 	phoneNumber: "0927140859",
-	// 	password: "12345",
-	// 	confirmPassword: "true",
-	// 	fullName: "Pham Ngoc Danh",
-	// };
-
 	const onFinish = handleSubmit((values: IFormInput) => {
-		ApiUtil.Axios.post<ApiResponse>(REGISTER_API, values)
-			.then((res) => {
-				if (res.data.success) {
-					ApiUtil.ToastSuccess("Đăng ký thành công! Vui lòng đăng nhập");
-					onRedirectLogin();
-				} else {
-					ApiUtil.ToastError("Đăng ký thất bại! Vui lòng thử lại");
-					console.log(res?.data?.message);
-				}
-			})
-			.catch((err) => {
-				console.log(err);
-			});
+		const password = values.password;
+		const confirmPassword = values.confirmPassword;
+		if (password !== confirmPassword) return ApiUtil.ToastError("Mật khẩu xác nhận không trùng nhau ! Vui lòng kiểm tra lại");
+		// ApiUtil.Axios.post<ApiResponse>(REGISTER_API, values)
+		// 	.then((res) => {
+		// 		if (res.data.success) {
+		// 			ApiUtil.ToastSuccess("Đăng ký thành công! Vui lòng đăng nhập");
+		// 			onRedirectLogin();
+		// 		} else {
+		// 			ApiUtil.ToastError("Đăng ký thất bại! Vui lòng thử lại");
+		// 			console.log(res?.data?.message);
+		// 		}
+		// 	})
+		// 	.catch((err) => {
+		// 		console.log(err);
+		// 	});
 	});
 
 	return (
@@ -95,7 +89,7 @@ export default function Register() {
 											message: "Ký tự vượt quá ký tự cho phép",
 										},
 										pattern: {
-											value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+											value: /^(?=[a-zA-Z0-9._]{8,20}$)(?!.*[_.]{2})[^_.].*[^_.]$/i,
 											message: "Vui lòng kiểm tra lại các ký tự không đúng cho tên tài khoản",
 										},
 									})}
@@ -174,7 +168,7 @@ export default function Register() {
 									render={({ message }) => (message ? <p className="text-red-400">{message}</p> : null)}
 								/>
 							</div>
-							<div className="mb-4">
+							{/* <div className="mb-4">
 								<label className="block mb-2 text-sm font-bold text-gray-700" htmlFor="decriptions">
 									Mô tả dịch vụ
 								</label>
@@ -195,7 +189,7 @@ export default function Register() {
 									// type="text"
 									placeholder="Thành viên giới thiệu"
 								/>
-							</div>
+							</div> */}
 							<div className="mb-4 md:flex md:justify-between">
 								<div className="mb-4 md:mr-2 md:mb-0">
 									<label className="block mb-2 text-sm font-bold text-gray-700" htmlFor="password">
