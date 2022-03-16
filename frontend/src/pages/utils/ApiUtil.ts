@@ -2,19 +2,24 @@ import axios from "axios";
 import { notification } from "antd";
 import { ArgsProps } from "antd/lib/notification";
 import * as https from "https";
-import 'antd/dist/antd.css';
+import "antd/dist/antd.css";
 
 const AxiosClient = axios.create({
 	baseURL: process.env.NEXT_PUBLIC_API_URL,
 	withCredentials: true,
 	httpsAgent: new https.Agent({
-		rejectUnauthorized: false
-	})
+		rejectUnauthorized: false,
+	}),
 });
 export const BASE_API_PATH = "/api";
 
 export class ApiUtil {
 	static Axios = AxiosClient;
+
+	static serialize = (obj: any = {}) =>
+		Object.entries(obj)
+			.map(([key]) => `${key}=${encodeURIComponent(obj[key])}`)
+			.join("&");
 
 	static ToastSuccess = (message: string, title?: string, configs?: ArgsProps): void => {
 		notification.success({

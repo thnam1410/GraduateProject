@@ -1,7 +1,8 @@
 import React, { ReactElement, ReactNode } from "react";
 import { SessionProvider } from "next-auth/react";
 import { AppProps } from "next/app";
-import "../styles/globals.scss";
+import "../../styles/tailwind.css"
+import "../../styles/globals.scss";
 import { NextPage } from "next";
 
 export default function MyApp({ Component, pageProps }: AppPropsWithLayout) {

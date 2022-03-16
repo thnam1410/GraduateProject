@@ -1,5 +1,5 @@
 import { useForm } from "react-hook-form";
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { useRouter } from "next/router";
 import { getSession, signIn, useSession } from "next-auth/react";
 import { SignInResponse } from "next-auth/react/types";
@@ -11,6 +11,7 @@ import Link from "next/link";
 import { GetServerSideProps, NextApiRequest } from "next";
 import { getToken } from "next-auth/jwt";
 import { isEmpty } from "lodash";
+import Overlay, { OverlayRef } from "~/src/components/Overlay/Overlay";
 
 interface IFormInput {
 	userName: string;
@@ -25,6 +26,7 @@ interface Props {
 const Login = (props: Props) => {
 	const router = useRouter();
 	const session = useSession();
+	const overlayRef = useRef<OverlayRef>(null);
 	const {
 		register,
 		handleSubmit,
@@ -37,36 +39,30 @@ const Login = (props: Props) => {
 	});
 
 	useEffect(() => {
-		if (props.isAuthenticate && props.userSession != null) {
-			redirectByRights(props.userSession);
+		if (session?.data?.user) {
+			const userSession = session.data.user as UserSession;
+			redirectByRights(userSession);
 		}
-	}, [props]);
+	}, [session]);
 
 	const redirectByRights = (userSession: UserSession) => {
+		overlayRef.current?.close();
 		if (userSession.rights.includes(Role.ADMIN)) {
 			return router.push("/admin");
 		}
 		return router.push("/");
 	};
-
 	const onFinish = handleSubmit(async (values: IFormInput) => {
 		const { userName, password } = values;
+		overlayRef.current?.open();
 		const res: SignInResponse | undefined = await signIn("credentials", {
 			userName,
 			password,
 			redirect: false,
 		});
-		if (res!.ok) {
-			if (session?.data?.user) {
-				const userSession = session.data.user as UserSession;
-				await redirectByRights(userSession);
-			} else {
-				ApiUtil.ToastError("Có lỗi xảy ra vui lòng liên hệ quản trị viên!");
-			}
-		} else {
-			if (res!.error) {
-				ApiUtil.ToastError(res!.error);
-			}
+		if (res!.error) {
+			ApiUtil.ToastError(res!.error);
+			overlayRef.current?.close();
 		}
 	});
 	return (
@@ -115,6 +111,7 @@ const Login = (props: Props) => {
 									placeholder="******************"
 									{...register("password", {
 										required: "Vui lòng nhập mật khẩu",
+										minLength: { value: 5, message: "Tối thiểu 5 kí tự" },
 									})}
 								/>
 								<ErrorMessage
@@ -151,18 +148,20 @@ const Login = (props: Props) => {
 					</div>
 				</div>
 			</div>
+			<Overlay ref={overlayRef} />
 		</div>
 	);
 };
 export const getServerSideProps: GetServerSideProps = async (context) => {
-	const req = context.req as NextApiRequest | Pick<NextApiRequest, "cookies" | "headers">;
-	const session = (await getToken({ req, secret: process.env.NEXTAUTH_SECRET })) || {};
+	const session = (await getToken({ req: context.req, secret: process.env.NEXTAUTH_SECRET })) || {};
 	const userSession = session?.user;
 	const isAuthenticate = !isEmpty(userSession);
+	const query = context.query;
 	return {
 		props: {
 			isAuthenticate,
-			userSession,
+			userSession: userSession || null,
+			isRedirectAdmin: query.admin === "1",
 		}, // will be passed to the page component as props
 	};
 };

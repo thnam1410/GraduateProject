@@ -1,13 +1,19 @@
 import type { NextFetchEvent, NextRequest } from "next/server";
-import { useSession } from "next-auth/react";
-import { getToken } from "next-auth/jwt";
-import { NextApiRequest } from "next";
 import { NextResponse } from "next/server";
-import {UserSession} from "~/src/types/UserInfo";
+import { getToken } from "next-auth/jwt";
+import { UserSession } from "~/src/types/UserInfo";
+import { ApiUtil } from "~/src/pages/utils/ApiUtil";
 
-export async function middleware(req: NextApiRequest | Pick<NextApiRequest, "cookies" | "headers">, event: NextFetchEvent) {
-	const session = await getToken({ req, secret: process.env.NEXTAUTH_SECRET }) || {};
-	const userInfo = session?.user as UserSession
-	if(!userInfo) return NextResponse.redirect("/");
+export async function middleware(req: NextRequest, event: NextFetchEvent) {
+	// @ts-ignore
+	const session = (await getToken({ req, secret: process.env.NEXTAUTH_SECRET })) || {};
+	const userInfo = session?.user as UserSession;
+	if (!userInfo) {
+		const nextPageName = req.page.name as string;
+		if (nextPageName.includes("admin")) {
+			return NextResponse.redirect("/auth/login?admin=1");
+		}
+		return NextResponse.redirect("/");
+	}
 	return NextResponse.next();
 }

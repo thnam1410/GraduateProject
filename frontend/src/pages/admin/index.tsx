@@ -1,19 +1,10 @@
-import React, { ReactElement, useContext } from "react";
-import { getSession, signOut, useSession } from "next-auth/react";
-import AdminLayout, { SessionContext } from "~/src/components/layout/AdminLayout";
+import React, { ReactElement } from "react";
+import { signOut } from "next-auth/react";
+import AdminLayout, { useSessionContext } from "~/src/components/layout/AdminLayout";
 
 const AdminPage = () => {
-	const context = useContext(SessionContext);
-	// console.log('context',context);
-	return (
-		<button
-			onClick={() => {
-				signOut();
-			}}
-		>
-			Logout
-		</button>
-	);
+	const context = useSessionContext();
+	return <div>abc</div>;
 };
 
 AdminPage.getLayout = function getLayout(page: ReactElement) {

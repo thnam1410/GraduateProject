@@ -8,7 +8,9 @@
 		"lint": "next lint"
 	},
 	"dependencies": {
+		"@fortawesome/fontawesome-free": "^6.1.0",
 		"@hookform/error-message": "^2.0.0",
+		"@popperjs/core": "^2.11.4",
 		"@reduxjs/toolkit": "^1.7.1",
 		"@types/lodash": "^4.14.180",
 		"antd": "^4.18.6",

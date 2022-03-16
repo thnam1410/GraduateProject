@@ -23,14 +23,13 @@ const nextAuthOptions = (req: NextApiRequest, res: NextApiResponse): NextAuthOpt
 						res.setHeader("Set-Cookie", cookies);
 						return response?.data?.result;
 					} else {
-						console.log("response?.data", response?.data);
 						throw new Error(response?.data?.message);
 					}
 				},
 			}),
 		],
 		session:{
-			maxAge: 60 * 60 * 12
+			maxAge: 60 * 60 * 12 // 12h
 		},
 		callbacks: {
 			async jwt({ token, user }) {
@@ -45,7 +44,6 @@ const nextAuthOptions = (req: NextApiRequest, res: NextApiResponse): NextAuthOpt
 		},
 		pages: {
 			signIn: "/auth/login",
-			error: "/auth/login",
 		},
 	};
 };
