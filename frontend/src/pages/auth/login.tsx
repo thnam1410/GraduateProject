@@ -3,15 +3,15 @@ import React, { useEffect, useRef } from "react";
 import { useRouter } from "next/router";
 import { getSession, signIn, useSession } from "next-auth/react";
 import { SignInResponse } from "next-auth/react/types";
-import { ApiUtil } from "~/src/pages/utils/ApiUtil";
-import { UserSession } from "~/src/types/UserInfo";
-import { Role } from "~/src/constants/constants";
+import { ApiUtil } from "../utils/ApiUtil";
+import { UserSession } from "../../types/UserInfo";
+import { Role } from "../../constants/constants";
 import { ErrorMessage } from "@hookform/error-message";
 import Link from "next/link";
 import { GetServerSideProps, NextApiRequest } from "next";
 import { getToken } from "next-auth/jwt";
 import { isEmpty } from "lodash";
-import Overlay, { OverlayRef } from "~/src/components/Overlay/Overlay";
+import Overlay, { OverlayRef } from "../../components/Overlay/Overlay";
 
 interface IFormInput {
 	userName: string;
@@ -60,6 +60,7 @@ const Login = (props: Props) => {
 			password,
 			redirect: false,
 		});
+		console.log("res", res);
 		if (res!.error) {
 			ApiUtil.ToastError(res!.error);
 			overlayRef.current?.close();

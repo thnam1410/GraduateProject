@@ -1,12 +1,104 @@
-import React from 'react';
+import React, { ReactElement } from "react";
+import { signOut } from "next-auth/react";
+import AdminLayout, { useSessionContext } from "~/src/components/layout/AdminLayout";
+import "antd/dist/antd.css";
+import { Table } from "antd";
+
+const columns = [
+	{
+		title: "Họ và tên",
+		dataIndex: "fullName",
+		key: "fullName",
+		width: 500,
+		minWidth: 120,
+	},
+	{
+		title: "Email",
+		dataIndex: "email",
+		key: "email",
+		width: 300,
+		minWidth: 120,
+	},
+	{
+		title: "Kích hoạt",
+		dataIndex: "active",
+		key: "active",
+		width: 300,
+		minWidth: 120,
+	},
+	{
+		title: "Tên tài khoản",
+		dataIndex: "userName",
+		key: "userName",
+		width: 300,
+		minWidth: 120,
+	},
+	{
+		title: "Số điện thoại",
+		dataIndex: "phoneNumber",
+		key: "phoneNumber",
+		width: 300,
+		minWidth: 120,
+	},
+	{
+		title: "Xác nhận số điện thoại",
+		dataIndex: "phoneNumberConfirmed",
+		key: "phoneNumberConfirmed",
+		width: 300,
+		minWidth: 120,
+	},
+	{
+		title: "Hành động",
+		dataIndex: "phoneNumberConfirmed",
+		key: "phoneNumberConfirmed",
+		width: 300,
+		minWidth: 120,
+		render: (text: any, record: any) => (
+			<button className="bg-blue-500 text-white font-bold py-2 px-4 rounded" onClick={() => console.log(record)}>
+				{"Button Text"}
+			</button>
+		),
+	},
+];
 
 const UserAccount = () => {
+	const context = useSessionContext();
+	const dataSource = [
+		{
+			fullName: "Phạm Ngọc Danh",
+			email: "phamngocdanhhcm@gmail.com",
+			active: true,
+			userName: "phamngocdanhhcm",
+			phoneNumber: "0927140859",
+			phoneNumberConfirmed: true,
+		},
+		{
+			fullName: "Phạm Ngọc Kiên",
+			email: "phamngocdanhhcm@gmail.com",
+			active: true,
+			userName: "phamngockienhcm",
+			phoneNumber: "0932621181",
+			phoneNumberConfirmed: false,
+		},
+	];
 	return (
-		<div>UserAccount</div>
+		<div>
+			<div className="relative h-20 r-0">
+				<button className="absolute top-0 right-0 h-10 w-25 bg-blue-500 text-white font-bold py-2 px-4 rounded" onClick={() => {}}>
+					{"Tạo mới"}
+				</button>
+			</div>
+			<Table style={{ width: "auto" }} dataSource={dataSource} columns={columns} />
+		</div>
 	);
-}
+};
+
+UserAccount.getLayout = function getLayout(page: ReactElement) {
+	return <AdminLayout>{page}</AdminLayout>;
+};
 
 export default UserAccount;
+
 // const UserAccount = () => {
 // 	const [checkbox, setCheckbox] = useState({
 // 		1: false,
@@ -26,83 +118,7 @@ export default UserAccount;
 // 	const submitHandle = (sentValue: string) => setValue(sentValue);
 // 	const status: Status[] = ["Info", "Success", "Danger", "Primary", "Warning", "Basic", "Control"];
 //
-// 	const dataSource = [
-// 		{
-// 			fullName: "Phạm Ngọc Danh",
-// 			email: "phamngocdanhhcm@gmail.com",
-// 			active: true,
-// 			userName: "phamngocdanhhcm",
-// 			phoneNumber: "0927140859",
-// 			phoneNumberConfirmed: true,
-// 		},
-// 		{
-// 			fullName: "Phạm Ngọc Kiên",
-// 			email: "phamngocdanhhcm@gmail.com",
-// 			active: true,
-// 			userName: "phamngockienhcm",
-// 			phoneNumber: "0932621181",
-// 			phoneNumberConfirmed: false,
-// 		},
-// 	];
-//
-// 	// Sample Columns data
-// 	const columns = [
-// 		{
-// 			title: "Họ và tên",
-// 			dataIndex: "fullName",
-// 			key: "fullName",
-// 			width: 500,
-// 			minWidth: 120,
-// 		},
-// 		{
-// 			title: "Email",
-// 			dataIndex: "email",
-// 			key: "email",
-// 			width: 300,
-// 			minWidth: 120,
-// 		},
-// 		{
-// 			title: "Kích hoạt",
-// 			dataIndex: "active",
-// 			key: "active",
-// 			width: 300,
-// 			minWidth: 120,
-// 		},
-// 		{
-// 			title: "Tên tài khoản",
-// 			dataIndex: "userName",
-// 			key: "userName",
-// 			width: 300,
-// 			minWidth: 120,
-// 		},
-// 		{
-// 			title: "Số điện thoại",
-// 			dataIndex: "phoneNumber",
-// 			key: "phoneNumber",
-// 			width: 300,
-// 			minWidth: 120,
-// 		},
-// 		{
-// 			title: "Xác nhận số điện thoại",
-// 			dataIndex: "phoneNumberConfirmed",
-// 			key: "phoneNumberConfirmed",
-// 			width: 300,
-// 			minWidth: 120,
-// 		},
-// 		{
-// 			title: "Hành động",
-// 			dataIndex: "phoneNumberConfirmed",
-// 			key: "phoneNumberConfirmed",
-// 			width: 300,
-// 			minWidth: 120,
-// 			render: (text: any, record: any) => (
-// 				<button className="bg-blue-500 text-white font-bold py-2 px-4 rounded" onClick={() => console.log(record)}>
-// 					{"Button Text"}
-// 				</button>
-// 			),
-// 		},
-// 	];
-//
+
 // 	const onSearch = async (info: { values: any; page: number; pageSize: number }) => {
 // 		return {
 // 			dataSource: [],

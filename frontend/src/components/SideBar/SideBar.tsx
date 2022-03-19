@@ -23,7 +23,7 @@ const SideBar = forwardRef((props, ref) => {
 	);
 
 	const renderMenu = (arrMenu: MenuListType[] = []): ReactNode => {
-		return arrMenu.map(({ key, icon, title, isSubMenu, children }) => {
+		return arrMenu.map(({ key, icon, title, isSubMenu, children, link }) => {
 			if (isSubMenu) {
 				return (
 					<SubMenu key={key} icon={icon} title={title}>
@@ -32,7 +32,7 @@ const SideBar = forwardRef((props, ref) => {
 				);
 			}
 			return (
-				<Menu.Item key={key} icon={icon}>
+				<Menu.Item key={key} icon={icon} onClick={() => router.push(link)}>
 					{title}
 				</Menu.Item>
 			);
@@ -67,41 +67,43 @@ type MenuListType = {
 	title: ReactNode;
 	isSubMenu?: boolean;
 	children?: MenuListType[];
+	link: string;
 };
 const menuList: MenuListType[] = [
 	{
 		key: "1",
-		title: "nav 1",
+		title: "Quản lý tài khoản",
 		icon: <UserOutlined />,
+		link: "/admin/account/user-account",
 	},
-	{
-		key: "2",
-		title: "nav 2",
-		icon: <VideoCameraOutlined />,
-	},
-	{
-		key: "3",
-		title: "nav 3",
-		icon: <UploadOutlined />,
-	},
-	{
-		key: "sub1",
-		title: "sub menu",
-		isSubMenu: true,
-		icon: <UploadOutlined />,
-		children: [
-			{
-				key: "4",
-				title: "nav 1",
-				icon: <UserOutlined />,
-			},
-			{
-				key: "5",
-				title: "nav 2",
-				icon: <VideoCameraOutlined />,
-			},
-		],
-	},
+	// {
+	// 	key: "2",
+	// 	title: "nav 2",
+	// 	icon: <VideoCameraOutlined />,
+	// },
+	// {
+	// 	key: "3",
+	// 	title: "nav 3",
+	// 	icon: <UploadOutlined />,
+	// },
+	// {
+	// 	key: "sub1",
+	// 	title: "sub menu",
+	// 	isSubMenu: true,
+	// 	icon: <UploadOutlined />,
+	// 	children: [
+	// 		{
+	// 			key: "4",
+	// 			title: "nav 1",
+	// 			icon: <UserOutlined />,
+	// 		},
+	// 		{
+	// 			key: "5",
+	// 			title: "nav 2",
+	// 			icon: <VideoCameraOutlined />,
+	// 		},
+	// 	],
+	// },
 ];
 SideBar.displayName = "SideBar";
 export default SideBar;

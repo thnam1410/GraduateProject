@@ -7,9 +7,9 @@ import "antd/dist/antd.css";
 const AxiosClient = axios.create({
 	baseURL: process.env.NEXT_PUBLIC_API_URL,
 	withCredentials: true,
-	httpsAgent: new https.Agent({
-		rejectUnauthorized: false,
-	}),
+	// httpsAgent: new https.Agent({
+	// 	rejectUnauthorized: false,
+	// }),
 });
 export const BASE_API_PATH = "/api";
 
