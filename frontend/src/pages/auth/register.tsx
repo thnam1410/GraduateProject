@@ -38,19 +38,19 @@ export default function Register() {
 		const password = values.password;
 		const confirmPassword = values.confirmPassword;
 		if (password !== confirmPassword) return ApiUtil.ToastError("Mật khẩu xác nhận không trùng nhau ! Vui lòng kiểm tra lại");
-		// ApiUtil.Axios.post<ApiResponse>(REGISTER_API, values)
-		// 	.then((res) => {
-		// 		if (res.data.success) {
-		// 			ApiUtil.ToastSuccess("Đăng ký thành công! Vui lòng đăng nhập");
-		// 			onRedirectLogin();
-		// 		} else {
-		// 			ApiUtil.ToastError("Đăng ký thất bại! Vui lòng thử lại");
-		// 			console.log(res?.data?.message);
-		// 		}
-		// 	})
-		// 	.catch((err) => {
-		// 		console.log(err);
-		// 	});
+		ApiUtil.Axios.post<ApiResponse>(REGISTER_API, values)
+			.then((res) => {
+				if (res.data.success) {
+					ApiUtil.ToastSuccess("Đăng ký thành công! Vui lòng đăng nhập");
+					onRedirectLogin();
+				} else {
+					ApiUtil.ToastError("Đăng ký thất bại! Vui lòng thử lại");
+					console.log(res?.data?.message);
+				}
+			})
+			.catch((err) => {
+				console.log(err);
+			});
 	});
 
 	return (
