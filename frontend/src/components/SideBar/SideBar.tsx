@@ -102,7 +102,7 @@ const menuList: MenuListType[] = [
 			{
 				key: "2.2",
 				title: "Quyền tài khoản",
-				link: "/admin/role/system-role",
+				link: "/admin/role/systemRole",
 			},
 		],
 	},
@@ -115,17 +115,17 @@ const menuList: MenuListType[] = [
 			{
 				key: "3.1",
 				title: "Bài đăng bất động sản",
-				link: "/admin/manage-real-estate/real-estate",
+				link: "/admin/manageRealEstate/realEstate",
 			},
 			{
 				key: "3.2",
 				title: "Bài đăng",
-				link: "/admin/manage-real-estate/post",
+				link: "/admin/manageRealEstate/post",
 			},
 			{
 				key: "3.3",
 				title: "Dự án",
-				link: "/admin/manage-real-estate/project",
+				link: "/admin/manageRealEstate/project",
 			},
 		],
 	},
@@ -138,7 +138,7 @@ const menuList: MenuListType[] = [
 			{
 				key: "4.1",
 				title: "Ưu đãi",
-				link: "/admin/manage-offer-package/offer-package",
+				link: "/admin/manageOfferPackage/offerPackage",
 			},
 		],
 	},
@@ -152,7 +152,7 @@ const menuList: MenuListType[] = [
 			{
 				key: "5.1",
 				title: "Người bán",
-				link: "/admin/manage-sale-person/sale-person",
+				link: "/admin/manageSalePerson/salePerson",
 			},
 		],
 	},
