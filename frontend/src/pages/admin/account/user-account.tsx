@@ -4,8 +4,9 @@ import AdminLayout, { useSessionContext } from "~/src/components/layout/AdminLay
 import "antd/dist/antd.css";
 import { Table, Modal, Button } from "antd";
 import UserAccountCreate from "../account/user-account-create";
-
+import { ExclamationCircleOutlined } from "@ant-design/icons";
 const UserAccount = () => {
+	const { confirm } = Modal;
 	const columns = [
 		{
 			title: "Họ và tên",
@@ -71,7 +72,7 @@ const UserAccount = () => {
 					<button
 						data-tooltip-target="tooltip-dark"
 						className="flex-none hover:bg-sky-700 bg-red-500 text-white font-bold py-2 px-2 rounded mr-2"
-						onClick={() => console.log(record)}
+						onClick={showDeleteConfirm}
 						type="button"
 					>
 						<svg className="w-5 h-5 mr-1">
@@ -98,7 +99,22 @@ const UserAccount = () => {
 	const onFinish = () => {
 		setVisible(true);
 	};
-
+	const showDeleteConfirm = () => {
+		return confirm({
+			title: "Bạn có muốn xóa dữ liệu?",
+			icon: <ExclamationCircleOutlined />,
+			// content: "",
+			okText: "Đồng ý",
+			okType: "danger",
+			cancelText: "Quay lại",
+			onOk() {
+				console.log("OK");
+			},
+			onCancel() {
+				console.log("Cancel");
+			},
+		});
+	};
 	const dataSource = [
 		{
 			fullName: "Phạm Ngọc Danh",

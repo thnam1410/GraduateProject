@@ -3,8 +3,11 @@ import { signOut } from "next-auth/react";
 import AdminLayout, { useSessionContext } from "~/src/components/layout/AdminLayout";
 import "antd/dist/antd.css";
 import { Table, Modal, Button } from "antd";
+import { ExclamationCircleOutlined } from "@ant-design/icons";
 
 const Project = () => {
+	const { confirm } = Modal;
+
 	const columns = [
 		{
 			title: "Họ và tên",
@@ -70,7 +73,7 @@ const Project = () => {
 					<button
 						data-tooltip-target="tooltip-dark"
 						className="flex-none hover:bg-sky-700 bg-red-500 text-white font-bold py-2 px-2 rounded mr-2"
-						onClick={() => console.log(record)}
+						onClick={showDeleteConfirm}
 						type="button"
 					>
 						<svg className="w-5 h-5 mr-1">
@@ -96,6 +99,24 @@ const Project = () => {
 
 	const onFinish = () => {
 		setVisible(true);
+	};
+
+	const showDeleteConfirm = () => {
+		console.log("check");
+		return confirm({
+			title: "Are you sure delete this task?",
+			icon: <ExclamationCircleOutlined />,
+			content: "Some descriptions",
+			okText: "Yes",
+			okType: "danger",
+			cancelText: "No",
+			onOk() {
+				console.log("OK");
+			},
+			onCancel() {
+				console.log("Cancel");
+			},
+		});
 	};
 
 	const dataSource = [
