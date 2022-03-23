@@ -1,7 +1,16 @@
 import React, { forwardRef, ReactNode, useImperativeHandle } from "react";
 import { useRouter } from "next/router";
 import { Layout, Menu } from "antd";
-import { HomeOutlined, UploadOutlined, UserOutlined, VideoCameraOutlined } from "@ant-design/icons";
+import {
+	HomeOutlined,
+	UploadOutlined,
+	UserOutlined,
+	VideoCameraOutlined,
+	KeyOutlined,
+	UnorderedListOutlined,
+	GiftOutlined,
+	UsergroupAddOutlined,
+} from "@ant-design/icons";
 import "antd/dist/antd.css";
 const { SubMenu } = Menu;
 
@@ -32,7 +41,7 @@ const SideBar = forwardRef((props, ref) => {
 				);
 			}
 			return (
-				<Menu.Item key={key} icon={icon} onClick={() => router.push(link)}>
+				<Menu.Item key={key} icon={icon} onClick={() => router.push(link || "")}>
 					{title}
 				</Menu.Item>
 			);
@@ -63,18 +72,89 @@ const SideBar = forwardRef((props, ref) => {
 });
 type MenuListType = {
 	key: string | number;
-	icon: ReactNode;
+	icon?: ReactNode;
 	title: ReactNode;
 	isSubMenu?: boolean;
 	children?: MenuListType[];
-	link: string;
+	link?: string;
 };
 const menuList: MenuListType[] = [
 	{
 		key: "1",
 		title: "Quản lý tài khoản",
 		icon: <UserOutlined />,
-		link: "/admin/account/user-account",
+		isSubMenu: true,
+		children: [
+			{
+				key: "1.1",
+				title: "Tài khoản",
+				// icon: <UserOutlined />,
+				link: "/admin/account/user-account",
+			},
+		],
+	},
+	{
+		key: "2",
+		title: "Quản lý phân quyền",
+		icon: <KeyOutlined />,
+		isSubMenu: true,
+		children: [
+			{
+				key: "2.2",
+				title: "Quyền tài khoản",
+				link: "/admin/role/system-role",
+			},
+		],
+	},
+	{
+		key: "3",
+		title: "Quản lý bài viết",
+		icon: <UnorderedListOutlined />,
+		isSubMenu: true,
+		children: [
+			{
+				key: "3.1",
+				title: "Bài đăng bất động sản",
+				link: "/admin/manage-real-estate/real-estate",
+			},
+			{
+				key: "3.2",
+				title: "Bài đăng",
+				link: "/admin/manage-real-estate/post",
+			},
+			{
+				key: "3.3",
+				title: "Dự án",
+				link: "/admin/manage-real-estate/project",
+			},
+		],
+	},
+	{
+		key: "4",
+		title: "Gói ưu đãi",
+		icon: <GiftOutlined />,
+		isSubMenu: true,
+		children: [
+			{
+				key: "4.1",
+				title: "Ưu đãi",
+				link: "/admin/manage-offer-package/offer-package",
+			},
+		],
+	},
+
+	{
+		key: "5",
+		title: "Quản lý người bán",
+		icon: <UsergroupAddOutlined />,
+		isSubMenu: true,
+		children: [
+			{
+				key: "5.1",
+				title: "Người bán",
+				link: "/admin/manage-sale-person/sale-person",
+			},
+		],
 	},
 	// {
 	// 	key: "2",
@@ -91,18 +171,18 @@ const menuList: MenuListType[] = [
 	// 	title: "sub menu",
 	// 	isSubMenu: true,
 	// 	icon: <UploadOutlined />,
-	// 	children: [
-	// 		{
-	// 			key: "4",
-	// 			title: "nav 1",
-	// 			icon: <UserOutlined />,
-	// 		},
-	// 		{
-	// 			key: "5",
-	// 			title: "nav 2",
-	// 			icon: <VideoCameraOutlined />,
-	// 		},
-	// 	],
+	// children: [
+	// 	{
+	// 		key: "4",
+	// 		title: "nav 1",
+	// 		icon: <UserOutlined />,
+	// 	},
+	// 	{
+	// 		key: "5",
+	// 		title: "nav 2",
+	// 		icon: <VideoCameraOutlined />,
+	// 	},
+	// ],
 	// },
 ];
 SideBar.displayName = "SideBar";
