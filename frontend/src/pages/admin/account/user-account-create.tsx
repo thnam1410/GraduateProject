@@ -1,6 +1,10 @@
-import React, { ReactElement } from "react";
+import React, { ReactElement, useState } from "react";
 import { signOut } from "next-auth/react";
 import AdminLayout, { useSessionContext } from "~/src/components/layout/AdminLayout";
+import { ApiUtil } from "~/src/pages/utils/ApiUtil";
+import { ApiResponse } from "~/src/pages/types/api.type";
+import { REGISTER_API } from "~/src/constants/apis/auth.api";
+
 import "antd/dist/antd.css";
 import { Table } from "antd";
 import { useForm } from "react-hook-form";
@@ -20,6 +24,7 @@ interface IFormInput {
 }
 const UserAccountCreate = () => {
 	const context = useSessionContext();
+	const [createSucces, setCreateSucces] = useState<boolean | null>(false);
 	const {
 		register,
 		formState: { errors },
@@ -28,29 +33,32 @@ const UserAccountCreate = () => {
 	const onFinish = handleSubmit((values: IFormInput) => {
 		const password = values.password;
 		const confirmPassword = values.confirmPassword;
-		// if (password !== confirmPassword) return ApiUtil.ToastError("Mật khẩu xác nhận không trùng nhau ! Vui lòng kiểm tra lại");
-		// ApiUtil.Axios.post<ApiResponse>(REGISTER_API, values)
-		// 	.then((res) => {
-		// 		if (res.data.success) {
-		// 			ApiUtil.ToastSuccess("Đăng ký thành công! Vui lòng đăng nhập");
-		// 			onRedirectLogin();
-		// 		} else {
-		// 			ApiUtil.ToastError("Đăng ký thất bại! Vui lòng thử lại");
-		// 			console.log(res?.data?.message);
-		// 		}
-		// 	})
-		// 	.catch((err) => {
-		// 		console.log(err);
-		// 	});
+		if (password !== confirmPassword) return ApiUtil.ToastError("Mật khẩu xác nhận không trùng nhau ! Vui lòng kiểm tra lại");
+		ApiUtil.Axios.post<ApiResponse>(REGISTER_API, values)
+			.then((res) => {
+				if (res.data.success) {
+					ApiUtil.ToastSuccess("Đăng ký thành công! Vui lòng đăng nhập");
+				} else {
+					ApiUtil.ToastError("Đăng ký thất bại! Vui lòng thử lại");
+					console.log(res?.data?.message);
+				}
+			})
+			.catch((err) => {
+				console.log(err);
+			});
 	});
 
 	return (
 		<>
 			<div className="max-w-md mx-auto space-y-6">
 				<form onSubmit={onFinish}>
-					<label className="text-sm font-bold opacity-70">Họ và tên</label>
+					<label className="text-sm font-bold opacity-70" htmlFor="fullName">
+						Họ và tên
+					</label>
 					<input type="text" className="p-3 mt-2 mb-4 w-full bg-slate-200 rounded" id="fullName" placeholder="Họ và tên" />
-					<label className=" text-sm font-bold opacity-70">Email</label>
+					<label className=" text-sm font-bold opacity-70" htmlFor="email">
+						Email
+					</label>
 					<input
 						type="email"
 						className="p-3 mt-2 mb-4 w-full bg-slate-200 rounded"
@@ -179,6 +187,14 @@ const UserAccountCreate = () => {
 						name="confirmPassword"
 						render={({ message }) => (message ? <p className="text-red-400">{message}</p> : null)}
 					/>
+					<div className="mb-6 text-center">
+						<button
+							className="w-full px-4 py-2 font-bold text-white bg-blue-500 rounded-full hover:bg-blue-700 focus:outline-none focus:shadow-outline"
+							type="submit"
+						>
+							Đăng ký
+						</button>
+					</div>
 				</form>
 			</div>
 		</>
@@ -186,19 +202,3 @@ const UserAccountCreate = () => {
 };
 
 export default UserAccountCreate;
-{
-	/* <select className="w-full p-3 mt-2 mb-4 w-full bg-slate-200 rounded border-2 border-slate-200 focus:border-slate-600 focus:outline-none">
-						<option value="">Javascript</option>
-						<option value="">Ruby</option>
-						<option value="">Python</option>
-						<option value="">PHP</option>
-						<option value="">Java</option>
-					</select> */
-}
-{
-	/* <input
-						type="submit"
-						className="py-3 px-6 my-2 bg-emerald-500 text-white font-medium rounded hover:bg-indigo-500 cursor-pointer ease-in-out duration-300"
-						value="Send"
-					/> */
-}

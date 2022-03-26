@@ -250,41 +250,5 @@ export default function Register() {
 				</div>
 			</div>
 		</div>
-		// <Layout title="Đăng ký">
-		// 	<Auth title="Đăng ký">
-		// 		<form>
-		// 			<Input fullWidth>
-		// 				<input type="text" placeholder="Tên tài khoản" />
-		// 			</Input>
-		// 			<Input fullWidth>
-		// 				<input type="email" placeholder="Địa chỉ Email" />
-		// 			</Input>
-		// 			<Input fullWidth>
-		// 				<input type="password" placeholder="Mật khẩu" />
-		// 			</Input>
-		// 			<Input fullWidth>
-		// 				<input type="password" placeholder="Xác nhận mật khẩu" />
-		// 			</Input>
-		// 			<Input fullWidth>
-		// 				<input type="number" placeholder="Số điện thoại" />
-		// 			</Input>
-		// 			<Input fullWidth>
-		// 				<input type="text" placeholder="Mô tả dịch vụ" />
-		// 			</Input>
-		// 			<Input fullWidth>
-		// 				<input type="text" placeholder="Thành viên giới thiệu" />
-		// 			</Input>
-		// 			<Button onClick={() => onFinish(dataSource)} status="Success" type="button" shape="SemiRound" fullWidth>
-		// 				Đăng ký
-		// 			</Button>
-		// 		</form>
-		// 		<p>
-		// 			Bank đã có tài khoản?{" "}
-		// 			<Link href="/auth/login">
-		// 				<a>Đăng nhập</a>
-		// 			</Link>
-		// 		</p>
-		// 	</Auth>
-		// </Layout>
 	);
 }
