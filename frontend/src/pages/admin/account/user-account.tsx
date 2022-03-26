@@ -1,12 +1,16 @@
-import React, { ReactElement, useState } from "react";
+import React, { ReactElement, useState, useEffect } from "react";
 import { signOut } from "next-auth/react";
 import AdminLayout, { useSessionContext } from "~/src/components/layout/AdminLayout";
 import "antd/dist/antd.css";
 import { Table, Modal, Button } from "antd";
-import UserAccountCreate from "../account/user-account-create";
+import UserAccountCreate from "../../../components/pages/admin/account/user-account-create";
 import { ExclamationCircleOutlined } from "@ant-design/icons";
+import CustomModal, { ModalRef } from "~/src/components/CustomModal/CustomModal";
 const UserAccount = () => {
 	const { confirm } = Modal;
+	const modalRef = React.useRef<ModalRef>(null);
+	const context = useSessionContext();
+	console.log("context", context);
 	const columns = [
 		{
 			title: "Họ và tên",
@@ -61,7 +65,7 @@ const UserAccount = () => {
 					<button
 						data-tooltip-target="tooltip-dark"
 						className="flex-none hover:bg-sky-700 bg-blue-500 text-white font-bold py-2 px-2 rounded mr-2"
-						onClick={onFinish}
+						onClick={onCreate}
 						type="submit"
 					>
 						<svg className="w-5 h-5" viewBox="0 0 183.792 183.792">
@@ -84,21 +88,11 @@ const UserAccount = () => {
 		},
 	];
 
-	const context = useSessionContext();
-	const [loading, setLoading] = useState<boolean | null>(false);
-	const [visible, setVisible] = useState<boolean>(false);
-
-	const handleOk = () => {
-		setVisible(true);
+	const onCreate = () => {
+		console.log("asdasdsadasd");
+		modalRef.current?.onOpen(<UserAccountCreate onClose={() => modalRef.current?.onClose()} />, "Tạo mới");
 	};
 
-	const handleCancel = () => {
-		setVisible(false);
-	};
-
-	const onFinish = () => {
-		setVisible(true);
-	};
 	const showDeleteConfirm = () => {
 		return confirm({
 			title: "Bạn có muốn xóa dữ liệu?",
@@ -137,27 +131,12 @@ const UserAccount = () => {
 	return (
 		<div>
 			<div className="relative h-20 r-0">
-				<button className="absolute top-0 right-0 h-10 w-25 bg-blue-500 text-white font-bold py-2 px-4 rounded" onClick={onFinish}>
+				<button className="absolute top-0 right-0 h-10 w-25 bg-blue-500 text-white font-bold py-2 px-4 rounded" onClick={onCreate}>
 					{"Tạo mới"}
 				</button>
 			</div>
-			<Modal
-				visible={visible}
-				title="Tạo mới"
-				onOk={handleOk}
-				onCancel={handleCancel}
-				footer={[
-					// <Button key="submit" type="primary" loading={false} onClick={handleOk}>
-					// 	Lưu
-					// </Button>,
-					<Button key="back" onClick={handleCancel}>
-						Quay lại
-					</Button>,
-				]}
-			>
-				<UserAccountCreate></UserAccountCreate>
-			</Modal>
 			<Table style={{ width: "auto" }} dataSource={dataSource} columns={columns} />
+			<CustomModal ref={modalRef} />
 		</div>
 	);
 };

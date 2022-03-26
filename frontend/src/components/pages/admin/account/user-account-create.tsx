@@ -1,4 +1,4 @@
-import React, { ReactElement, useState } from "react";
+import React, { ReactElement, useState, useEffect } from "react";
 import { signOut } from "next-auth/react";
 import AdminLayout, { useSessionContext } from "~/src/components/layout/AdminLayout";
 import { ApiUtil } from "~/src/pages/utils/ApiUtil";
@@ -22,7 +22,12 @@ interface IFormInput {
 	password: string;
 	confirmPassword: string;
 }
-const UserAccountCreate = () => {
+
+interface UserAccountProps {
+	onFinishModal?: () => void;
+	onClose: () => void;
+}
+const UserAccountCreate = (props: UserAccountProps) => {
 	const context = useSessionContext();
 	const [createSucces, setCreateSucces] = useState<boolean | null>(false);
 	const {
@@ -30,22 +35,31 @@ const UserAccountCreate = () => {
 		formState: { errors },
 		handleSubmit,
 	} = useForm<IFormInput>();
+	useEffect(() => {
+		if (createSucces) {
+		}
+	}, [createSucces]);
+
 	const onFinish = handleSubmit((values: IFormInput) => {
 		const password = values.password;
 		const confirmPassword = values.confirmPassword;
 		if (password !== confirmPassword) return ApiUtil.ToastError("Mật khẩu xác nhận không trùng nhau ! Vui lòng kiểm tra lại");
-		ApiUtil.Axios.post<ApiResponse>(REGISTER_API, values)
-			.then((res) => {
-				if (res.data.success) {
-					ApiUtil.ToastSuccess("Đăng ký thành công! Vui lòng đăng nhập");
-				} else {
-					ApiUtil.ToastError("Đăng ký thất bại! Vui lòng thử lại");
-					console.log(res?.data?.message);
-				}
-			})
-			.catch((err) => {
-				console.log(err);
-			});
+		props.onFinishModal;
+
+		// ApiUtil.Axios.post<ApiResponse>(REGISTER_API, values)
+		// 	.then((res) => {
+		// 		if (res.data.success) {
+		// 			ApiUtil.ToastSuccess("Tạo mới tài khoản thành công");
+		// 			props.onFinishModal;
+		// 			setCreateSucces(true);
+		// 		} else {
+		// 			ApiUtil.ToastError("Tạo mới tài khoản thất bại");
+		// 			console.log(res?.data?.message);
+		// 		}
+		// 	})
+		// 	.catch((err) => {
+		// 		console.log(err);
+		// 	});
 	});
 
 	return (
@@ -196,6 +210,7 @@ const UserAccountCreate = () => {
 						</button>
 					</div>
 				</form>
+				<button onClick={() => props?.onClose()}>Test</button>
 			</div>
 		</>
 	);
