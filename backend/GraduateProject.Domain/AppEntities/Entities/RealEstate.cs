@@ -25,11 +25,11 @@ public class RealEstate : TrackableEntity<Guid>
     
     public Guid? ProjectId { get; set; }
     public Project Project { get; set; }
-    public MasterData Country { get; set; }
-    public Guid CountryId { get; set; }
-    public MasterData District { get; set; }
+    public MasterData Province { get; set; }
+    public Guid ProvinceId { get; set; }
+    public MasterData District { get; set; } // Quận
     public Guid DistrictId { get; set; }
-    public MasterData Ward { get; set; }
+    public MasterData Ward { get; set; } // Phường
     public Guid WardId { get; set; }
     public MasterData PriceType { get; set; }
     public Guid PriceTypeId { get; set; }

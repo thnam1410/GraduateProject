@@ -9,5 +9,5 @@ public class OfferPackage : TrackableEntity<Guid>
     public decimal Price { get; set; }
     public int ActiveDay { get; set; }
     public bool Active { get; set; }
-    public ICollection<Post> Posts { get; set; } = new List<Post>();
+    // public ICollection<Post> Posts { get; set; } = new List<Post>();
 }

@@ -11,4 +11,10 @@ where TKey: struct
     Task UpdateAsync(T entity);
     Task UpdateRangeAsync(List<T> entities);
     Task DeleteAsync(T entity);
+    Task<T> FindByIdAsync(TKey id);
+    Task<T> FindAsync(T entity);
+    Task AfterInsertAsync(T entity);
+    Task BeforeDeleteAsync(T entity);
+    Task AfterDeleteAsync(T entity);
+
 }

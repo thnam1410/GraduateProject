@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore;
 
 namespace GraduateProject.Domain.Common;
 
@@ -44,4 +45,22 @@ public class EfRepository<T, TKey> : IRepository<T, TKey>
         await Task.CompletedTask;
         this._dbSet.Remove(entity);
     }
+
+    public virtual async Task<T> FindByIdAsync(TKey id)
+    {
+        T byIdAsync = await this._dbSet.FirstAsync(x => x.Id.Equals((object) id));
+        return byIdAsync;
+    }
+    public virtual async Task<T> FindAsync(T entity)
+    {
+        T async = await this._dbSet.FindAsync((object) entity.Id);
+        return async;
+    }
+
+    public virtual async Task AfterInsertAsync(T entity) => await Task.CompletedTask;
+
+    public virtual async Task BeforeDeleteAsync(T entity) => await Task.CompletedTask;
+
+    public virtual async Task AfterDeleteAsync(T entity) => await Task.CompletedTask;
+
 }

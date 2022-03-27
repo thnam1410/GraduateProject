@@ -10,6 +10,7 @@ public static class ServiceCollectionExtensions
     {
         services.AddAutoMapper(Assembly.GetExecutingAssembly());
         services.AddTransient<IObjectMapper, BaseObjectMapper>();
+        services.AddRealEstateServices();
         return services;
     }
     

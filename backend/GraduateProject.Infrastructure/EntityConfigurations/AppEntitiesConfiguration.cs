@@ -38,10 +38,10 @@ public static class AppEntitiesConfiguration
                 .WithMany(x => x.Posts)
                 .HasForeignKey(x => x.UserAccountId)
                 .OnDelete(DeleteBehavior.ClientSetNull);
-            entity.HasOne(x => x.OfferPackage)
-                .WithMany(x => x.Posts)
-                .HasForeignKey(x => x.OfferPackageId)
-                .OnDelete(DeleteBehavior.ClientSetNull);
+            // entity.HasOne(x => x.OfferPackage)
+            //     .WithMany(x => x.Posts)
+            //     .HasForeignKey(x => x.OfferPackageId)
+            //     .OnDelete(DeleteBehavior.ClientSetNull);
             entity.HasOne(x => x.SalePersonInfo)
                 .WithMany(x => x.Posts)
                 .HasForeignKey(x => x.SalePersonInfoId)
@@ -64,7 +64,7 @@ public static class AppEntitiesConfiguration
             entity.Property(x => x.Direction)
                 .HasConversion(x => x.ToString(), x => (HomeDirection) Enum.Parse(typeof(HomeDirection), x));
             entity.HasOne(x => x.Project).WithMany(x => x.RealEstates).HasForeignKey(x => x.ProjectId).OnDelete(DeleteBehavior.ClientSetNull);
-            entity.HasOne(x => x.Country).WithMany().HasForeignKey(x => x.CountryId).OnDelete(DeleteBehavior.ClientSetNull);
+            entity.HasOne(x => x.Province).WithMany().HasForeignKey(x => x.ProvinceId).OnDelete(DeleteBehavior.ClientSetNull);
             entity.HasOne(x => x.District).WithMany().HasForeignKey(x => x.DistrictId).OnDelete(DeleteBehavior.ClientSetNull);
             entity.HasOne(x => x.Ward).WithMany().HasForeignKey(x => x.WardId).OnDelete(DeleteBehavior.ClientSetNull);
             entity.HasOne(x => x.PriceType).WithMany().HasForeignKey(x => x.PriceTypeId).OnDelete(DeleteBehavior.ClientSetNull);
