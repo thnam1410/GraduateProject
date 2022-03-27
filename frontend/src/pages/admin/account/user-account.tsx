@@ -6,54 +6,19 @@ import { Table, Modal, Button } from "antd";
 import UserAccountCreate from "../../../components/pages/admin/account/user-account-create";
 import { ExclamationCircleOutlined } from "@ant-design/icons";
 import CustomModal, { ModalRef } from "~/src/components/CustomModal/CustomModal";
+import UserAccountColumn from "~/src/components/ColumnComponent/UserAccountColumn";
+import { ApiUtil } from "../../utils/ApiUtil";
+import { ApiResponse } from "../../types/api.type";
+import { LOAD_USER_ACCOUNT } from "~/src/constants/apis/auth.api";
 const UserAccount = () => {
 	const { confirm } = Modal;
 	const modalRef = React.useRef<ModalRef>(null);
 	const context = useSessionContext();
+	// const [data,setData] = useState<>();
 	console.log("context", context);
+
 	const columns = [
-		{
-			title: "Họ và tên",
-			dataIndex: "fullName",
-			key: "fullName",
-			width: 500,
-			minWidth: 120,
-		},
-		{
-			title: "Email",
-			dataIndex: "email",
-			key: "email",
-			width: 300,
-			minWidth: 120,
-		},
-		{
-			title: "Kích hoạt",
-			dataIndex: "active",
-			key: "active",
-			width: 300,
-			minWidth: 120,
-		},
-		{
-			title: "Tên tài khoản",
-			dataIndex: "userName",
-			key: "userName",
-			width: 300,
-			minWidth: 120,
-		},
-		{
-			title: "Số điện thoại",
-			dataIndex: "phoneNumber",
-			key: "phoneNumber",
-			width: 300,
-			minWidth: 120,
-		},
-		{
-			title: "Xác nhận số điện thoại",
-			dataIndex: "phoneNumberConfirmed",
-			key: "phoneNumberConfirmed",
-			width: 300,
-			minWidth: 120,
-		},
+		...UserAccountColumn.columns,
 		{
 			title: "Hành động",
 			dataIndex: "phoneNumberConfirmed",
@@ -88,8 +53,27 @@ const UserAccount = () => {
 		},
 	];
 
+	useEffect(() => {
+		loadData();
+	});
+
+	const loadData = () => {
+		ApiUtil.Axios.get<ApiResponse>(LOAD_USER_ACCOUNT)
+			.then((res) => {
+				if (res.data.success) {
+					console.log("check Data", res.data);
+					// ApiUtil.ToastSuccess("Đăng ký thành công! Vui lòng đăng nhập");
+				} else {
+					// ApiUtil.ToastError("Đăng ký thất bại! Vui lòng thử lại");
+					// console.log(res?.data?.message);
+				}
+			})
+			.catch((err) => {
+				console.log(err);
+			});
+	};
+
 	const onCreate = () => {
-		console.log("asdasdsadasd");
 		modalRef.current?.onOpen(<UserAccountCreate onClose={() => modalRef.current?.onClose()} />, "Tạo mới");
 	};
 
@@ -97,7 +81,6 @@ const UserAccount = () => {
 		return confirm({
 			title: "Bạn có muốn xóa dữ liệu?",
 			icon: <ExclamationCircleOutlined />,
-			// content: "",
 			okText: "Đồng ý",
 			okType: "danger",
 			cancelText: "Quay lại",
@@ -109,24 +92,6 @@ const UserAccount = () => {
 			},
 		});
 	};
-	const dataSource = [
-		{
-			fullName: "Phạm Ngọc Danh",
-			email: "phamngocdanhhcm@gmail.com",
-			active: true,
-			userName: "phamngocdanhhcm",
-			phoneNumber: "0927140859",
-			phoneNumberConfirmed: true,
-		},
-		{
-			fullName: "Phạm Ngọc Kiên",
-			email: "phamngocdanhhcm@gmail.com",
-			active: true,
-			userName: "phamngockienhcm",
-			phoneNumber: "0932621181",
-			phoneNumberConfirmed: false,
-		},
-	];
 
 	return (
 		<div>
@@ -140,6 +105,25 @@ const UserAccount = () => {
 		</div>
 	);
 };
+
+const dataSource = [
+	{
+		fullName: "Phạm Ngọc Danh",
+		email: "phamngocdanhhcm@gmail.com",
+		active: true,
+		userName: "phamngocdanhhcm",
+		phoneNumber: "0927140859",
+		phoneNumberConfirmed: true,
+	},
+	{
+		fullName: "Phạm Ngọc Kiên",
+		email: "phamngocdanhhcm@gmail.com",
+		active: true,
+		userName: "phamngockienhcm",
+		phoneNumber: "0932621181",
+		phoneNumberConfirmed: false,
+	},
+];
 
 UserAccount.getLayout = function getLayout(page: ReactElement) {
 	return <AdminLayout>{page}</AdminLayout>;

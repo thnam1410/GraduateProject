@@ -35,10 +35,7 @@ const UserAccountCreate = (props: UserAccountProps) => {
 		formState: { errors },
 		handleSubmit,
 	} = useForm<IFormInput>();
-	useEffect(() => {
-		if (createSucces) {
-		}
-	}, [createSucces]);
+	useEffect(() => {});
 
 	const onFinish = handleSubmit((values: IFormInput) => {
 		const password = values.password;
