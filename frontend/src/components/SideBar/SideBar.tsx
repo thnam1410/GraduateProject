@@ -9,7 +9,7 @@ import {
 	KeyOutlined,
 	UnorderedListOutlined,
 	GiftOutlined,
-	UsergroupAddOutlined,
+	UsergroupAddOutlined, SettingOutlined,
 } from "@ant-design/icons";
 import "antd/dist/antd.css";
 const { SubMenu } = Menu;
@@ -56,15 +56,16 @@ const SideBar = forwardRef((props, ref) => {
 			collapsible
 			collapsed={collapsed}
 			theme={"light"}
+			width={250}
 		>
 			<div
 				className="flex justify-center items-center text-left text-blueGray-600 mr-0 inline-block whitespace-nowrap text-lg uppercase font-bold p-4 px-4 cursor-pointer mb-5"
 				style={{ background: "rgba(255, 255, 255, 0.3)", height: 70, borderBottom: "1px solid #e5e7eb" }}
-				onClick={() => router.push("admin")}
+				onClick={() => router.push("/admin")}
 			>
 				{collapsed ? <HomeOutlined /> : "Real Estate"}
 			</div>
-			<Menu theme="light" mode="inline" defaultSelectedKeys={["1"]}>
+			<Menu theme="light" mode="inline" defaultSelectedKeys={[router.pathname.toString()]}>
 				{renderMenu(menuList)}
 			</Menu>
 		</Sider>
@@ -142,7 +143,6 @@ const menuList: MenuListType[] = [
 			},
 		],
 	},
-
 	{
 		key: "5",
 		title: "Quản lý người bán",
@@ -156,34 +156,12 @@ const menuList: MenuListType[] = [
 			},
 		],
 	},
-	// {
-	// 	key: "2",
-	// 	title: "nav 2",
-	// 	icon: <VideoCameraOutlined />,
-	// },
-	// {
-	// 	key: "3",
-	// 	title: "nav 3",
-	// 	icon: <UploadOutlined />,
-	// },
-	// {
-	// 	key: "sub1",
-	// 	title: "sub menu",
-	// 	isSubMenu: true,
-	// 	icon: <UploadOutlined />,
-	// children: [
-	// 	{
-	// 		key: "4",
-	// 		title: "nav 1",
-	// 		icon: <UserOutlined />,
-	// 	},
-	// 	{
-	// 		key: "5",
-	// 		title: "nav 2",
-	// 		icon: <VideoCameraOutlined />,
-	// 	},
-	// ],
-	// },
+	{
+		key: "/admin/masterdata",
+		title: "Danh mục",
+		icon: <SettingOutlined/>,
+		link: "/admin/masterdata"
+	}
 ];
 SideBar.displayName = "SideBar";
 export default SideBar;

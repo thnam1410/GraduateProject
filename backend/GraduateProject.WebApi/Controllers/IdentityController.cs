@@ -14,8 +14,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GraduateProject.Controllers;
 
-[Authorize]
 [Route("/api/identity")]
+[Authorize]
 public class IdentityController : ControllerBase
 {
     private readonly IUserAccountRepository _userAccountRepository;

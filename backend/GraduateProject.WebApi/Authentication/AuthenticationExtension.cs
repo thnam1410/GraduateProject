@@ -47,7 +47,7 @@ public static class AuthenticationExtension
             // Cookie settings
             options.Cookie.Name = "GraduateProjectCookie";
             options.Cookie.HttpOnly = true;
-            options.Cookie.SameSite = SameSiteMode.None;
+            options.Cookie.SameSite = SameSiteMode.Lax;
             options.ExpireTimeSpan = expiredTime;
 
             options.LoginPath = "/api/login";
