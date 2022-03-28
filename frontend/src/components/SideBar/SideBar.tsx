@@ -115,17 +115,17 @@ const menuList: MenuListType[] = [
 			{
 				key: "3.1",
 				title: "Bài đăng bất động sản",
-				link: "/admin/manageRealEstate/Real-Estate",
+				link: "/admin/manage-real-estate/Real-Estate",
 			},
 			{
 				key: "3.2",
 				title: "Bài đăng",
-				link: "/admin/manageRealEstate/post",
+				link: "/admin/manage-real-estate/post",
 			},
 			{
 				key: "3.3",
 				title: "Dự án",
-				link: "/admin/manageRealEstate/project",
+				link: "/admin/manage-real-estate/project",
 			},
 		],
 	},
@@ -138,7 +138,7 @@ const menuList: MenuListType[] = [
 			{
 				key: "4.1",
 				title: "Ưu đãi",
-				link: "/admin/manageOfferPackage/Offer-Package",
+				link: "/admin/manage-offer-package/Offer-Package",
 			},
 		],
 	},
@@ -152,7 +152,7 @@ const menuList: MenuListType[] = [
 			{
 				key: "5.1",
 				title: "Người bán",
-				link: "/admin/manageSalePerson/Sale-Person",
+				link: "/admin/manage-sale-person/Sale-Person",
 			},
 		],
 	},

@@ -10,12 +10,13 @@ import UserAccountColumn from "~/src/components/ColumnComponent/UserAccountColum
 import { ApiUtil } from "../../utils/ApiUtil";
 import { ApiResponse } from "../../types/api.type";
 import { LOAD_USER_ACCOUNT } from "~/src/constants/apis/auth.api";
+import { UserAccountListDto, UserAccountTable } from "~/src/types/UserAccountListDto";
+
 const UserAccount = () => {
 	const { confirm } = Modal;
 	const modalRef = React.useRef<ModalRef>(null);
 	const context = useSessionContext();
-	// const [data,setData] = useState<>();
-	console.log("context", context);
+	const [data, setData] = useState<UserAccountTable[]>();
 
 	const columns = [
 		...UserAccountColumn.columns,
@@ -58,10 +59,28 @@ const UserAccount = () => {
 	});
 
 	const loadData = () => {
+		// 2 là như này
 		ApiUtil.Axios.get<ApiResponse>(LOAD_USER_ACCOUNT)
 			.then((res) => {
 				if (res.data.success) {
-					console.log("check Data", res.data);
+					const dataApi = res.data.result as UserAccountListDto[];
+					let dataTable = dataApi.map((item) => ({
+						fullName: item.fullName,
+						email: item.email,
+						active: item.active,
+						userName: item.userName,
+						phoneNumber: item.phoneNumber,
+						roleId: item.userRoles[0].roleId,
+						code: item.userRoles[0].role.code,
+					})) as UserAccountTable[];
+					setData(dataTable);
+					// lúc này cái item tự nó hiểu là 1 thằng DTO
+					//còn trc đó m để any thì nó k hiểu
+					//đối với trường hợp any thì ko xài dc arrow function =>    .map((item: any) => ...)
+					// cái này khai báo sâu như dto dưới BE luôn hả
+					//xài cái gì, khai cái đó, k nhất thiết phải copy y chang
+					// okay anh iu
+					// setData();
 					// ApiUtil.ToastSuccess("Đăng ký thành công! Vui lòng đăng nhập");
 				} else {
 					// ApiUtil.ToastError("Đăng ký thất bại! Vui lòng thử lại");
@@ -100,30 +119,11 @@ const UserAccount = () => {
 					{"Tạo mới"}
 				</button>
 			</div>
-			<Table style={{ width: "auto" }} dataSource={dataSource} columns={columns} />
+			<Table style={{ width: "auto" }} dataSource={data} columns={columns} />
 			<CustomModal ref={modalRef} />
 		</div>
 	);
 };
-
-const dataSource = [
-	{
-		fullName: "Phạm Ngọc Danh",
-		email: "phamngocdanhhcm@gmail.com",
-		active: true,
-		userName: "phamngocdanhhcm",
-		phoneNumber: "0927140859",
-		phoneNumberConfirmed: true,
-	},
-	{
-		fullName: "Phạm Ngọc Kiên",
-		email: "phamngocdanhhcm@gmail.com",
-		active: true,
-		userName: "phamngockienhcm",
-		phoneNumber: "0932621181",
-		phoneNumberConfirmed: false,
-	},
-];
 
 UserAccount.getLayout = function getLayout(page: ReactElement) {
 	return <AdminLayout>{page}</AdminLayout>;

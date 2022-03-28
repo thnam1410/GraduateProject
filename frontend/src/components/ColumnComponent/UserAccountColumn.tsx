@@ -1,3 +1,5 @@
+import { Checkbox } from "antd";
+
 export default class UserAccountColumn {
 	static columns = [
 		{
@@ -20,6 +22,14 @@ export default class UserAccountColumn {
 			key: "active",
 			width: 300,
 			minWidth: 120,
+			render: (text: any, record: any) => {
+				const active = record.active;
+				return (
+					<div className="flex justify-center">
+						<Checkbox checked={active} />
+					</div>
+				);
+			},
 		},
 		{
 			title: "Tên tài khoản",
@@ -32,13 +42,6 @@ export default class UserAccountColumn {
 			title: "Số điện thoại",
 			dataIndex: "phoneNumber",
 			key: "phoneNumber",
-			width: 300,
-			minWidth: 120,
-		},
-		{
-			title: "Xác nhận số điện thoại",
-			dataIndex: "phoneNumberConfirmed",
-			key: "phoneNumberConfirmed",
 			width: 300,
 			minWidth: 120,
 		},

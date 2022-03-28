@@ -1,4 +1,7 @@
-﻿using System.Net;
+﻿using System;
+using System.Collections.Generic;
+using System.Net;
+using System.Threading.Tasks;
 using GraduateProject.Application.Extensions;
 using GraduateProject.Application.Ums.Dto;
 using GraduateProject.Application.RealEstate.UserAccountDto;
@@ -43,9 +46,8 @@ public class UserAccountController : ControllerBase
     
     [AllowAnonymous]
     [HttpGet("user-account-list")]
-    public async Task<ApiResponse<object>> UserAccountAction()
+    public async Task<ApiResponse<List<UserAccountListDto>>> UserAccountAction()
     {
-     //   var userAccountList = await _userAccountRepository.ToListAsync();
      var userAccountList = await _userAccountRepository.Queryable()
          .Include(x => x.UserRoles).ThenInclude(x => x.Role)
          .Select(x=>new UserAccountListDto
@@ -58,7 +60,7 @@ public class UserAccountController : ControllerBase
              UserRoles =  x.UserRoles
          })
          .ToListAsync();
-     return ApiResponse<object>.Ok(userAccountList);
+     return ApiResponse<List<UserAccountListDto>>.Ok(userAccountList);
     }
 
 }
