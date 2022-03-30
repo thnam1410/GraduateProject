@@ -1,19 +1,22 @@
-import React, {ReactElement, useRef, useState} from "react";
-import {GetServerSideProps, NextPage} from "next";
+import React, { ReactElement, useRef, useState } from "react";
+import { GetServerSideProps, NextPage } from "next";
 import AdminLayout from "~/src/components/layout/AdminLayout";
 import TopToolbar from "~/src/components/TopToolbar/TopToolbar";
-import {ButtonBaseProps} from "~/src/components/ButtonBase/ButtonBase";
-import {ApiUtil} from "~/src/utils/ApiUtil";
-import {ApiResponse} from "~/src/types/api.type";
-import {MasterData} from "~/src/types/MasterData";
-import {MASTER_DATA_INDEX_API} from "~/src/constants/apis/masterdata.api";
-import {AxiosRequestHeaders, AxiosResponse} from "axios";
-import {Table} from "antd";
-import {MasterDataGridColumns} from "~/src/components/pages/admin/masterdata/masterdata.config";
+import { ButtonBaseProps } from "~/src/components/ButtonBase/ButtonBase";
+import { ApiUtil } from "~/src/utils/ApiUtil";
+import { ApiResponse } from "~/src/types/api.type";
+import { MasterData } from "~/src/types/MasterData";
+import { MASTER_DATA_INDEX_API } from "~/src/constants/apis/masterdata.api";
+import { AxiosRequestHeaders, AxiosResponse } from "axios";
+import { Table } from "antd";
+import { MasterDataGridColumns } from "~/src/components/pages/admin/masterdata/masterdata.config";
 import GridButtonBase from "~/src/components/ButtonBase/GridButtonBase";
-import CustomModal, {ModalRef} from "~/src/components/CustomModal/CustomModal";
+import CustomModal, { ModalRef } from "~/src/components/CustomModal/CustomModal";
 import MasterDataForm from "~/src/components/pages/admin/masterdata/MasterData.Form";
-
+import { AgGridReact } from "ag-grid-react";
+import "ag-grid-community/dist/styles/ag-grid.css";
+import "ag-grid-community/dist/styles/ag-theme-alpine.css";
+import BaseGrid from "~/src/components/BaseGrid/BaseGrid";
 interface IProps {
 	data: MasterData[];
 }
@@ -21,7 +24,7 @@ interface IProps {
 const MasterData: NextPage<IProps> = (props) => {
 	const { data } = props;
 	const modalRef = useRef<ModalRef>(null);
-	const [dataSource, setDataSource] = useState<MasterData[]>(data)
+	const [dataSource, setDataSource] = useState<MasterData[]>(data);
 	const topButtons: ButtonBaseProps[] = [
 		{
 			buttonName: "Tạo mới",
@@ -58,10 +61,7 @@ const MasterData: NextPage<IProps> = (props) => {
 	return (
 		<div className="flex flex-col h-full w-full">
 			<TopToolbar buttons={topButtons} />
-			<Table
-				columns={getColumnConfig()}
-				dataSource={dataSource}
-			/>
+			<Table columns={getColumnConfig()} dataSource={dataSource} />
 			<CustomModal ref={modalRef} />
 		</div>
 	);
@@ -78,7 +78,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
 			code: "code",
 			name: "name",
 		},
-	]
+	];
 	return {
 		props: {
 			// data: response.data.result || [],
