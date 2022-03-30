@@ -7,8 +7,8 @@ import UserAccountCreate from "../../../components/pages/admin/account/user-acco
 import { ExclamationCircleOutlined } from "@ant-design/icons";
 import CustomModal, { ModalRef } from "~/src/components/CustomModal/CustomModal";
 import UserAccountColumn from "~/src/components/ColumnComponent/UserAccountColumn";
-import { ApiUtil } from "../../utils/ApiUtil";
-import { ApiResponse } from "../../types/api.type";
+import { ApiUtil } from "../../../utils/ApiUtil";
+import { ApiResponse } from "../../../types/api.type";
 import { LOAD_USER_ACCOUNT } from "~/src/constants/apis/auth.api";
 import { UserAccountListDto, UserAccountTable } from "~/src/types/UserAccountListDto";
 

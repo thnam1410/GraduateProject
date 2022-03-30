@@ -2,7 +2,7 @@ import type { NextFetchEvent, NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
 import { UserSession } from "~/src/types/UserInfo";
-import { ApiUtil } from "~/src/pages/utils/ApiUtil";
+import { ApiUtil } from "~/src/utils/ApiUtil";
 
 export async function middleware(req: NextRequest, event: NextFetchEvent) {
 	// @ts-ignore

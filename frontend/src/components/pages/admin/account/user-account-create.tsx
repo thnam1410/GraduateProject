@@ -1,8 +1,8 @@
 import React, { ReactElement, useState, useEffect } from "react";
 import { signOut } from "next-auth/react";
 import AdminLayout, { useSessionContext } from "~/src/components/layout/AdminLayout";
-import { ApiUtil } from "~/src/pages/utils/ApiUtil";
-import { ApiResponse } from "~/src/pages/types/api.type";
+import { ApiUtil } from "~/src/utils/ApiUtil";
+import { ApiResponse } from "~/src/types/api.type";
 import { REGISTER_API } from "~/src/constants/apis/auth.api";
 
 import "antd/dist/antd.css";

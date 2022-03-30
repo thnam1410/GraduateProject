@@ -32,3 +32,12 @@ a {
 .notification-error {
 	background-color: #f58989 !important;
 }
+
+.modal-custom{
+	.ant-modal-close{
+		outline: none;
+	}
+	.ant-row .ant-form-item{
+		margin: 0;
+	}
+}

@@ -1,8 +1,8 @@
 import CredentialsProvider from "next-auth/providers/credentials";
 import NextAuth, { NextAuthOptions } from "next-auth";
-import { ApiUtil } from "../../utils/ApiUtil";
+import { ApiUtil } from "../../../utils/ApiUtil";
 import { LOGIN_API } from "../../../constants/apis/auth.api";
-import { ApiResponse } from "~/src/pages/types/api.type";
+import { ApiResponse } from "~/src/types/api.type";
 import { NextApiRequest, NextApiResponse } from "next";
 import { Cookie } from "next-auth/core/lib/cookie";
 

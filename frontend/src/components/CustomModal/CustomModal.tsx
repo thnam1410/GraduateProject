@@ -50,7 +50,12 @@ const CustomModal = forwardRef((props, ref) => {
 
 	if (!state.visible) return null;
 	return (
-		<Modal visible={state.visible} title={state.title} onOk={handleOk} onCancel={handleCancel}>
+		<Modal className='modal-custom' visible={state.visible} title={state.title} bodyStyle={{padding: 0}}
+			   closeIcon={<div style={{fontSize: 12, outline: 'none'}}>X</div>}
+			   onCancel={handleCancel}
+			   destroyOnClose
+			   footer={null}
+		>
 			{state.children}
 		</Modal>
 	);

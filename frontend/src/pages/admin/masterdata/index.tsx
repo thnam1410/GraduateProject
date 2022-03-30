@@ -1,18 +1,18 @@
-import React, { ReactElement } from "react";
-import { GetServerSideProps, NextPage } from "next";
+import React, {ReactElement, useRef, useState} from "react";
+import {GetServerSideProps, NextPage} from "next";
 import AdminLayout from "~/src/components/layout/AdminLayout";
 import TopToolbar from "~/src/components/TopToolbar/TopToolbar";
-import { ButtonProps } from "antd/lib/button/button";
-import ButtonBase, { ButtonBaseProps } from "~/src/components/ButtonBase/ButtonBase";
-import { ApiUtil } from "~/src/pages/utils/ApiUtil";
-import { ApiResponse } from "~/src/pages/types/api.type";
-import { MasterData } from "~/src/types/MasterData";
-import { MASTER_DATA_INDEX_API } from "~/src/constants/apis/masterdata.api";
-import { AxiosRequestHeaders, AxiosResponse } from "axios";
-import { Table, Tooltip } from "antd";
-import { MasterDataGridColumns } from "~/src/components/pages/admin/masterdata/masterdata.config";
-import Icon, { CloseCircleOutlined, EditOutlined } from "@ant-design/icons";
+import {ButtonBaseProps} from "~/src/components/ButtonBase/ButtonBase";
+import {ApiUtil} from "~/src/utils/ApiUtil";
+import {ApiResponse} from "~/src/types/api.type";
+import {MasterData} from "~/src/types/MasterData";
+import {MASTER_DATA_INDEX_API} from "~/src/constants/apis/masterdata.api";
+import {AxiosRequestHeaders, AxiosResponse} from "axios";
+import {Table} from "antd";
+import {MasterDataGridColumns} from "~/src/components/pages/admin/masterdata/masterdata.config";
 import GridButtonBase from "~/src/components/ButtonBase/GridButtonBase";
+import CustomModal, {ModalRef} from "~/src/components/CustomModal/CustomModal";
+import MasterDataForm from "~/src/components/pages/admin/masterdata/MasterData.Form";
 
 interface IProps {
 	data: MasterData[];
@@ -20,17 +20,19 @@ interface IProps {
 
 const MasterData: NextPage<IProps> = (props) => {
 	const { data } = props;
-
+	const modalRef = useRef<ModalRef>(null);
+	const [dataSource, setDataSource] = useState<MasterData[]>(data)
 	const topButtons: ButtonBaseProps[] = [
 		{
 			buttonName: "Tạo mới",
-			onClick: () => onCreate(),
+			onClick: () => onSave(),
 			buttonType: "create",
 		},
 	];
 
-	const onCreate = (): void => {};
-	const onEdit = (): void => {};
+	const onSave = (): void => {
+		modalRef.current?.onOpen(<MasterDataForm onClose={() => modalRef?.current?.onClose()} />, "Tạo mới");
+	};
 	const onDelete = (): void => {};
 
 	const getColumnConfig = () => {
@@ -44,7 +46,7 @@ const MasterData: NextPage<IProps> = (props) => {
 					console.log("record", record);
 					return (
 						<div className="flex items-center justify-center">
-							<GridButtonBase type={"edit"} onClick={() => onEdit()} />
+							<GridButtonBase type={"edit"} onClick={() => onSave()} />
 							<GridButtonBase type={"delete"} onClick={() => onDelete()} />
 						</div>
 					);
@@ -58,14 +60,9 @@ const MasterData: NextPage<IProps> = (props) => {
 			<TopToolbar buttons={topButtons} />
 			<Table
 				columns={getColumnConfig()}
-				dataSource={[
-					{
-						masterKey: "masterKey",
-						code: "code",
-						name: "name",
-					},
-				]}
+				dataSource={dataSource}
 			/>
+			<CustomModal ref={modalRef} />
 		</div>
 	);
 };
@@ -75,9 +72,17 @@ export default MasterData;
 export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
 	const headers = { Cookie: req.headers.cookie } as AxiosRequestHeaders;
 	const response = (await ApiUtil.Axios.get(MASTER_DATA_INDEX_API, { headers })) as AxiosResponse<ApiResponse<MasterData[]>>;
+	const fakeData = [
+		{
+			masterKey: "masterKey",
+			code: "code",
+			name: "name",
+		},
+	]
 	return {
 		props: {
-			data: response.data.result || [],
+			// data: response.data.result || [],
+			data: fakeData,
 		},
 	};
 };

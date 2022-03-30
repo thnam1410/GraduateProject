@@ -1,7 +1,7 @@
 import React from "react";
 import { useRouter } from "next/router";
-import { ApiUtil } from "~/src/pages/utils/ApiUtil";
-import { ApiResponse } from "~/src/pages/types/api.type";
+import { ApiUtil } from "~/src/utils/ApiUtil";
+import { ApiResponse } from "~/src/types/api.type";
 
 import { REGISTER_API } from "~/src/constants/apis/auth.api";
 import TextArea from "antd/lib/input/TextArea";

@@ -3,7 +3,7 @@ import React, { useEffect, useRef } from "react";
 import { useRouter } from "next/router";
 import { getSession, signIn, useSession } from "next-auth/react";
 import { SignInResponse } from "next-auth/react/types";
-import { ApiUtil } from "../utils/ApiUtil";
+import { ApiUtil } from "../../utils/ApiUtil";
 import { UserSession } from "../../types/UserInfo";
 import { Role } from "../../constants/constants";
 import { ErrorMessage } from "@hookform/error-message";
