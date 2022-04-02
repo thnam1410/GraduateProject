@@ -29,4 +29,12 @@ public class MasterDataController: BaseCrudController<MasterData, Guid, MasterDa
         var dataResult = await _masterDataService.LoadData();
         return ApiResponse<List<MasterData>>.Ok(dataResult);
     }
+    
+    // [AllowAnonymous]
+    // [HttpPost("create-async")]
+    // public async Task<ApiResponse<object>> CreateMasterDataAction([FromBody] MasterDataCreateDto masterDataForm)
+    // {
+    //     var dataResult = await _masterDataService.CreateAsync(masterDataForm);
+    //     return dataResult;
+    // }
 }

@@ -6,9 +6,9 @@ import { ButtonBaseProps } from "~/src/components/ButtonBase/ButtonBase";
 import { ApiUtil } from "~/src/utils/ApiUtil";
 import { ApiResponse } from "~/src/types/api.type";
 import { MasterData } from "~/src/types/MasterData";
-import { MASTER_DATA_INDEX_API } from "~/src/constants/apis/masterdata.api";
+import { MASTER_DATA_DELETE_API, MASTER_DATA_INDEX_API } from "~/src/constants/apis/masterdata.api";
 import { AxiosRequestHeaders, AxiosResponse } from "axios";
-import { Table } from "antd";
+import { Popconfirm, Table } from "antd";
 import { MasterDataGridColumns } from "~/src/components/pages/admin/masterdata/masterdata.config";
 import GridButtonBase from "~/src/components/ButtonBase/GridButtonBase";
 import CustomModal, { ModalRef } from "~/src/components/CustomModal/CustomModal";
@@ -24,6 +24,7 @@ interface IProps {
 const MasterData: NextPage<IProps> = (props) => {
 	const { data } = props;
 	const modalRef = useRef<ModalRef>(null);
+	const [visible, setVisibel] = useState(false);
 	const [dataSource, setDataSource] = useState<MasterData[]>(data);
 	const topButtons: ButtonBaseProps[] = [
 		{
@@ -36,7 +37,11 @@ const MasterData: NextPage<IProps> = (props) => {
 	const onSave = (data: MasterData | null): void => {
 		modalRef.current?.onOpen(<MasterDataForm initData={data} onClose={() => modalRef?.current?.onClose()} />, "Tạo mới");
 	};
-	const onDelete = (): void => {};
+	const onDelete = async (id: string) => {
+		console.log("oneddd");
+		// const result = await ApiUtil.Axios.post(MASTER_DATA_DELETE_API, id);
+	};
+
 	useEffect(() => {
 		setDataSource(props.data);
 	});
@@ -74,14 +79,27 @@ const MasterData: NextPage<IProps> = (props) => {
 					return (
 						<div className="flex items-center justify-center">
 							<GridButtonBase type={"edit"} onClick={() => onSave(params.data)} />
-							<GridButtonBase type={"delete"} onClick={() => onDelete()} />
+							{/* <Popconfirm
+								visible={visible}
+								title="Bạn có đồng ý xóa dữ liệu?"
+								onConfirm={() => onDelete(params.data.id)}
+								okText="Yes"
+								cancelText="No"
+							> */}
+							<GridButtonBase
+								type={"delete"}
+								onClick={() => {
+									console.log("check");
+									setVisibel(true);
+								}}
+							/>
+							{/* </Popconfirm> */}
 						</div>
 					);
 				},
 			},
 		];
 	};
-	console.log("props", props);
 	return (
 		<div className="flex flex-col h-full w-full">
 			<TopToolbar buttons={topButtons} />

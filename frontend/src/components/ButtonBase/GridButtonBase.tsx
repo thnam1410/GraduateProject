@@ -42,6 +42,7 @@ const GridButtonBase: React.FC<IProps> = (props) => {
 					<button
 						type="button"
 						className="text-white bg-gradient-to-r from-red-400 via-red-500 to-red-600 hover:bg-gradient-to-br  focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm px-4 py-2 text-center mr-2 mb-2"
+						onClick={onClick}
 					>
 						<CloseCircleOutlined size={18} />
 					</button>
