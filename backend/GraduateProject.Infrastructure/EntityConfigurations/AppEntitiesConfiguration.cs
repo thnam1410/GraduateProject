@@ -83,5 +83,11 @@ public static class AppEntitiesConfiguration
             entity.Property(x => x.Id).HasDefaultValueSql("NEWID()");
             entity.HasOne(x => x.UserAccount).WithMany().HasForeignKey(x => x.UserAccountId).OnDelete(DeleteBehavior.ClientCascade);
         });
+
+        builder.Entity<FileEntry>(entity =>
+        {
+            entity.HasKey(x => x.Id);
+            entity.Property(x => x.Id).HasDefaultValueSql("NEWID()");
+        });
     }
 }

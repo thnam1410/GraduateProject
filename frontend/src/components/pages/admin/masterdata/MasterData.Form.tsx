@@ -7,10 +7,11 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { Controller } from "react-hook-form";
 import { MasterData } from "~/src/types/MasterData";
+import {BaseForm} from "~/src/components/FormFields/BaseForm";
 
 interface IProps {
 	onClose: () => void;
-	initData: MasterData | null;
+	initData: IFormValues | null;
 }
 interface IFormValues {
 	masterKey: string;
@@ -28,8 +29,6 @@ const schema = yup
 
 const MasterDataForm: React.FC<IProps> = (props) => {
 	const {
-		control,
-		handleSubmit,
 		formState: { errors },
 	} = useForm<IFormValues>({
 		resolver: yupResolver(schema),
@@ -46,40 +45,26 @@ const MasterDataForm: React.FC<IProps> = (props) => {
 	};
 	return (
 		<div>
-			<Form className="p-3 pb-2" onFinish={handleSubmit(onSubmit)}>
+			<BaseForm className="p-3 pb-2" onSubmit={onSubmit} resolver={yupResolver(schema)} defaultValues={props.initData as IFormValues}>
 				<Row className="m-2">
 					<Col span={24}>
 						<Form.Item>
-							<Controller
-								name="masterKey"
-								control={control}
-								render={({ field }) => {
-									console.log("field", field);
-									return <TextField {...field} errors={errors} label={"Master Key"} />;
-								}}
-							/>
+							<TextField name={'masterKey'} errors={errors} label={"Master Key"} />
 						</Form.Item>
 					</Col>
 				</Row>
 				<Row className="m-2">
 					<Col span={24}>
 						<Form.Item>
-							<Controller
-								name="code"
-								control={control}
-								render={({ field }) => <TextField {...field} errors={errors} label={"Mã"} />}
-							/>
+							<TextField name={'code'} errors={errors} label={"Mã"} />
+
 						</Form.Item>
 					</Col>
 				</Row>
 				<Row className="m-2">
 					<Col span={24}>
 						<Form.Item>
-							<Controller
-								name="name"
-								control={control}
-								render={({ field }) => <TextField {...field} errors={errors} label={"Tên"} />}
-							/>
+							<TextField name={'name'} errors={errors} label={"Tên"} />
 						</Form.Item>
 					</Col>
 				</Row>
@@ -87,7 +72,7 @@ const MasterDataForm: React.FC<IProps> = (props) => {
 					<ButtonBase className="mr-2" buttonName={"Lưu"} buttonType="save" htmlType="submit" />
 					<ButtonBase buttonName={"Đóng"} buttonType="close" onClick={props.onClose} />
 				</div>
-			</Form>
+			</BaseForm>
 		</div>
 	);
 };

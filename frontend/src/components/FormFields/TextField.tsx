@@ -3,6 +3,8 @@ import { GetServerSideProps } from "next";
 import { Input } from "antd";
 import { InputProps } from "antd/lib/input/Input";
 import { ErrorMessage } from "@hookform/error-message";
+import { UseFormRegister } from "react-hook-form/dist/types/form";
+import { Controller, useFormContext } from "react-hook-form";
 
 interface IProps extends InputProps {
 	label?: string;
@@ -13,7 +15,9 @@ interface IProps extends InputProps {
 }
 
 const TextField: React.FC<IProps> = (props) => {
-	const { labelClass, label, labelStyle = {}, errors, name } = props;
+	const { labelClass, label, labelStyle = {}, name } = props;
+	const methods = useFormContext();
+	const { control, formState: {errors} } = methods;
 	return (
 		<div className="flex flex-col justify-start">
 			<div className="flex items-center">
@@ -28,7 +32,11 @@ const TextField: React.FC<IProps> = (props) => {
 						{label}
 					</label>
 				)}
-				<Input {...props} placeholder={label + "..." || ""} />
+				<Controller
+					name={name}
+					control={control}
+					render={({ field }) => <Input {...field} {...props} placeholder={label + "..." || ""} />}
+				/>
 			</div>
 			{errors && (
 				<ErrorMessage

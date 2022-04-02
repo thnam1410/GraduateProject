@@ -1,5 +1,7 @@
 ﻿using System.Security.Claims;
+using GraduateProject.Domain.AppEntities.Repositories;
 using GraduateProject.Domain.Common;
+using GraduateProject.Infrastructure.Repositories.Common;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,6 +19,7 @@ public static class ServiceCollectionExtension
 
         //Unit Of Work
         services.AddTransient<IUnitOfWork, AppUnitOfWork>();
+        services.AddTransient<IFileRepository, FileRepository>();
         return services;
     }
 }

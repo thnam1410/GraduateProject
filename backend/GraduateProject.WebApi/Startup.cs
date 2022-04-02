@@ -5,6 +5,7 @@ using GraduateProject.Application.Ums.Dto;
 using GraduateProject.Authentication;
 using GraduateProject.Infrastructure.Extensions;
 using GraduateProject.Services;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
@@ -78,7 +79,12 @@ public class Startup
 
         app.UseCors("FrontendCors");
         // app.UseHttpsRedirection();
-
+        app.UseFileServer(new FileServerOptions
+        {
+            FileProvider = new PhysicalFileProvider(Path.Combine(env.ContentRootPath, "UploadFiles")),
+            RequestPath = "/UploadFiles",
+            EnableDirectoryBrowsing = true
+        });
         app.UseRouting();
         app.UseAuthentication();
         app.UseAuthorization();
