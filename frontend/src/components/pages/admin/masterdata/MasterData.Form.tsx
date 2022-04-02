@@ -60,7 +60,7 @@ const MasterDataForm: React.FC<IProps> = (props) => {
 				</Row>
 				<div className="footer flex justify-center items-center mt-4">
 					<ButtonBase className="mr-2" buttonName={"Lưu"} buttonType="save" htmlType="submit" />
-					<ButtonBase buttonName={"Đóng"} buttonType="close" onClick={onClose} />
+					<ButtonBase buttonName={"Đóng"} buttonType="close" onClick={props.onClose} />
 				</div>
 			</BaseForm>
 		</div>
