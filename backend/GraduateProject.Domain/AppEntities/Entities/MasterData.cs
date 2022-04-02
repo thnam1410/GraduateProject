@@ -1,4 +1,6 @@
-﻿using GraduateProject.Domain.Common;
+﻿using System;
+using System.Collections;
+using GraduateProject.Domain.Common;
 
 namespace GraduateProject.Domain.AppEntities.Entities;
 

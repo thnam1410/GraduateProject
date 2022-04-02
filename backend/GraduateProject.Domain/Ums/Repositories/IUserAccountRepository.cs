@@ -1,10 +1,13 @@
-﻿using GraduateProject.Domain.Common;
+﻿using System;
+using System.Threading.Tasks;
+using GraduateProject.Domain.Common;
 using GraduateProject.Domain.Ums.Entities;
 
-namespace GraduateProject.Domain.Ums.Repositories;
-
-public interface IUserAccountRepository : IRepository<UserAccount, Guid>
+namespace GraduateProject.Domain.Ums.Repositories
 {
-    Task<UserAccount> GetUserWithAuthInfo(Guid id);
+    public interface IUserAccountRepository : IRepository<UserAccount, Guid>
+    {
+        Task<UserAccount> GetUserWithAuthInfo(Guid id);
 
+    }
 }

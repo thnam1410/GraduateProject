@@ -6,9 +6,11 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { Controller } from "react-hook-form";
+import { MasterData } from "~/src/types/MasterData";
 
 interface IProps {
 	onClose: () => void;
+	initData: MasterData | null;
 }
 interface IFormValues {
 	masterKey: string;
@@ -31,6 +33,13 @@ const MasterDataForm: React.FC<IProps> = (props) => {
 		formState: { errors },
 	} = useForm<IFormValues>({
 		resolver: yupResolver(schema),
+		defaultValues: props.initData
+			? {
+					code: props.initData.code,
+					masterKey: props.initData.masterKey,
+					name: props.initData.name,
+			  }
+			: {},
 	});
 	const onSubmit = (formValues: IFormValues) => {
 		console.log("IFormValues", formValues);
@@ -44,7 +53,10 @@ const MasterDataForm: React.FC<IProps> = (props) => {
 							<Controller
 								name="masterKey"
 								control={control}
-								render={({ field }) => <TextField {...field} errors={errors} label={"Master Key"} />}
+								render={({ field }) => {
+									console.log("field", field);
+									return <TextField {...field} errors={errors} label={"Master Key"} />;
+								}}
 							/>
 						</Form.Item>
 					</Col>

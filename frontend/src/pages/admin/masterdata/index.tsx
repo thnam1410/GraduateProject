@@ -1,4 +1,4 @@
-import React, { ReactElement, useRef, useState } from "react";
+import React, { ReactElement, useEffect, useMemo, useRef, useState } from "react";
 import { GetServerSideProps, NextPage } from "next";
 import AdminLayout from "~/src/components/layout/AdminLayout";
 import TopToolbar from "~/src/components/TopToolbar/TopToolbar";
@@ -14,13 +14,13 @@ import GridButtonBase from "~/src/components/ButtonBase/GridButtonBase";
 import CustomModal, { ModalRef } from "~/src/components/CustomModal/CustomModal";
 import MasterDataForm from "~/src/components/pages/admin/masterdata/MasterData.Form";
 import { AgGridReact } from "ag-grid-react";
+import "ag-grid-community";
 import "ag-grid-community/dist/styles/ag-grid.css";
 import "ag-grid-community/dist/styles/ag-theme-alpine.css";
 import BaseGrid from "~/src/components/BaseGrid/BaseGrid";
 interface IProps {
 	data: MasterData[];
 }
-
 const MasterData: NextPage<IProps> = (props) => {
 	const { data } = props;
 	const modalRef = useRef<ModalRef>(null);
@@ -28,28 +28,52 @@ const MasterData: NextPage<IProps> = (props) => {
 	const topButtons: ButtonBaseProps[] = [
 		{
 			buttonName: "Tạo mới",
-			onClick: () => onSave(),
+			onClick: () => onSave(null),
 			buttonType: "create",
 		},
 	];
 
-	const onSave = (): void => {
-		modalRef.current?.onOpen(<MasterDataForm onClose={() => modalRef?.current?.onClose()} />, "Tạo mới");
+	const onSave = (data: MasterData | null): void => {
+		modalRef.current?.onOpen(<MasterDataForm initData={data} onClose={() => modalRef?.current?.onClose()} />, "Tạo mới");
 	};
 	const onDelete = (): void => {};
+	useEffect(() => {
+		setDataSource(props.data);
+	});
+
+	// const loadData = () => {
+	// 	// 2 là như này
+	// 	ApiUtil.Axios.get<ApiResponse>(MASTER_DATA_INDEX_API)
+	// 		.then((res) => {
+	// 			if (res.data.success) {
+	// 				const dataApi = res.data.result as MasterData[];
+	// 				let dataTable = dataApi.map((item) => ({
+	// 					...item,
+	// 				})) as MasterData[];
+	// 				setDataSource(dataTable);
+	// 				console.log("dataSource", dataSource);
+	// 			} else {
+	// 				ApiUtil.ToastError("Tải dữ liệu thất bại!");
+	// 				console.log(res?.data?.message);
+	// 			}
+	// 		})
+	// 		.catch((err) => {
+	// 			console.log(err);
+	// 		});
+	// };
 
 	const getColumnConfig = () => {
 		return [
 			...MasterDataGridColumns,
 			{
-				title: "Hành động",
-				width: 200,
-				render: (value: any, record: any) => {
+				headerName: "Hành động",
+				field: "action",
+				cellRenderer: (params: any, value: any) => {
+					console.log("params", params);
 					console.log("value", value);
-					console.log("record", record);
 					return (
 						<div className="flex items-center justify-center">
-							<GridButtonBase type={"edit"} onClick={() => onSave()} />
+							<GridButtonBase type={"edit"} onClick={() => onSave(params.data)} />
 							<GridButtonBase type={"delete"} onClick={() => onDelete()} />
 						</div>
 					);
@@ -57,11 +81,21 @@ const MasterData: NextPage<IProps> = (props) => {
 			},
 		];
 	};
-
+	console.log("props", props);
 	return (
 		<div className="flex flex-col h-full w-full">
 			<TopToolbar buttons={topButtons} />
-			<Table columns={getColumnConfig()} dataSource={dataSource} />
+			<div style={{ height: 550 }}>
+				<BaseGrid
+					className="ag-theme-alpine"
+					rowSelection={"multiple"}
+					rowGroupPanelShow={"always"}
+					pivotPanelShow={"always"}
+					columnDefs={getColumnConfig()}
+					pagination={true}
+					rowData={dataSource}
+				/>
+			</div>
 			<CustomModal ref={modalRef} />
 		</div>
 	);
@@ -71,18 +105,10 @@ export default MasterData;
 
 export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
 	const headers = { Cookie: req.headers.cookie } as AxiosRequestHeaders;
-	const response = (await ApiUtil.Axios.get(MASTER_DATA_INDEX_API, { headers })) as AxiosResponse<ApiResponse<MasterData[]>>;
-	const fakeData = [
-		{
-			masterKey: "masterKey",
-			code: "code",
-			name: "name",
-		},
-	];
+	const response = (await ApiUtil.Axios.get(MASTER_DATA_INDEX_API)) as AxiosResponse<ApiResponse<MasterData[]>>;
 	return {
 		props: {
-			// data: response.data.result || [],
-			data: fakeData,
+			data: response.data.result || [],
 		},
 	};
 };

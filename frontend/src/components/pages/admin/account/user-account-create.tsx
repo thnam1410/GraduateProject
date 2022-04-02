@@ -28,7 +28,6 @@ interface UserAccountProps {
 	onClose: () => void;
 }
 const UserAccountCreate = (props: UserAccountProps) => {
-	const context = useSessionContext();
 	const [createSucces, setCreateSucces] = useState<boolean | null>(false);
 	const {
 		register,
@@ -42,21 +41,6 @@ const UserAccountCreate = (props: UserAccountProps) => {
 		const confirmPassword = values.confirmPassword;
 		if (password !== confirmPassword) return ApiUtil.ToastError("Mật khẩu xác nhận không trùng nhau ! Vui lòng kiểm tra lại");
 		props.onFinishModal;
-
-		// ApiUtil.Axios.post<ApiResponse>(REGISTER_API, values)
-		// 	.then((res) => {
-		// 		if (res.data.success) {
-		// 			ApiUtil.ToastSuccess("Tạo mới tài khoản thành công");
-		// 			props.onFinishModal;
-		// 			setCreateSucces(true);
-		// 		} else {
-		// 			ApiUtil.ToastError("Tạo mới tài khoản thất bại");
-		// 			console.log(res?.data?.message);
-		// 		}
-		// 	})
-		// 	.catch((err) => {
-		// 		console.log(err);
-		// 	});
 	});
 
 	return (

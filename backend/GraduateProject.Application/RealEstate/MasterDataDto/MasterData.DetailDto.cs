@@ -1,4 +1,6 @@
-﻿namespace GraduateProject.Application.RealEstate.MasterDataDto;
+﻿using System;
+
+namespace GraduateProject.Application.RealEstate.MasterDataDto;
 
 public class MasterDataDetailDto
 {
