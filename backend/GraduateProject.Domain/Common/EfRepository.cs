@@ -20,9 +20,10 @@ public class EfRepository<T, TKey> : IRepository<T, TKey>
 
     public virtual async Task<List<T>> ToListAsync() => (List<T>) await this._dbSet.ToListAsync<T>();
 
-    public virtual async Task AddAsync(T entity)
+    public virtual async Task AddAsync(T entity, bool autoSave = false)
     {
         await this._dbSet.AddAsync(entity);
+        if (autoSave) await this._dbContext.SaveChangesAsync();
     }
 
     public virtual Task AddRangeAsync(List<T> entities) => this._dbContext.AddRangeAsync((IEnumerable<object>) entities);
@@ -40,10 +41,18 @@ public class EfRepository<T, TKey> : IRepository<T, TKey>
         return Task.CompletedTask;
     }
 
-    public virtual async Task DeleteAsync(T entity)
+    public virtual async Task DeleteAsync(T entity, bool autoSave = false)
     {
         await Task.CompletedTask;
         this._dbSet.Remove(entity);
+        if(autoSave) await this._dbContext.SaveChangesAsync();
+    }
+
+    public virtual async Task DeleteRangeAsync(List<T> entites, bool autoSave = false)
+    {
+        await Task.CompletedTask;
+        this._dbSet.RemoveRange(entites);
+        if(autoSave) await this._dbContext.SaveChangesAsync();
     }
 
     public virtual async Task<T> FindByIdAsync(TKey id)

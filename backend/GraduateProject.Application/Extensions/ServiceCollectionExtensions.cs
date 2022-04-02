@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using FluentValidation.AspNetCore;
+using GraduateProject.Application.Core;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace GraduateProject.Application.Extensions;
@@ -10,6 +11,7 @@ public static class ServiceCollectionExtensions
     {
         services.AddAutoMapper(Assembly.GetExecutingAssembly());
         services.AddTransient<IObjectMapper, BaseObjectMapper>();
+        services.AddTransient<IFileService, FileService>();
         services.AddRealEstateServices();
         return services;
     }
