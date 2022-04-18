@@ -9,6 +9,7 @@
 
     <ItemGroup>
         <PackageReference Include="AutoMapper" Version="11.0.0" />
+        <PackageReference Include="HtmlAgilityPack" Version="1.11.42" />
         <PackageReference Include="Microsoft.AspNetCore.Authentication" Version="2.2.0" />
         <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.1" />
         <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.1" />
@@ -20,10 +21,6 @@
     <ItemGroup>
       <ProjectReference Include="..\GraduateProject.Application\GraduateProject.Application.csproj" />
       <ProjectReference Include="..\GraduateProject.Infrastructure\GraduateProject.Infrastructure.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Common\Dto" />
     </ItemGroup>
 
 </Project>
