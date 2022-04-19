@@ -19,9 +19,6 @@ public class UserAccount : IdentityUser<Guid>, ITrackableEntity<Guid>, IEntity<G
     public DateTime? LastModifiedTime { get; set; }
     public string? LastModifiedBy { get; set; }
     public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
-    public ICollection<Post> Posts { get; set; } = new List<Post>();
-
-
 
     public bool HasRoleAdminSystem() => GetRoles().FirstOrDefault(x => x.Code.ToLower() == RoleConstants.ADMIN_ROLE.ToLower()) != null;
 

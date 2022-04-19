@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GraduateProject.Migrator.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20220118140955_CreateAppEntites")]
-    partial class CreateAppEntites
+    [Migration("20220419144506_UpdateNewProject")]
+    partial class UpdateNewProject
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -23,6 +23,36 @@ namespace GraduateProject.Migrator.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
+
+            modelBuilder.Entity("GraduateProject.Domain.AppEntities.Entities.FileEntry", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasDefaultValueSql("NEWID()");
+
+                    b.Property<string>("FileLocation")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long>("Size")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("UploadTime")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("FileEntry");
+                });
 
             modelBuilder.Entity("GraduateProject.Domain.AppEntities.Entities.MasterData", b =>
                 {
@@ -53,323 +83,133 @@ namespace GraduateProject.Migrator.Migrations
                     b.ToTable("MasterData", "RealEstate");
                 });
 
-            modelBuilder.Entity("GraduateProject.Domain.AppEntities.Entities.OfferPackage", b =>
+            modelBuilder.Entity("GraduateProject.Domain.AppEntities.Entities.Path", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
-                        .HasDefaultValueSql("NEWID()");
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<bool>("Active")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false);
+                    b.Property<decimal>("Lat")
+                        .HasColumnType("decimal(18,2)");
 
-                    b.Property<int>("ActiveDay")
+                    b.Property<decimal>("Lng")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("RouteId")
                         .HasColumnType("int");
 
-                    b.Property<string>("CreatedBy")
+                    b.HasKey("Id");
+
+                    b.HasIndex("RouteId");
+
+                    b.ToTable("Path");
+                });
+
+            modelBuilder.Entity("GraduateProject.Domain.AppEntities.Entities.Route", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<int>("Distance")
+                        .HasColumnType("int");
+
+                    b.Property<string>("EndStop")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("CreatedTime")
-                        .HasColumnType("datetime2");
+                    b.Property<bool?>("Outbound")
+                        .HasColumnType("bit");
 
-                    b.Property<string>("LastModifiedBy")
+                    b.Property<string>("RouteNo")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("LastModifiedTime")
-                        .HasColumnType("datetime2");
+                    b.Property<int>("RouteVarId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RouteVarName")
+                        .HasColumnType("int");
+
+                    b.Property<string>("RouteVarShortName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("RunningTime")
+                        .HasColumnType("int");
+
+                    b.Property<string>("StartStop")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Route");
+                });
+
+            modelBuilder.Entity("GraduateProject.Domain.AppEntities.Entities.RouteStop", b =>
+                {
+                    b.Property<int>("RouteId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("StopId")
+                        .HasColumnType("int");
+
+                    b.HasKey("RouteId", "StopId");
+
+                    b.HasIndex("StopId");
+
+                    b.ToTable("RouteStop");
+                });
+
+            modelBuilder.Entity("GraduateProject.Domain.AppEntities.Entities.Stop", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<string>("AddressNo")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("Lat")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("Lng")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Order")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("Price")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("OfferPackage", "RealEstate");
-                });
-
-            modelBuilder.Entity("GraduateProject.Domain.AppEntities.Entities.Post", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
-                        .HasDefaultValueSql("NEWID()");
-
-                    b.Property<bool>("Active")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false);
-
-                    b.Property<string>("CreatedBy")
+                    b.Property<string>("Routes")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("CreatedTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsUseFreeDayConfig")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false);
-
-                    b.Property<string>("LastModifiedBy")
+                    b.Property<string>("Search")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("LastModifiedTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("OfferPackageId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("PostStartDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("PriorityOrderRank")
-                        .HasColumnType("int");
-
-                    b.Property<Guid>("SalePersonInfoId")
-                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("UserAccountId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("OfferPackageId");
-
-                    b.HasIndex("SalePersonInfoId");
-
-                    b.HasIndex("UserAccountId");
-
-                    b.ToTable("Post", "RealEstate");
-                });
-
-            modelBuilder.Entity("GraduateProject.Domain.AppEntities.Entities.Project", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
-                        .HasDefaultValueSql("NEWID()");
-
-                    b.Property<string>("Active")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("nvarchar(max)")
-                        .HasDefaultValue("False");
-
-                    b.Property<string>("ApproveStatus")
+                    b.Property<string>("StopType")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Area")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("CreatedTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("LastModifiedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("LastModifiedTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Price")
+                    b.Property<string>("Street")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Project", "RealEstate");
-                });
-
-            modelBuilder.Entity("GraduateProject.Domain.AppEntities.Entities.RealEstate", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
-                        .HasDefaultValueSql("NEWID()");
-
-                    b.Property<string>("Address")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Area")
-                        .HasColumnType("int");
-
-                    b.Property<Guid?>("AvatarAttachFileId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("BedroomCount")
-                        .HasColumnType("int");
-
-                    b.Property<Guid>("CountryId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("CreatedTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Direction")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("DistrictId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("FloorCount")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsFrontLine")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("LastModifiedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("LastModifiedTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("MapLocationJSON")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid?>("PicturesAttachFileId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("PostId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<long>("Price")
-                        .HasColumnType("bigint");
-
-                    b.Property<Guid>("PriceTypeId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("ProjectId")
-                        .IsRequired()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("ServiceTypeId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Slug")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("ToiletCount")
-                        .HasColumnType("int");
-
-                    b.Property<Guid>("WardId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("YoutubeUrl")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CountryId");
-
-                    b.HasIndex("DistrictId");
-
-                    b.HasIndex("PostId");
-
-                    b.HasIndex("PriceTypeId");
-
-                    b.HasIndex("ProjectId");
-
-                    b.HasIndex("ServiceTypeId");
-
-                    b.HasIndex("WardId");
-
-                    b.ToTable("RealEstate", "RealEstate");
-                });
-
-            modelBuilder.Entity("GraduateProject.Domain.AppEntities.Entities.SalePersonInfo", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
-                        .HasDefaultValueSql("NEWID()");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("CreatedTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("LastModifiedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("LastModifiedTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Phonenumber1")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Phonenumber2")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("SalePersonInfo", "RealEstate");
-                });
-
-            modelBuilder.Entity("GraduateProject.Domain.AppEntities.Entities.TopUpHistory", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
-                        .HasDefaultValueSql("NEWID()");
-
-                    b.Property<long>("Amount")
-                        .HasColumnType("bigint");
-
-                    b.Property<Guid>("UserAccountId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserAccountId");
-
-                    b.ToTable("TopUpHistory", "RealEstate");
+                    b.ToTable("Stop");
                 });
 
             modelBuilder.Entity("GraduateProject.Domain.Ums.Entities.Role", b =>
@@ -605,92 +445,34 @@ namespace GraduateProject.Migrator.Migrations
                     b.Navigation("ParentMasterData");
                 });
 
-            modelBuilder.Entity("GraduateProject.Domain.AppEntities.Entities.Post", b =>
+            modelBuilder.Entity("GraduateProject.Domain.AppEntities.Entities.Path", b =>
                 {
-                    b.HasOne("GraduateProject.Domain.AppEntities.Entities.OfferPackage", "OfferPackage")
-                        .WithMany("Posts")
-                        .HasForeignKey("OfferPackageId")
-                        .IsRequired();
-
-                    b.HasOne("GraduateProject.Domain.AppEntities.Entities.SalePersonInfo", "SalePersonInfo")
-                        .WithMany("Posts")
-                        .HasForeignKey("SalePersonInfoId")
-                        .IsRequired();
-
-                    b.HasOne("GraduateProject.Domain.Ums.Entities.UserAccount", "UserAccount")
-                        .WithMany("Posts")
-                        .HasForeignKey("UserAccountId")
-                        .IsRequired();
-
-                    b.Navigation("OfferPackage");
-
-                    b.Navigation("SalePersonInfo");
-
-                    b.Navigation("UserAccount");
-                });
-
-            modelBuilder.Entity("GraduateProject.Domain.AppEntities.Entities.RealEstate", b =>
-                {
-                    b.HasOne("GraduateProject.Domain.AppEntities.Entities.MasterData", "Country")
-                        .WithMany()
-                        .HasForeignKey("CountryId")
-                        .IsRequired();
-
-                    b.HasOne("GraduateProject.Domain.AppEntities.Entities.MasterData", "District")
-                        .WithMany()
-                        .HasForeignKey("DistrictId")
-                        .IsRequired();
-
-                    b.HasOne("GraduateProject.Domain.AppEntities.Entities.Post", "Post")
-                        .WithMany()
-                        .HasForeignKey("PostId")
+                    b.HasOne("GraduateProject.Domain.AppEntities.Entities.Route", "Route")
+                        .WithMany("Paths")
+                        .HasForeignKey("RouteId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("GraduateProject.Domain.AppEntities.Entities.MasterData", "PriceType")
-                        .WithMany()
-                        .HasForeignKey("PriceTypeId")
-                        .IsRequired();
-
-                    b.HasOne("GraduateProject.Domain.AppEntities.Entities.Project", "Project")
-                        .WithMany("RealEstates")
-                        .HasForeignKey("ProjectId")
-                        .IsRequired();
-
-                    b.HasOne("GraduateProject.Domain.AppEntities.Entities.MasterData", "ServiceType")
-                        .WithMany()
-                        .HasForeignKey("ServiceTypeId")
-                        .IsRequired();
-
-                    b.HasOne("GraduateProject.Domain.AppEntities.Entities.MasterData", "Ward")
-                        .WithMany()
-                        .HasForeignKey("WardId")
-                        .IsRequired();
-
-                    b.Navigation("Country");
-
-                    b.Navigation("District");
-
-                    b.Navigation("Post");
-
-                    b.Navigation("PriceType");
-
-                    b.Navigation("Project");
-
-                    b.Navigation("ServiceType");
-
-                    b.Navigation("Ward");
+                    b.Navigation("Route");
                 });
 
-            modelBuilder.Entity("GraduateProject.Domain.AppEntities.Entities.TopUpHistory", b =>
+            modelBuilder.Entity("GraduateProject.Domain.AppEntities.Entities.RouteStop", b =>
                 {
-                    b.HasOne("GraduateProject.Domain.Ums.Entities.UserAccount", "UserAccount")
-                        .WithMany()
-                        .HasForeignKey("UserAccountId")
-                        .OnDelete(DeleteBehavior.ClientCascade)
+                    b.HasOne("GraduateProject.Domain.AppEntities.Entities.Route", "Route")
+                        .WithMany("RouteStops")
+                        .HasForeignKey("RouteId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("UserAccount");
+                    b.HasOne("GraduateProject.Domain.AppEntities.Entities.Stop", "Stop")
+                        .WithMany("RouteStops")
+                        .HasForeignKey("StopId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Route");
+
+                    b.Navigation("Stop");
                 });
 
             modelBuilder.Entity("GraduateProject.Domain.Ums.Entities.RoleClaim", b =>
@@ -728,19 +510,16 @@ namespace GraduateProject.Migrator.Migrations
                     b.Navigation("Children");
                 });
 
-            modelBuilder.Entity("GraduateProject.Domain.AppEntities.Entities.OfferPackage", b =>
+            modelBuilder.Entity("GraduateProject.Domain.AppEntities.Entities.Route", b =>
                 {
-                    b.Navigation("Posts");
+                    b.Navigation("Paths");
+
+                    b.Navigation("RouteStops");
                 });
 
-            modelBuilder.Entity("GraduateProject.Domain.AppEntities.Entities.Project", b =>
+            modelBuilder.Entity("GraduateProject.Domain.AppEntities.Entities.Stop", b =>
                 {
-                    b.Navigation("RealEstates");
-                });
-
-            modelBuilder.Entity("GraduateProject.Domain.AppEntities.Entities.SalePersonInfo", b =>
-                {
-                    b.Navigation("Posts");
+                    b.Navigation("RouteStops");
                 });
 
             modelBuilder.Entity("GraduateProject.Domain.Ums.Entities.Role", b =>
@@ -752,8 +531,6 @@ namespace GraduateProject.Migrator.Migrations
 
             modelBuilder.Entity("GraduateProject.Domain.Ums.Entities.UserAccount", b =>
                 {
-                    b.Navigation("Posts");
-
                     b.Navigation("UserRoles");
                 });
 #pragma warning restore 612, 618

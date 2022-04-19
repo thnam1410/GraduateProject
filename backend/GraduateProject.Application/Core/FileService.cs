@@ -3,6 +3,7 @@ using GraduateProject.Domain.AppEntities.Entities;
 using GraduateProject.Domain.AppEntities.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Path = System.IO.Path;
 
 namespace GraduateProject.Application.Core;
 

@@ -1,6 +1,8 @@
-﻿namespace GraduateProject.Common.Dto;
+﻿using GraduateProject.Domain.Common;
 
-public class StopDto
+namespace GraduateProject.Domain.AppEntities.Entities;
+
+public class CrawlStop: Entity<Guid>
 {
     public string AddressNo { get; set; } //: "66"
     public string Code { get; set; } //: "CN01"

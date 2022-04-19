@@ -1,4 +1,5 @@
 ﻿using GraduateProject.Application.RealEstate.MasterDataDto.Services;
+using GraduateProject.Domain.AppEntities.Repositories;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace GraduateProject.Application.Extensions;

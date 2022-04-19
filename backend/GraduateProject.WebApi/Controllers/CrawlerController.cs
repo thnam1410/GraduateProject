@@ -1,5 +1,8 @@
 ﻿using GraduateProject.Application.Extensions;
 using GraduateProject.Common.Dto;
+using GraduateProject.Domain.AppEntities.Entities;
+using GraduateProject.Domain.AppEntities.Repositories;
+using GraduateProject.Domain.Common;
 using GraduateProject.Extensions;
 using HtmlAgilityPack;
 using Microsoft.AspNetCore.Mvc;
@@ -12,10 +15,14 @@ public class CrawlerController : ControllerBase
     private const string targetUrl = "https://xe-buyt.com/tuyen-xe-buyt";
     private const string baseUrl = "https://xe-buyt.com";
     private readonly ILogger<CrawlerController> _logger;
+    private readonly ICrawlEntityRepository _crawlEntityRepository;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public CrawlerController(ILogger<CrawlerController> logger)
+    public CrawlerController(ILogger<CrawlerController> logger, ICrawlEntityRepository crawlEntityRepository, IUnitOfWork unitOfWork)
     {
         _logger = logger;
+        _crawlEntityRepository = crawlEntityRepository;
+        _unitOfWork = unitOfWork;
     }
 
     [HttpGet("start")]
@@ -37,9 +44,9 @@ public class CrawlerController : ControllerBase
             }
         }
 
-        var listRoutes = new List<RouteDto>();
-        var listStops = new List<StopDto>();
-        var listPath = new List<PathDto>();
+        var listRoutes = new List<CrawlRoute>();
+        var listStops = new List<CrawlStop>();
+        var listPath = new List<CrawlPathDto>();
         foreach (var url in listUrls)
         {
             var resUrl = await client.GetAsync(url);
@@ -63,7 +70,7 @@ public class CrawlerController : ControllerBase
                     _logger.LogInformation($"Fetching API: {routeUrl}");
                     var response = await client.GetAsync(routeUrl);
                     response.EnsureSuccessStatusCode();
-                    var routes = await response.Content.ReadFromJsonAsync<List<RouteDto>>() ?? new List<RouteDto>();
+                    var routes = await response.Content.ReadFromJsonAsync<List<CrawlRoute>>() ?? new List<CrawlRoute>();
                     if (routes.Any())
                     {
                         listRoutes.AddRange(routes);
@@ -82,8 +89,9 @@ public class CrawlerController : ControllerBase
                                 var responsePathData = await client.GetAsync(pathUrl);
                                 responsePathData.EnsureSuccessStatusCode();
 
-                                var stopData = await responseStopData.Content.ReadFromJsonAsync<List<StopDto>>();
-                                var pathData = await responsePathData.Content.ReadFromJsonAsync<PathDto>();
+                                var stopData = await responseStopData.Content.ReadFromJsonAsync<List<CrawlStop>>();
+                                var pathData = await responsePathData.Content.ReadFromJsonAsync<CrawlPathDto>();
+                                pathData.RouteId = routeId;
                                 listStops.AddRange(stopData);
                                 listPath.Add(pathData);
                             }
@@ -107,9 +115,37 @@ public class CrawlerController : ControllerBase
             #endregion
         }
 
-        var resultRoutes = listRoutes;
-        var resultStops = listStops.GroupBy(x => x.AddressNo).Select(x => x.First());
-        var resultPaths = listPath;
+        
+        
+        var listCrawlEntityRoutes = listRoutes;
+        var listCrawlEntityStops = listStops.GroupBy(x => x.AddressNo).Select(x => x.First()).ToList();
+        var listCrawlEntityPath = new List<CrawlPath>();
+        foreach (var path in listPath)
+        {
+            for (int i = 0; i < path.Lat.Count(); i++)
+            {
+                listCrawlEntityPath.Add(new CrawlPath()
+                {
+                    RouteId = path.RouteId.Value,
+                    Lat = path.Lat[i],
+                    Lng = path.Lng[i],
+                });
+            }
+        }
+
+        try
+        {
+            await _unitOfWork.BeginTransactionAsync();
+            await _crawlEntityRepository.AddRangeCrawlRouteAsync(listCrawlEntityRoutes);
+            await _crawlEntityRepository.AddRangeCrawlPathAsync(listCrawlEntityPath);
+            await _crawlEntityRepository.AddRangeCrawlStopAsync(listCrawlEntityStops);
+            await _unitOfWork.CommitTransactionAsync();
+        }
+        catch (Exception e)
+        {
+            await _unitOfWork.RollBackTransactionAsync();
+        }
+        
         return ApiResponse.Ok();
     }
 }
