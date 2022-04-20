@@ -27,4 +27,9 @@ public class CrawlEntityRepository: ICrawlEntityRepository
         await _dbContext.Set<CrawlStop>().AddRangeAsync(entities);
         await _dbContext.SaveChangesAsync();
     }
+
+    public IQueryable<T> GenericQueryable<T>() where T : class
+    {
+        return _dbContext.Set<T>().AsQueryable();
+    }
 }

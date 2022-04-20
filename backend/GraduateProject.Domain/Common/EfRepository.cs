@@ -26,7 +26,11 @@ public class EfRepository<T, TKey> : IRepository<T, TKey>
         if (autoSave) await this._dbContext.SaveChangesAsync();
     }
 
-    public virtual Task AddRangeAsync(List<T> entities) => this._dbContext.AddRangeAsync((IEnumerable<object>) entities);
+    public virtual async Task AddRangeAsync(List<T> entities, bool autoSave = false)
+    {
+        await this._dbContext.AddRangeAsync((IEnumerable<object>) entities);
+        if (autoSave) await _dbContext.SaveChangesAsync();
+    }
 
 
     public virtual async Task UpdateAsync(T entity)
@@ -35,10 +39,10 @@ public class EfRepository<T, TKey> : IRepository<T, TKey>
         this._dbContext.Update<T>(entity);
     }
 
-    public virtual Task UpdateRangeAsync(List<T> entities)
+    public virtual async Task UpdateRangeAsync(List<T> entities, bool autoSave = false)
     {
         this._dbContext.UpdateRange((IEnumerable<object>) entities);
-        return Task.CompletedTask;
+        await _dbContext.SaveChangesAsync();
     }
 
     public virtual async Task DeleteAsync(T entity, bool autoSave = false)

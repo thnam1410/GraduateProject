@@ -4,6 +4,7 @@ using GraduateProject.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GraduateProject.Migrator.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220420153533_UpdateRouteEntity")]
+    partial class UpdateRouteEntity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -40,7 +42,7 @@ namespace GraduateProject.Migrator.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("CrawlPath", (string)null);
+                    b.ToTable("CrawlPath");
                 });
 
             modelBuilder.Entity("GraduateProject.Domain.AppEntities.Entities.CrawlRoute", b =>
@@ -92,7 +94,7 @@ namespace GraduateProject.Migrator.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("CrawlRoute", (string)null);
+                    b.ToTable("CrawlRoute");
                 });
 
             modelBuilder.Entity("GraduateProject.Domain.AppEntities.Entities.CrawlStop", b =>
@@ -148,7 +150,7 @@ namespace GraduateProject.Migrator.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("CrawlStop", (string)null);
+                    b.ToTable("CrawlStop");
                 });
 
             modelBuilder.Entity("GraduateProject.Domain.AppEntities.Entities.FileEntry", b =>
@@ -178,7 +180,7 @@ namespace GraduateProject.Migrator.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("FileEntry", (string)null);
+                    b.ToTable("FileEntry");
                 });
 
             modelBuilder.Entity("GraduateProject.Domain.AppEntities.Entities.MasterData", b =>
@@ -229,7 +231,7 @@ namespace GraduateProject.Migrator.Migrations
 
                     b.HasIndex("RouteId");
 
-                    b.ToTable("Path", (string)null);
+                    b.ToTable("Path");
                 });
 
             modelBuilder.Entity("GraduateProject.Domain.AppEntities.Entities.Route", b =>
@@ -240,8 +242,8 @@ namespace GraduateProject.Migrator.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<decimal>("Distance")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<int>("Distance")
+                        .HasColumnType("int");
 
                     b.Property<string>("EndStop")
                         .HasColumnType("nvarchar(max)");
@@ -271,7 +273,7 @@ namespace GraduateProject.Migrator.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Route", (string)null);
+                    b.ToTable("Route");
                 });
 
             modelBuilder.Entity("GraduateProject.Domain.AppEntities.Entities.RouteStop", b =>
@@ -286,7 +288,7 @@ namespace GraduateProject.Migrator.Migrations
 
                     b.HasIndex("StopId");
 
-                    b.ToTable("RouteStop", (string)null);
+                    b.ToTable("RouteStop");
                 });
 
             modelBuilder.Entity("GraduateProject.Domain.AppEntities.Entities.Stop", b =>
@@ -337,7 +339,7 @@ namespace GraduateProject.Migrator.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Stop", (string)null);
+                    b.ToTable("Stop");
                 });
 
             modelBuilder.Entity("GraduateProject.Domain.Ums.Entities.Role", b =>

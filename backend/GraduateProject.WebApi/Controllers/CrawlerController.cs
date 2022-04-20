@@ -6,6 +6,9 @@ using GraduateProject.Domain.Common;
 using GraduateProject.Extensions;
 using HtmlAgilityPack;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Path = GraduateProject.Domain.AppEntities.Entities.Path;
+using Route = GraduateProject.Domain.AppEntities.Entities.Route;
 
 namespace GraduateProject.Controllers;
 
@@ -17,12 +20,18 @@ public class CrawlerController : ControllerBase
     private readonly ILogger<CrawlerController> _logger;
     private readonly ICrawlEntityRepository _crawlEntityRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IStopRepository _stopRepository;
+    private readonly IRouteRepository _routeRepository;
+    private readonly IPathRepository _pathRepository;
 
-    public CrawlerController(ILogger<CrawlerController> logger, ICrawlEntityRepository crawlEntityRepository, IUnitOfWork unitOfWork)
+    public CrawlerController(ILogger<CrawlerController> logger, ICrawlEntityRepository crawlEntityRepository, IUnitOfWork unitOfWork, IPathRepository pathRepository, IRouteRepository routeRepository, IStopRepository stopRepository)
     {
         _logger = logger;
         _crawlEntityRepository = crawlEntityRepository;
         _unitOfWork = unitOfWork;
+        _pathRepository = pathRepository;
+        _routeRepository = routeRepository;
+        _stopRepository = stopRepository;
     }
 
     [HttpGet("start")]
@@ -115,8 +124,7 @@ public class CrawlerController : ControllerBase
             #endregion
         }
 
-        
-        
+
         var listCrawlEntityRoutes = listRoutes;
         var listCrawlEntityStops = listStops.GroupBy(x => x.AddressNo).Select(x => x.First()).ToList();
         var listCrawlEntityPath = new List<CrawlPath>();
@@ -145,7 +153,129 @@ public class CrawlerController : ControllerBase
         {
             await _unitOfWork.RollBackTransactionAsync();
         }
-        
+
         return ApiResponse.Ok();
     }
+
+    [HttpGet("trigger-preprocess-data-stop-1")]
+    public async Task<ApiResponse> HandlePreprocessDataStop()
+    {
+        try
+        {
+            await _unitOfWork.BeginTransactionAsync();
+            List<Stop> stopEntities = await PreprocessStopEntities();
+            await _stopRepository.AddRangeAsync(stopEntities, true);
+            await _unitOfWork.CommitTransactionAsync();
+        }
+        catch (Exception e)
+        {
+            await _unitOfWork.RollBackTransactionAsync();
+        }
+        return ApiResponse.Ok();
+    }
+    [HttpGet("trigger-preprocess-data-route-2")]
+    public async Task<ApiResponse> HandlePreprocessDataRoute()
+    {
+        try
+        {
+            await _unitOfWork.BeginTransactionAsync();
+            List<Route> routeEntities = await PreprocessRouteEntities();
+            await _routeRepository.AddRangeAsync(routeEntities, true);
+            List<Stop> stopEntities = await _stopRepository.Queryable().AsNoTracking().ToListAsync();
+            foreach (var stop in stopEntities)
+            {
+                var listRouteCode = stop.Routes.Split(",").Select(x => x.Trim());
+                foreach (var routeCode in listRouteCode)
+                {
+                    var route = routeEntities.FirstOrDefault(x => string.Equals(x.RouteNo, routeCode, StringComparison.CurrentCultureIgnoreCase));
+                    if (route is not null && route.RouteStops.All(x => x.StopId != stop.Id && x.RouteId != route.Id))
+                    {
+                        route.RouteStops.Add(new RouteStop()
+                        {
+                            RouteId = route.Id,
+                            StopId = stop.Id,
+                        });
+                    }
+                }
+            }
+            await _routeRepository.UpdateRangeAsync(routeEntities, true);
+            await _unitOfWork.CommitTransactionAsync();
+        }
+        catch (Exception e)
+        {
+            await _unitOfWork.RollBackTransactionAsync();
+        }
+        return ApiResponse.Ok();
+    }
+    [HttpGet("trigger-preprocess-data-path-3")]
+    public async Task<ApiResponse> HandlePreprocessDataPath()
+    {
+        try
+        {
+            await _unitOfWork.BeginTransactionAsync();
+            List<Path> pathEntities = await PreprocessPathEntities();
+            await _pathRepository.AddRangeAsync(pathEntities, true);
+            await _unitOfWork.CommitTransactionAsync();
+        }
+        catch (Exception e)
+        {
+            await _unitOfWork.RollBackTransactionAsync();
+        }
+        return ApiResponse.Ok();
+    }
+    
+    private async Task<List<Route>> PreprocessRouteEntities()
+    {
+        var routes = await _crawlEntityRepository.GenericQueryable<CrawlRoute>()
+            .AsNoTracking()
+            .Select(x => new Route()
+            {
+                RouteVarId = int.Parse(x.RouteVarId),
+                RouteVarName = x.RouteVarName,
+                RouteNo = x.RouteNo,
+                Distance = string.IsNullOrWhiteSpace(x.Distance) ? 0 : decimal.Parse(x.Distance),
+                EndStop = x.EndStop,
+                Outbound = bool.Parse(x.Outbound),
+                RouteVarShortName = x.RouteVarShortName,
+                RunningTime = string.IsNullOrWhiteSpace(x.RunningTime) ? 0 : int.Parse(x.RunningTime),
+                StartStop = x.StartStop,
+            })
+            .ToListAsync();
+        return routes;
+    }
+
+    private async Task<List<Path>> PreprocessPathEntities()
+    {
+        return await _crawlEntityRepository.GenericQueryable<CrawlPath>()
+            .AsNoTracking()
+            .Select(x => new Path()
+            {
+                Lat = x.Lat,
+                Lng = x.Lng,
+                RouteId = x.RouteId,
+            })
+            .ToListAsync();
+    }
+    
+    private async Task<List<Stop>> PreprocessStopEntities()
+    {
+        var stopEntities = await _crawlEntityRepository.GenericQueryable<CrawlStop>()
+            .AsNoTracking()
+            .Select(x => new Stop()
+            {
+                Name = x.Name,
+                AddressNo = x.AddressNo,
+                Code = x.Code,
+                Lat = decimal.Parse(x.Lat),
+                Lng = decimal.Parse(x.Lng),
+                Routes = x.Routes,
+                Search = x.Search,
+                Status = x.Status,
+                StopType = x.StopType,
+                Street = x.Street,
+            }).ToListAsync();
+        return stopEntities;
+    }
+    
+    
 }

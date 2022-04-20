@@ -5,9 +5,9 @@ namespace GraduateProject.Domain.AppEntities.Entities;
 public class Route: Entity<int>
 {
     public int RouteVarId { get; set; }
-    public int RouteVarName { get; set; }
+    public string RouteVarName { get; set; }
     public string RouteNo { get; set; }
-    public int Distance { get; set; }
+    public decimal Distance { get; set; }
     public string? EndStop { get; set; }
     public bool? Outbound { get; set; }
     public string? RouteVarShortName { get; set; }
