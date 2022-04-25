@@ -30,12 +30,21 @@ public static class AppEntitiesConfiguration
         builder.Entity<Route>(entity =>
         {
             entity.HasKey(x => x.Id);
+        });
+        
+        builder.Entity<RouteDetail>(entity =>
+        {
+            entity.HasKey(x => x.Id);
             entity.Property(x => x.Id).ValueGeneratedOnAdd();
+            entity.HasOne(x => x.Route)
+                .WithMany(x => x.RouteDetails)
+                .HasForeignKey(x => x.RouteId)
+                .OnDelete(DeleteBehavior.Cascade);
             entity.HasMany(x => x.Stops)
                 .WithMany(x => x.RouteList)
                 .UsingEntity<RouteStop>(
                     b => b.HasOne(e => e.Stop).WithMany(e => e.RouteStops).HasForeignKey(e => e.StopId).OnDelete(DeleteBehavior.Cascade),
-                    a => a.HasOne(e => e.Route).WithMany(e => e.RouteStops).HasForeignKey(e => e.RouteId).OnDelete(DeleteBehavior.Cascade)
+                    a => a.HasOne(e => e.RouteDetail).WithMany(e => e.RouteStops).HasForeignKey(e => e.RouteDetailId).OnDelete(DeleteBehavior.Cascade)
                 );
         });
         builder.Entity<Stop>(entity =>
@@ -47,9 +56,9 @@ public static class AppEntitiesConfiguration
         {
             entity.HasKey(x => x.Id);
             entity.Property(x => x.Id).ValueGeneratedOnAdd();
-            entity.HasOne(x => x.Route)
+            entity.HasOne(x => x.RouteDetail)
                 .WithMany(x => x.Paths)
-                .HasForeignKey(x => x.RouteId)
+                .HasForeignKey(x => x.RouteDetailId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
         builder.Entity<CrawlPath>(entity =>

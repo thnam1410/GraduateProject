@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
+using GraduateProject.Application.Common.Dto;
 using GraduateProject.Application.Extensions;
 using GraduateProject.Application.Ums.Dto;
 using GraduateProject.Authentication;
@@ -49,6 +50,7 @@ public class Startup
         services.SetupInfrastructure(connectionString);
         services.RegisterAuthentication(Configuration); // include jwt && identity config
         services.AddScoped<ICurrentUser<Guid>, CurrentUser>();
+        services.Configure<ConfigDistance>(Configuration.GetSection(nameof(ConfigDistance)));
         services.AddCors(options =>
         {
             options.AddPolicy("FrontendCors",

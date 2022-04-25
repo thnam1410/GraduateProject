@@ -1,5 +1,4 @@
-﻿using GraduateProject.Application.Extensions;
-using GraduateProject.Common.Dto;
+﻿using GraduateProject.Common.Dto;
 using GraduateProject.Domain.AppEntities.Entities;
 using GraduateProject.Domain.AppEntities.Repositories;
 using GraduateProject.Domain.Common;
@@ -21,17 +20,19 @@ public class CrawlerController : ControllerBase
     private readonly ICrawlEntityRepository _crawlEntityRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IStopRepository _stopRepository;
+    private readonly IRouteDetailRepository _routeDetailRepository;
     private readonly IRouteRepository _routeRepository;
     private readonly IPathRepository _pathRepository;
 
-    public CrawlerController(ILogger<CrawlerController> logger, ICrawlEntityRepository crawlEntityRepository, IUnitOfWork unitOfWork, IPathRepository pathRepository, IRouteRepository routeRepository, IStopRepository stopRepository)
+    public CrawlerController(ILogger<CrawlerController> logger, ICrawlEntityRepository crawlEntityRepository, IUnitOfWork unitOfWork, IPathRepository pathRepository, IRouteDetailRepository routeDetailRepository, IStopRepository stopRepository, IRouteRepository routeRepository)
     {
         _logger = logger;
         _crawlEntityRepository = crawlEntityRepository;
         _unitOfWork = unitOfWork;
         _pathRepository = pathRepository;
-        _routeRepository = routeRepository;
+        _routeDetailRepository = routeDetailRepository;
         _stopRepository = stopRepository;
+        _routeRepository = routeRepository;
     }
 
     [HttpGet("start")]
@@ -98,10 +99,11 @@ public class CrawlerController : ControllerBase
                                 var responsePathData = await client.GetAsync(pathUrl);
                                 responsePathData.EnsureSuccessStatusCode();
 
-                                var stopData = await responseStopData.Content.ReadFromJsonAsync<List<CrawlStop>>();
+                                // var stopData = await responseStopData.Content.ReadFromJsonAsync<List<CrawlStop>>();
                                 var pathData = await responsePathData.Content.ReadFromJsonAsync<CrawlPathDto>();
                                 pathData.RouteId = routeId;
-                                listStops.AddRange(stopData);
+                                pathData.RouteVarId = routeVarId;
+                                // listStops.AddRange(stopData);
                                 listPath.Add(pathData);
                             }
                             catch (Exception e)
@@ -135,6 +137,7 @@ public class CrawlerController : ControllerBase
                 listCrawlEntityPath.Add(new CrawlPath()
                 {
                     RouteId = path.RouteId.Value,
+                    RouteVarId = path.RouteVarId.Value,
                     Lat = path.Lat[i],
                     Lng = path.Lng[i],
                 });
@@ -180,30 +183,34 @@ public class CrawlerController : ControllerBase
         {
             await _unitOfWork.BeginTransactionAsync();
             List<Route> routeEntities = await PreprocessRouteEntities();
+            await _routeRepository.UpdateIdentityInsert(true);
             await _routeRepository.AddRangeAsync(routeEntities, true);
-            List<Stop> stopEntities = await _stopRepository.Queryable().AsNoTracking().ToListAsync();
+            await _routeRepository.UpdateIdentityInsert(false);
+            var routeDetailEntities = await _routeDetailRepository.Queryable().AsNoTracking().ToListAsync();
+            List<Stop> stopEntities = await _stopRepository.Queryable().ToListAsync();
             foreach (var stop in stopEntities)
             {
                 var listRouteCode = stop.Routes.Split(",").Select(x => x.Trim());
                 foreach (var routeCode in listRouteCode)
                 {
-                    var route = routeEntities.FirstOrDefault(x => string.Equals(x.RouteNo, routeCode, StringComparison.CurrentCultureIgnoreCase));
-                    if (route is not null && route.RouteStops.All(x => x.StopId != stop.Id && x.RouteId != route.Id))
+                    var routeDetail = routeDetailEntities.FirstOrDefault(x => string.Equals(x.RouteNo, routeCode, StringComparison.CurrentCultureIgnoreCase));
+                    if (routeDetail is not null && routeDetail.RouteStops.All(x => x.StopId != stop.Id && x.RouteDetailId != routeDetail.Id))
                     {
-                        route.RouteStops.Add(new RouteStop()
+                        stop.RouteStops.Add(new RouteStop()
                         {
-                            RouteId = route.Id,
+                            RouteDetailId = routeDetail.Id,
                             StopId = stop.Id,
                         });
                     }
                 }
             }
-            await _routeRepository.UpdateRangeAsync(routeEntities, true);
+            await _stopRepository.UpdateRangeAsync(stopEntities, true);
             await _unitOfWork.CommitTransactionAsync();
         }
         catch (Exception e)
         {
             await _unitOfWork.RollBackTransactionAsync();
+            return ApiResponse.Fail(e.Message);
         }
         return ApiResponse.Ok();
     }
@@ -226,35 +233,41 @@ public class CrawlerController : ControllerBase
     
     private async Task<List<Route>> PreprocessRouteEntities()
     {
-        var routes = await _crawlEntityRepository.GenericQueryable<CrawlRoute>()
-            .AsNoTracking()
-            .Select(x => new Route()
+        var routesDetails = await _crawlEntityRepository.GenericQueryable<CrawlRoute>().AsNoTracking().ToListAsync();
+        var routes = new List<Route>();
+        foreach (var routeGroup in routesDetails.GroupBy(x => x.RouteId))
+        {
+            routes.Add(new Route()
             {
-                RouteVarId = int.Parse(x.RouteVarId),
-                RouteVarName = x.RouteVarName,
-                RouteNo = x.RouteNo,
-                Distance = string.IsNullOrWhiteSpace(x.Distance) ? 0 : decimal.Parse(x.Distance),
-                EndStop = x.EndStop,
-                Outbound = bool.Parse(x.Outbound),
-                RouteVarShortName = x.RouteVarShortName,
-                RunningTime = string.IsNullOrWhiteSpace(x.RunningTime) ? 0 : int.Parse(x.RunningTime),
-                StartStop = x.StartStop,
-            })
-            .ToListAsync();
+                Id = int.Parse(routeGroup.Key),
+                Name = string.Join("-", routeGroup.ToList().Select(x => x.RouteVarShortName)),
+                RouteDetails = routeGroup.ToList().Select(x => new RouteDetail()
+                {
+                    RouteVarId = int.Parse(x.RouteVarId),
+                    RouteVarName = x.RouteVarName,
+                    RouteNo = x.RouteNo,
+                    Distance = string.IsNullOrWhiteSpace(x.Distance) ? 0 : double.Parse(x.Distance),
+                    EndStop = x.EndStop,
+                    Outbound = bool.Parse(x.Outbound),
+                    RouteVarShortName = x.RouteVarShortName,
+                    RunningTime = string.IsNullOrWhiteSpace(x.RunningTime) ? 0 : int.Parse(x.RunningTime),
+                    StartStop = x.StartStop,
+                }).ToList()
+            });
+        }
         return routes;
     }
 
     private async Task<List<Path>> PreprocessPathEntities()
     {
-        return await _crawlEntityRepository.GenericQueryable<CrawlPath>()
-            .AsNoTracking()
+        var routeDetails = await _routeDetailRepository.Queryable().AsNoTracking().Select(x => new {x.Id, x.RouteId, x.RouteVarId}).ToListAsync();
+        return (await _crawlEntityRepository.GenericQueryable<CrawlPath>().AsNoTracking().ToListAsync())
             .Select(x => new Path()
             {
                 Lat = x.Lat,
                 Lng = x.Lng,
-                RouteId = x.RouteId,
-            })
-            .ToListAsync();
+                RouteDetailId = routeDetails.First(y => y.RouteId == x.RouteId && y.RouteVarId == x.RouteVarId).Id,
+            }).ToList();
     }
     
     private async Task<List<Stop>> PreprocessStopEntities()
@@ -266,8 +279,8 @@ public class CrawlerController : ControllerBase
                 Name = x.Name,
                 AddressNo = x.AddressNo,
                 Code = x.Code,
-                Lat = decimal.Parse(x.Lat),
-                Lng = decimal.Parse(x.Lng),
+                Lat = double.Parse(x.Lat),
+                Lng = double.Parse(x.Lng),
                 Routes = x.Routes,
                 Search = x.Search,
                 Status = x.Status,

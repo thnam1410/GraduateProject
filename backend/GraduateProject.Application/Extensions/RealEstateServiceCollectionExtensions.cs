@@ -1,4 +1,5 @@
 ﻿using GraduateProject.Application.RealEstate.MasterDataDto.Services;
+using GraduateProject.Application.RealEstate.RouteDto.Services;
 using GraduateProject.Domain.AppEntities.Repositories;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -9,6 +10,7 @@ public static class RealEstateServiceCollectionExtensions
     public static IServiceCollection AddRealEstateServices(this IServiceCollection services)
     {
         services.AddTransient<IMasterDataService, MasterDataService>();
+        services.AddTransient<IRouteService, RouteService>();
         return services;
     }
 }

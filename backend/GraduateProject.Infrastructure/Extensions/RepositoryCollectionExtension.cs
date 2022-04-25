@@ -11,9 +11,10 @@ public static class RepositoryCollectionExtension
     {
         services.AddTransient<IMasterDataRepository, MasterDataRepository>();
         services.AddTransient<ICrawlEntityRepository, CrawlEntityRepository>();
-        services.AddTransient<IRouteRepository, RouteRepository>();
+        services.AddTransient<IRouteDetailRepository, RouteDetailRepository>();
         services.AddTransient<IPathRepository, PathRepository>();
         services.AddTransient<IStopRepository, StopRepository>();
+        services.AddTransient<IRouteRepository, RouteRepository>();
         return services;
     }
 }

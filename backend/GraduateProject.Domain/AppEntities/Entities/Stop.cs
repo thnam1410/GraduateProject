@@ -7,8 +7,8 @@ public class Stop : Entity<int>
     public string Name { get; set; }
     public string AddressNo { get; set; }
     public string Code { get; set; }
-    public decimal Lat { get; set; }
-    public decimal Lng { get; set; }
+    public double Lat { get; set; }
+    public double Lng { get; set; }
     public string Routes { get; set; }
     public string Search { get; set; }
     public string Status { get; set; }
@@ -16,5 +16,5 @@ public class Stop : Entity<int>
     public string Street { get; set; }
     
     public virtual ICollection<RouteStop> RouteStops { get; set; } = new List<RouteStop>();
-    public virtual ICollection<Route> RouteList { get; set; } = new List<Route>();
+    public virtual ICollection<RouteDetail> RouteList { get; set; } = new List<RouteDetail>();
 }

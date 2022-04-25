@@ -4,6 +4,7 @@ using GraduateProject.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GraduateProject.Migrator.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220425143641_ChangeReferenceRouteAndRouteDetail")]
+    partial class ChangeReferenceRouteAndRouteDetail
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -36,9 +38,6 @@ namespace GraduateProject.Migrator.Migrations
                         .HasColumnType("float");
 
                     b.Property<int>("RouteId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("RouteVarId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -225,12 +224,12 @@ namespace GraduateProject.Migrator.Migrations
                     b.Property<double>("Lng")
                         .HasColumnType("float");
 
-                    b.Property<int>("RouteDetailId")
+                    b.Property<int>("RouteId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("RouteDetailId");
+                    b.HasIndex("RouteId");
 
                     b.ToTable("Path");
                 });
@@ -301,13 +300,13 @@ namespace GraduateProject.Migrator.Migrations
 
             modelBuilder.Entity("GraduateProject.Domain.AppEntities.Entities.RouteStop", b =>
                 {
-                    b.Property<int>("RouteDetailId")
+                    b.Property<int>("RouteId")
                         .HasColumnType("int");
 
                     b.Property<int>("StopId")
                         .HasColumnType("int");
 
-                    b.HasKey("RouteDetailId", "StopId");
+                    b.HasKey("RouteId", "StopId");
 
                     b.HasIndex("StopId");
 
@@ -602,7 +601,7 @@ namespace GraduateProject.Migrator.Migrations
                 {
                     b.HasOne("GraduateProject.Domain.AppEntities.Entities.RouteDetail", "RouteDetail")
                         .WithMany("Paths")
-                        .HasForeignKey("RouteDetailId")
+                        .HasForeignKey("RouteId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -624,7 +623,7 @@ namespace GraduateProject.Migrator.Migrations
                 {
                     b.HasOne("GraduateProject.Domain.AppEntities.Entities.RouteDetail", "RouteDetail")
                         .WithMany("RouteStops")
-                        .HasForeignKey("RouteDetailId")
+                        .HasForeignKey("RouteId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

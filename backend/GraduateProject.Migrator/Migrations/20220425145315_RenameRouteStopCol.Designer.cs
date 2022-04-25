@@ -4,6 +4,7 @@ using GraduateProject.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GraduateProject.Migrator.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220425145315_RenameRouteStopCol")]
+    partial class RenameRouteStopCol
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -36,9 +38,6 @@ namespace GraduateProject.Migrator.Migrations
                         .HasColumnType("float");
 
                     b.Property<int>("RouteId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("RouteVarId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -225,12 +224,12 @@ namespace GraduateProject.Migrator.Migrations
                     b.Property<double>("Lng")
                         .HasColumnType("float");
 
-                    b.Property<int>("RouteDetailId")
+                    b.Property<int>("RouteId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("RouteDetailId");
+                    b.HasIndex("RouteId");
 
                     b.ToTable("Path");
                 });
@@ -602,7 +601,7 @@ namespace GraduateProject.Migrator.Migrations
                 {
                     b.HasOne("GraduateProject.Domain.AppEntities.Entities.RouteDetail", "RouteDetail")
                         .WithMany("Paths")
-                        .HasForeignKey("RouteDetailId")
+                        .HasForeignKey("RouteId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

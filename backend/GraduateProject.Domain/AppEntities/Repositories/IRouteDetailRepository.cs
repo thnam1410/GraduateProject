@@ -3,7 +3,7 @@ using GraduateProject.Domain.Common;
 
 namespace GraduateProject.Domain.AppEntities.Repositories;
 
-public interface IRouteRepository: IRepository<Route, int>
+public interface IRouteDetailRepository: IRepository<RouteDetail, int>
 {
-    Task UpdateIdentityInsert(bool isOn);
+    
 }

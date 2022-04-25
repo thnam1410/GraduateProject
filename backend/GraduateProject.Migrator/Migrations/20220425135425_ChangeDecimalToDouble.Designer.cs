@@ -4,6 +4,7 @@ using GraduateProject.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GraduateProject.Migrator.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220425135425_ChangeDecimalToDouble")]
+    partial class ChangeDecimalToDouble
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -36,9 +38,6 @@ namespace GraduateProject.Migrator.Migrations
                         .HasColumnType("float");
 
                     b.Property<int>("RouteId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("RouteVarId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -225,34 +224,17 @@ namespace GraduateProject.Migrator.Migrations
                     b.Property<double>("Lng")
                         .HasColumnType("float");
 
-                    b.Property<int>("RouteDetailId")
+                    b.Property<int>("RouteId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("RouteDetailId");
+                    b.HasIndex("RouteId");
 
                     b.ToTable("Path");
                 });
 
             modelBuilder.Entity("GraduateProject.Domain.AppEntities.Entities.Route", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Route");
-                });
-
-            modelBuilder.Entity("GraduateProject.Domain.AppEntities.Entities.RouteDetail", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -268,9 +250,6 @@ namespace GraduateProject.Migrator.Migrations
 
                     b.Property<bool?>("Outbound")
                         .HasColumnType("bit");
-
-                    b.Property<int>("RouteId")
-                        .HasColumnType("int");
 
                     b.Property<string>("RouteNo")
                         .IsRequired()
@@ -294,20 +273,18 @@ namespace GraduateProject.Migrator.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("RouteId");
-
-                    b.ToTable("RouteDetail");
+                    b.ToTable("Route");
                 });
 
             modelBuilder.Entity("GraduateProject.Domain.AppEntities.Entities.RouteStop", b =>
                 {
-                    b.Property<int>("RouteDetailId")
+                    b.Property<int>("RouteId")
                         .HasColumnType("int");
 
                     b.Property<int>("StopId")
                         .HasColumnType("int");
 
-                    b.HasKey("RouteDetailId", "StopId");
+                    b.HasKey("RouteId", "StopId");
 
                     b.HasIndex("StopId");
 
@@ -600,19 +577,8 @@ namespace GraduateProject.Migrator.Migrations
 
             modelBuilder.Entity("GraduateProject.Domain.AppEntities.Entities.Path", b =>
                 {
-                    b.HasOne("GraduateProject.Domain.AppEntities.Entities.RouteDetail", "RouteDetail")
-                        .WithMany("Paths")
-                        .HasForeignKey("RouteDetailId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("RouteDetail");
-                });
-
-            modelBuilder.Entity("GraduateProject.Domain.AppEntities.Entities.RouteDetail", b =>
-                {
                     b.HasOne("GraduateProject.Domain.AppEntities.Entities.Route", "Route")
-                        .WithMany("RouteDetails")
+                        .WithMany("Paths")
                         .HasForeignKey("RouteId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -622,9 +588,9 @@ namespace GraduateProject.Migrator.Migrations
 
             modelBuilder.Entity("GraduateProject.Domain.AppEntities.Entities.RouteStop", b =>
                 {
-                    b.HasOne("GraduateProject.Domain.AppEntities.Entities.RouteDetail", "RouteDetail")
+                    b.HasOne("GraduateProject.Domain.AppEntities.Entities.Route", "Route")
                         .WithMany("RouteStops")
-                        .HasForeignKey("RouteDetailId")
+                        .HasForeignKey("RouteId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -634,7 +600,7 @@ namespace GraduateProject.Migrator.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("RouteDetail");
+                    b.Navigation("Route");
 
                     b.Navigation("Stop");
                 });
@@ -675,11 +641,6 @@ namespace GraduateProject.Migrator.Migrations
                 });
 
             modelBuilder.Entity("GraduateProject.Domain.AppEntities.Entities.Route", b =>
-                {
-                    b.Navigation("RouteDetails");
-                });
-
-            modelBuilder.Entity("GraduateProject.Domain.AppEntities.Entities.RouteDetail", b =>
                 {
                     b.Navigation("Paths");
 
