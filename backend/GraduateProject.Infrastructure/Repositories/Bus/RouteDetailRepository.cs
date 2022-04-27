@@ -10,4 +10,6 @@ public class RouteDetailRepository: EfRepository<RouteDetail, int>, IRouteDetail
     public RouteDetailRepository(AppDbContext dbContext) : base(dbContext)
     {
     }
+    
+    
 }

@@ -1,4 +1,6 @@
-﻿using GraduateProject.Common.Dto;
+﻿using GraduateProject.Application.Common.Dto;
+using GraduateProject.Application.Extensions;
+using GraduateProject.Common.Dto;
 using GraduateProject.Domain.AppEntities.Entities;
 using GraduateProject.Domain.AppEntities.Repositories;
 using GraduateProject.Domain.Common;
@@ -99,11 +101,11 @@ public class CrawlerController : ControllerBase
                                 var responsePathData = await client.GetAsync(pathUrl);
                                 responsePathData.EnsureSuccessStatusCode();
 
-                                // var stopData = await responseStopData.Content.ReadFromJsonAsync<List<CrawlStop>>();
+                                var stopData = await responseStopData.Content.ReadFromJsonAsync<List<CrawlStop>>();
                                 var pathData = await responsePathData.Content.ReadFromJsonAsync<CrawlPathDto>();
                                 pathData.RouteId = routeId;
                                 pathData.RouteVarId = routeVarId;
-                                // listStops.AddRange(stopData);
+                                listStops.AddRange(stopData);
                                 listPath.Add(pathData);
                             }
                             catch (Exception e)
@@ -140,6 +142,7 @@ public class CrawlerController : ControllerBase
                     RouteVarId = path.RouteVarId.Value,
                     Lat = path.Lat[i],
                     Lng = path.Lng[i],
+                    Rank = i + 1
                 });
             }
         }
@@ -148,8 +151,11 @@ public class CrawlerController : ControllerBase
         {
             await _unitOfWork.BeginTransactionAsync();
             await _crawlEntityRepository.AddRangeCrawlRouteAsync(listCrawlEntityRoutes);
+            _logger.LogInformation("Crawl Routes into DB successfully!");
             await _crawlEntityRepository.AddRangeCrawlPathAsync(listCrawlEntityPath);
+            _logger.LogInformation("Crawl Path into DB successfully!");
             await _crawlEntityRepository.AddRangeCrawlStopAsync(listCrawlEntityStops);
+            _logger.LogInformation("Crawl Stops into DB successfully!");
             await _unitOfWork.CommitTransactionAsync();
         }
         catch (Exception e)
@@ -230,6 +236,45 @@ public class CrawlerController : ControllerBase
         }
         return ApiResponse.Ok();
     }
+
+    [HttpGet("build-graph")]
+    public async Task<ApiResponse> HandleBuildGraph()
+    {
+        var routeDetails = await _routeDetailRepository.Queryable().Include(x => x.Paths).ToListAsync();
+        var listVertex = new List<Vertex>();
+        foreach (var routeDetail in routeDetails)
+        {
+            var listPaths = routeDetail.Paths.OrderBy(x => x.Rank).ToList();
+            if(listPaths.Count() < 2) continue;
+            for (int i = 0; i < listPaths.Count() - 1; i++)
+            {
+                var pointA = listPaths[i];
+                var pointB = listPaths[i + 1];
+                var positionA = new Position() {Lat = pointA.Lat, Lng = pointA.Lng};
+                var positionB = new Position() {Lat = pointB.Lat, Lng = pointB.Lng};
+                listVertex.Add(new Vertex()
+                {
+                    PointAId = pointA.Id,
+                    PointBId = pointB.Id,
+                    Distance = CalculateUtil.Distance(positionA, positionB),
+                    ParentRouteDetailId = routeDetail.Id,
+                });
+            }
+        }
+        try
+        {
+            await _unitOfWork.BeginTransactionAsync();
+            await _pathRepository.AddVertexList(listVertex,true);
+            await _unitOfWork.CommitTransactionAsync();
+            return ApiResponse.Ok();
+        }
+        catch (Exception e)
+        {
+            await _unitOfWork.RollBackTransactionAsync();
+            return ApiResponse.Fail(e.Message);
+        }
+    }
+    
     
     private async Task<List<Route>> PreprocessRouteEntities()
     {
@@ -267,6 +312,7 @@ public class CrawlerController : ControllerBase
                 Lat = x.Lat,
                 Lng = x.Lng,
                 RouteDetailId = routeDetails.First(y => y.RouteId == x.RouteId && y.RouteVarId == x.RouteVarId).Id,
+                Rank = x.Rank
             }).ToList();
     }
     

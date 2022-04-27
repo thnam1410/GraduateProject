@@ -9,4 +9,5 @@ public class CrawlPath: Entity<Guid>
     public int RouteVarId { get; set; }
     public double Lat { get; set; }
     public double Lng { get; set; }
+    public int Rank { get; set; }
 }

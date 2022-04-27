@@ -4,6 +4,7 @@ using GraduateProject.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GraduateProject.Migrator.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220427151911_AddVertex")]
+    partial class AddVertex
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -373,23 +375,26 @@ namespace GraduateProject.Migrator.Migrations
 
             modelBuilder.Entity("GraduateProject.Domain.AppEntities.Entities.Vertex", b =>
                 {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasDefaultValueSql("NEWID()");
+
+                    b.Property<double>("Distance")
+                        .HasColumnType("float");
+
+                    b.Property<int>("ParentRouteDetailId")
+                        .HasColumnType("int");
+
                     b.Property<Guid>("PointAId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("PointBId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("ParentRouteDetailId")
-                        .HasColumnType("int");
-
-                    b.Property<double>("Distance")
-                        .HasColumnType("float");
-
-                    b.HasKey("PointAId", "PointBId", "ParentRouteDetailId");
+                    b.HasKey("Id");
 
                     b.HasIndex("ParentRouteDetailId");
-
-                    b.HasIndex("PointBId");
 
                     b.ToTable("Vertex");
                 });
@@ -676,23 +681,7 @@ namespace GraduateProject.Migrator.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("GraduateProject.Domain.AppEntities.Entities.Path", "PointA")
-                        .WithMany()
-                        .HasForeignKey("PointAId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("GraduateProject.Domain.AppEntities.Entities.Path", "PointB")
-                        .WithMany()
-                        .HasForeignKey("PointBId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.Navigation("ParentRouteDetail");
-
-                    b.Navigation("PointA");
-
-                    b.Navigation("PointB");
                 });
 
             modelBuilder.Entity("GraduateProject.Domain.Ums.Entities.RoleClaim", b =>
