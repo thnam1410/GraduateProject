@@ -21,6 +21,6 @@
 		"baseUrl": ".",
 		"plugins": [{ "transform": "ts-nameof", "type": "raw" }]
 	},
-	"include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
+	"include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "src/pages/bus-map/index.js"],
 	"exclude": ["node_modules"]
 }
