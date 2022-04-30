@@ -1,11 +1,8 @@
-import { GetServerSideProps, NextPage } from "next";
-import dynamic from "next/dynamic";
+import {NextPage} from "next";
 import Map from "~/src/components/layout/Map";
 import MarkerMulti from "./RoutingMachine";
 import useBrowser from "~/src/hooks/useBrowser";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
-import React, { useEffect, useState } from "react";
-import DataTest from "../Data/DataTest";
+import React from "react";
 
 const BusMap: NextPage<any> = (props) => {
 	const checkBrowser = useBrowser();
@@ -13,9 +10,7 @@ const BusMap: NextPage<any> = (props) => {
 	return (
 		<>
 			<div id="map" style={{ position: "relative" }}>
-				<Map>
-					<MarkerMulti></MarkerMulti>
-				</Map>
+				<Map/>
 			</div>
 		</>
 	);
