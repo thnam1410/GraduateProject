@@ -13,12 +13,12 @@ namespace GraduateProject.Controllers;
 public class RouteController: ControllerBase
 {
     private readonly IRouteService _routeService;
-    private readonly IPathRepository _pathRepository;
+    private readonly IVertexRepository _vertexRepository;
 
-    public RouteController(IRouteService routeService, IPathRepository pathRepository)
+    public RouteController(IRouteService routeService, IVertexRepository vertexRepository)
     {
         _routeService = routeService;
-        _pathRepository = pathRepository;
+        _vertexRepository = vertexRepository;
     }
 
 
@@ -32,8 +32,8 @@ public class RouteController: ControllerBase
     [HttpGet("get-path-by-route-detail-id")]
     public async Task<ApiResponse<List<Position>>> HandleGetRoutePathByRouteDetailId([FromQuery] int routeDetailId)
     {
-        var pathStart = await _pathRepository.Queryable().FirstOrDefaultAsync(x => x.RouteDetailId == 1651 && x.Rank == 1);
-        var vertices = await _pathRepository.GetVertexQueryable().Where(x => x.ParentRouteDetailId == routeDetailId)
+        var vertexStart = await _vertexRepository.Queryable().FirstOrDefaultAsync(x => x.RouteDetailId == 1651 && x.Rank == 1);
+        var edges = await _vertexRepository.GetEdgeQueryable().Where(x => x.ParentRouteDetailId == routeDetailId)
             .Select(x => new
             {
                 x.PointAId, x.PointBId,
@@ -41,22 +41,22 @@ public class RouteController: ControllerBase
                 PointBLat = x.PointB.Lat, PointBLng = x.PointB.Lng,
             })
             .ToListAsync();
-        var firstVertex = vertices.FirstOrDefault(x => x.PointAId == pathStart?.Id);
+        var firstEdge = edges.FirstOrDefault(x => x.PointAId == vertexStart?.Id);
         var results = new List<Position>();
-        if (firstVertex is not null)
+        if (firstEdge is not null)
         {
             results.AddRange(new List<Position>()
             {
-                new() {Lat = firstVertex.PointALat, Lng = firstVertex.PointALng},
-                new() {Lat = firstVertex.PointBLat, Lng = firstVertex.PointBLng},
+                new() {Lat = firstEdge.PointALat, Lng = firstEdge.PointALng},
+                new() {Lat = firstEdge.PointBLat, Lng = firstEdge.PointBLng},
             });
-            var currentVertex = firstVertex;
+            var currentEdge = firstEdge;
             while (true)
             {
-                var nextVertex = vertices.FirstOrDefault(x => x.PointAId == currentVertex.PointBId);
+                var nextVertex = edges.FirstOrDefault(x => x.PointAId == currentEdge.PointBId);
                 if (nextVertex is not null)
                 {
-                    currentVertex = nextVertex;
+                    currentEdge = nextVertex;
                     results.Add(new Position() {Lat = nextVertex.PointBLat, Lng = nextVertex.PointBLng});
                 }
                 else break;

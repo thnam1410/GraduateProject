@@ -1,20 +1,12 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using System.Runtime.Serialization;
-using GraduateProject.Domain.Common;
+﻿using GraduateProject.Domain.Common;
 
 namespace GraduateProject.Domain.AppEntities.Entities;
 
-public class Vertex
+public class Vertex: Entity<Guid>
 {
-    
-    public Guid PointAId { get; set; }
-    public virtual Path PointA { get; set; }
-    
-    public Guid PointBId { get; set; }
-    public virtual Path PointB { get; set; }
-    
-    public double Distance { get; set; }
-    
-    public int ParentRouteDetailId { get; set; }
-    public virtual RouteDetail ParentRouteDetail { get; set; }
+    public int RouteDetailId { get; set; }
+    public RouteDetail RouteDetail { get; set; }
+    public double Lat { get; set; }
+    public double Lng { get; set; }
+    public int Rank { get; set; }
 }

@@ -1,7 +1,6 @@
 ﻿using GraduateProject.Domain.AppEntities.Entities;
 using GraduateProject.Domain.Constants;
 using Microsoft.EntityFrameworkCore;
-using Path = GraduateProject.Domain.AppEntities.Entities.Path;
 
 namespace GraduateProject.Infrastructure.EntityConfigurations;
 
@@ -52,7 +51,7 @@ public static class AppEntitiesConfiguration
             entity.HasKey(x => x.Id);
             entity.Property(x => x.Id).ValueGeneratedOnAdd();
         });
-        builder.Entity<Path>(entity =>
+        builder.Entity<Vertex>(entity =>
         {
             entity.HasKey(x => x.Id);
             entity.Property(x => x.Id).ValueGeneratedOnAdd();
@@ -76,7 +75,7 @@ public static class AppEntitiesConfiguration
             entity.HasKey(x => x.Id);
             entity.Property(x => x.Id).HasDefaultValueSql("NEWID()");
         });
-        builder.Entity<Vertex>(entity =>
+        builder.Entity<Edge>(entity =>
         {
             entity.HasKey(x => new {x.PointAId, x.PointBId, x.ParentRouteDetailId});
             entity.HasOne(x => x.PointA)
