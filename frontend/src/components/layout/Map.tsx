@@ -2,15 +2,25 @@ import { MapContainer, TileLayer, Marker, Popup, Polygon, Polyline, useMapEvents
 import "leaflet/dist/leaflet.css";
 import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css";
 import "leaflet-defaulticon-compatibility";
-import React, { useRef, useState } from "react";
-import useBrowser from "~/src/hooks/useBrowser";
+import React, { useEffect, useRef, useState } from "react";
 import { GetServerSideProps, NextPage } from "next";
-import { useLeafletContext } from "@react-leaflet/core";
-import { LatLngBoundsExpression, Map as LeafletMap, Polyline as LeafletPolyline } from "leaflet";
-
+import { Map as LeafletMap, Polyline as LeafletPolyline } from "leaflet";
+import DataTest from "~/src/pages/Data/DataTest";
+import RoutingMachine from "~/src/pages/bus-map/RoutingMachine";
+import GooglePlacesAutocomplete, { geocodeByAddress, geocodeByPlaceId, getLatLng } from "react-google-places-autocomplete";
 const Map: NextPage<any> = ({ children }) => {
 	const polyLineRef = useRef<LeafletPolyline>(null);
 	const leafletMap = useRef<LeafletMap>(null);
+	const [address, setAddress] = useState<any>(null);
+
+	useEffect(() => {
+		const func = async () => {
+			console.log("address", address);
+			const geocodeObj = address && address.value && (await geocodeByPlaceId(address.value.place_id));
+			console.log("geocodeObj", geocodeObj);
+		};
+		func();
+	}, [address]);
 
 	const renderMarkers = () => {
 		return (
@@ -43,30 +53,80 @@ const Map: NextPage<any> = ({ children }) => {
 	};
 	return (
 		<>
-			<div style={{ height: 50, width: "100%" }}>
-				<button
-					onClick={() => {
-						console.log("leafletMap.current", leafletMap.current);
-						leafletMap.current?.fitBounds(polyLineRef.current?.getBounds() as LatLngBoundsExpression);
-					}}
-				>
-					Click
-				</button>
-			</div>
-			<MapContainer
-				ref={leafletMap}
-				center={[10.762622, 106.660172]}
-				zoom={14}
-				scrollWheelZoom={true}
-				style={{ height: "100%", width: "100%" }}
+			<div
+				style={{
+					position: "absolute",
+					zIndex: 3,
+					width: "40%",
+					left: "60px",
+					top: "10px",
+				}}
 			>
-				<TileLayer
-					url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-					attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-				/>
-				{renderMarkers()}
-				{renderRoutes()}
-			</MapContainer>
+				{
+					<GooglePlacesAutocomplete
+						apiKey="AIzaSyDQXEJEdPF6r1WQMhj9rWW03oyV39kh0Dg"
+						selectProps={{
+							placeholder: "Nhập vị trí cần chọn",
+							isClearable: true,
+							value: address,
+							onChange: (val: any) => {
+								setAddress(val);
+							},
+						}}
+					/>
+					// <GooglePlacesAutocomplete
+					// 	selectProps={{
+					// 		placeholder: "Nhập vị trí cần chọn",
+					// 		value: valueSearch,
+					// 		// onChange: (data: any, details = null) => {
+					// 		// 	// 'details' is provided when fetchDetails = true
+					// 		// 	console.log("details", details);
+					// 		// 	console.log("data", data);
+					// 		onChange: handleChange,
+					// 		onSelect: handleSelect,
+					// 		// },
+					// 		styles: {
+					// 			// placeholder: "Placeholder...",
+					// 			input: (provided: any) => ({
+					// 				...provided,
+					// 				// color: "blue",
+					// 			}),
+					// 			option: (provided: any) => ({
+					// 				...provided,
+					// 				// color: "blue",
+					// 			}),
+					// 			singleValue: (provided: any) => ({
+					// 				...provided,
+					// 				// color: "blue",
+					// 			}),
+					// 		},
+					// 	}}
+					// 	apiKey={"AIzaSyDQXEJEdPF6r1WQMhj9rWW03oyV39kh0Dg"}
+					// />
+				}
+			</div>
+			<div
+				style={{
+					position: "relative",
+					zIndex: 1,
+					height: "100%",
+				}}
+			>
+				<MapContainer
+					ref={leafletMap}
+					center={[10.762622, 106.660172]}
+					zoom={14}
+					scrollWheelZoom={true}
+					style={{ height: "100%", width: "100%" }}
+				>
+					<TileLayer
+						url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+						attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+					/>
+					{renderMarkers()}
+					{renderRoutes()}
+				</MapContainer>
+			</div>
 		</>
 	);
 };
