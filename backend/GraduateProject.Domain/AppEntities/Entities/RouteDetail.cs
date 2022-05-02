@@ -16,7 +16,7 @@ public class RouteDetail: Entity<int>
     public int RouteId { get; set; }
     public Route Route { get; set; }
 
-    public virtual ICollection<Path> Paths { get; set; } = new List<Path>();
+    public virtual ICollection<Vertex> Paths { get; set; } = new List<Vertex>();
     public virtual ICollection<RouteStop> RouteStops { get; set; } = new List<RouteStop>();
     public virtual ICollection<Stop> Stops { get; set; } = new List<Stop>();
 }

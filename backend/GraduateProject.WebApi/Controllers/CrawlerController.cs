@@ -8,7 +8,6 @@ using GraduateProject.Extensions;
 using HtmlAgilityPack;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Path = GraduateProject.Domain.AppEntities.Entities.Path;
 using Route = GraduateProject.Domain.AppEntities.Entities.Route;
 
 namespace GraduateProject.Controllers;
@@ -24,14 +23,15 @@ public class CrawlerController : ControllerBase
     private readonly IStopRepository _stopRepository;
     private readonly IRouteDetailRepository _routeDetailRepository;
     private readonly IRouteRepository _routeRepository;
-    private readonly IPathRepository _pathRepository;
+    private readonly IVertexRepository _vertexRepository;
 
-    public CrawlerController(ILogger<CrawlerController> logger, ICrawlEntityRepository crawlEntityRepository, IUnitOfWork unitOfWork, IPathRepository pathRepository, IRouteDetailRepository routeDetailRepository, IStopRepository stopRepository, IRouteRepository routeRepository)
+    public CrawlerController(ILogger<CrawlerController> logger, ICrawlEntityRepository crawlEntityRepository, IUnitOfWork unitOfWork,
+        IVertexRepository vertexRepository, IRouteDetailRepository routeDetailRepository, IStopRepository stopRepository, IRouteRepository routeRepository)
     {
         _logger = logger;
         _crawlEntityRepository = crawlEntityRepository;
         _unitOfWork = unitOfWork;
-        _pathRepository = pathRepository;
+        _vertexRepository = vertexRepository;
         _routeDetailRepository = routeDetailRepository;
         _stopRepository = stopRepository;
         _routeRepository = routeRepository;
@@ -180,8 +180,10 @@ public class CrawlerController : ControllerBase
         {
             await _unitOfWork.RollBackTransactionAsync();
         }
+
         return ApiResponse.Ok();
     }
+
     [HttpGet("trigger-preprocess-data-route-2")]
     public async Task<ApiResponse> HandlePreprocessDataRoute()
     {
@@ -210,6 +212,7 @@ public class CrawlerController : ControllerBase
                     }
                 }
             }
+
             await _stopRepository.UpdateRangeAsync(stopEntities, true);
             await _unitOfWork.CommitTransactionAsync();
         }
@@ -218,22 +221,25 @@ public class CrawlerController : ControllerBase
             await _unitOfWork.RollBackTransactionAsync();
             return ApiResponse.Fail(e.Message);
         }
+
         return ApiResponse.Ok();
     }
+
     [HttpGet("trigger-preprocess-data-path-3")]
     public async Task<ApiResponse> HandlePreprocessDataPath()
     {
         try
         {
             await _unitOfWork.BeginTransactionAsync();
-            List<Path> pathEntities = await PreprocessPathEntities();
-            await _pathRepository.AddRangeAsync(pathEntities, true);
+            List<Vertex> pathEntities = await PreprocessPathEntities();
+            await _vertexRepository.AddRangeAsync(pathEntities, true);
             await _unitOfWork.CommitTransactionAsync();
         }
         catch (Exception e)
         {
             await _unitOfWork.RollBackTransactionAsync();
         }
+
         return ApiResponse.Ok();
     }
 
@@ -241,30 +247,43 @@ public class CrawlerController : ControllerBase
     public async Task<ApiResponse> HandleBuildGraph()
     {
         var routeDetails = await _routeDetailRepository.Queryable().Include(x => x.Paths).ToListAsync();
-        var listVertex = new List<Vertex>();
+        var listVertex = new List<Edge>();
         foreach (var routeDetail in routeDetails)
         {
             var listPaths = routeDetail.Paths.OrderBy(x => x.Rank).ToList();
-            if(listPaths.Count() < 2) continue;
+            if (listPaths.Count() < 2) continue;
+            Position startPoint = null;
+            Guid pathId = default;
             for (int i = 0; i < listPaths.Count() - 1; i++)
             {
-                var pointA = listPaths[i];
-                var pointB = listPaths[i + 1];
-                var positionA = new Position() {Lat = pointA.Lat, Lng = pointA.Lng};
-                var positionB = new Position() {Lat = pointB.Lat, Lng = pointB.Lng};
-                listVertex.Add(new Vertex()
+                if (startPoint is null)
                 {
-                    PointAId = pointA.Id,
-                    PointBId = pointB.Id,
-                    Distance = CalculateUtil.Distance(positionA, positionB),
-                    ParentRouteDetailId = routeDetail.Id,
-                });
+                    startPoint = new Position() {Lat = listPaths[i].Lat, Lng = listPaths[i].Lng};
+                    pathId = listPaths[i].Id;
+                }
+
+                var pointB = listPaths[i + 1];
+                var positionB = new Position() {Lat = pointB.Lat, Lng = pointB.Lng};
+                var distance = CalculateUtil.Distance(startPoint, positionB);
+                if (distance != 0)
+                {
+                    listVertex.Add(new Edge()
+                    {
+                        PointAId = pathId,
+                        PointBId = pointB.Id,
+                        Distance = distance,
+                        ParentRouteDetailId = routeDetail.Id,
+                    });
+                    startPoint = null;
+                    pathId = default;
+                }
             }
         }
+
         try
         {
             await _unitOfWork.BeginTransactionAsync();
-            await _pathRepository.AddVertexList(listVertex,true);
+            await _vertexRepository.AddVertexList(listVertex, true);
             await _unitOfWork.CommitTransactionAsync();
             return ApiResponse.Ok();
         }
@@ -275,7 +294,7 @@ public class CrawlerController : ControllerBase
         }
     }
     
-    
+
     private async Task<List<Route>> PreprocessRouteEntities()
     {
         var routesDetails = await _crawlEntityRepository.GenericQueryable<CrawlRoute>().AsNoTracking().ToListAsync();
@@ -300,14 +319,15 @@ public class CrawlerController : ControllerBase
                 }).ToList()
             });
         }
+
         return routes;
     }
 
-    private async Task<List<Path>> PreprocessPathEntities()
+    private async Task<List<Vertex>> PreprocessPathEntities()
     {
         var routeDetails = await _routeDetailRepository.Queryable().AsNoTracking().Select(x => new {x.Id, x.RouteId, x.RouteVarId}).ToListAsync();
         return (await _crawlEntityRepository.GenericQueryable<CrawlPath>().AsNoTracking().ToListAsync())
-            .Select(x => new Path()
+            .Select(x => new Vertex()
             {
                 Lat = x.Lat,
                 Lng = x.Lng,
@@ -315,7 +335,7 @@ public class CrawlerController : ControllerBase
                 Rank = x.Rank
             }).ToList();
     }
-    
+
     private async Task<List<Stop>> PreprocessStopEntities()
     {
         var stopEntities = await _crawlEntityRepository.GenericQueryable<CrawlStop>()
@@ -335,6 +355,4 @@ public class CrawlerController : ControllerBase
             }).ToListAsync();
         return stopEntities;
     }
-    
-    
 }
