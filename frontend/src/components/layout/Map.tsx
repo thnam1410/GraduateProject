@@ -15,21 +15,25 @@ const Map: NextPage<any> = ({ children }) => {
 	const leafletMap = useRef<LeafletMap>(null);
 	const [positions, setPosition] = useState<any[]>([]);
 	const [address, setAddress] = useState<any>(null);
-
 	useEffect(() => {
-		ApiUtil.Axios.get(BASE_API_PATH + "/route/get-path-by-route-detail-id?routeDetailId=1651").then((res) => {
-			const result = res?.data?.result as Array<{ lat: number; lng: number }>;
-			const positionResult = result.reduce((acc: any[], curr) => {
-				acc.push([curr.lat, curr.lng]);
-				return acc;
-			}, []);
-			setPosition(positionResult);
-			setTimeout(() => leafletMap.current?.fitBounds(polyLineRef.current?.getBounds() as LatLngBoundsExpression));
-		});
+		// ApiUtil.Axios.get(BASE_API_PATH + "/route/get-path-by-route-detail-id?routeDetailId=1651").then((res) => {
+		// 	const result = res?.data?.result as Array<{ lat: number; lng: number }>;
+		// 	const positionResult = result.reduce((acc: any[], curr) => {
+		// 		acc.push([curr.lat, curr.lng]);
+		// 		return acc;
+		// 	}, []);
+		// 	setPosition(positionResult);
+		// 	setTimeout(() => leafletMap.current?.fitBounds(polyLineRef.current?.getBounds() as LatLngBoundsExpression));
+		// });
 		const getInfoPlaceId = async () => {
-			// console.log("address", address);
-			const geocodeObj = address && address.value && (await geocodeByPlaceId(address.value.place_id));
-			// console.log("geocodeObj", geocodeObj);
+			const geocodeObj = address && address.value ? await geocodeByPlaceId(address.value.place_id) : null;
+			if (geocodeObj !== null) {
+				let acc = [];
+				let lng = geocodeObj[0]?.geometry?.location?.lng();
+				let lat = geocodeObj[0]?.geometry?.location?.lat();
+				acc.push([lat, lng]);
+				setPosition(acc);
+			}
 		};
 		getInfoPlaceId();
 	}, [address]);
