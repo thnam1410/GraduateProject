@@ -23,7 +23,7 @@ public class RouteService: IRouteService
     public async Task<object> GetRoute(FindRouteRequestDto request)
     {
         var searchRadius = _configDistance.Value.SearchRadius;
-        var vertices = await _vertexRepository.Queryable().Where(x => x.RouteDetailId == 1651)
+        var vertices = await _vertexRepository.Queryable().AsNoTracking()
             .Select(x => new VertexDto()
             {
                 Id = x.Id,
@@ -33,15 +33,18 @@ public class RouteService: IRouteService
                 Status = VertexStatus.Temporary,
                 MinCost = double.MaxValue
             })
+            .AsSplitQuery()
             .ToListAsync();
         var vertexIds = vertices.Select(x => x.Id).ToList();
-        var edges = await _vertexRepository.GetEdgeQueryable().Where(x => vertexIds.Contains(x.PointAId) || vertexIds.Contains(x.PointBId))
+        var edges = await _vertexRepository.GetEdgeQueryable().AsNoTracking()
+            // .Where(x => vertexIds.Contains(x.PointAId) || vertexIds.Contains(x.PointBId))
             .Select(x => new EdgeDto()
             {
                 PointAId = x.PointAId,
                 PointBId = x.PointBId,
                 EdgeDistance = x.Distance,
-            }).ToListAsync();
+                Type = x.Type
+            }).AsSplitQuery().ToListAsync();
         var graph = new Graph(vertices, edges);
         try
         {

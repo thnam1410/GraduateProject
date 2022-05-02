@@ -77,7 +77,15 @@ public static class AppEntitiesConfiguration
         });
         builder.Entity<Edge>(entity =>
         {
-            entity.HasKey(x => new {x.PointAId, x.PointBId, x.ParentRouteDetailId});
+            entity.HasKey(x => new {x.PointAId, x.PointBId});
+
+            entity.Property(e => e.Type)
+                .HasConversion(
+                    v => v.ToString(),
+                    v => (EdgeType) Enum.Parse(typeof(EdgeType), v))
+                .HasMaxLength(30)
+                .IsRequired();
+            
             entity.HasOne(x => x.PointA)
                 .WithMany()
                 .HasForeignKey(x => x.PointAId)

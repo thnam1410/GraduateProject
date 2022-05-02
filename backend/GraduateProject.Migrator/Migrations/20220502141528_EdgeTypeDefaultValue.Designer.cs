@@ -4,6 +4,7 @@ using GraduateProject.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GraduateProject.Migrator.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220502141528_EdgeTypeDefaultValue")]
+    partial class EdgeTypeDefaultValue
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -165,18 +167,19 @@ namespace GraduateProject.Migrator.Migrations
                     b.Property<Guid>("PointBId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<double>("Distance")
-                        .HasColumnType("float");
-
                     b.Property<int?>("ParentRouteDetailId")
                         .HasColumnType("int");
 
+                    b.Property<double>("Distance")
+                        .HasColumnType("float");
+
                     b.Property<string>("Type")
                         .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(max)")
+                        .HasDefaultValue("MainRoute");
 
-                    b.HasKey("PointAId", "PointBId");
+                    b.HasKey("PointAId", "PointBId", "ParentRouteDetailId");
 
                     b.HasIndex("ParentRouteDetailId");
 
@@ -627,7 +630,8 @@ namespace GraduateProject.Migrator.Migrations
                     b.HasOne("GraduateProject.Domain.AppEntities.Entities.RouteDetail", "ParentRouteDetail")
                         .WithMany()
                         .HasForeignKey("ParentRouteDetailId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("GraduateProject.Domain.AppEntities.Entities.Vertex", "PointA")
                         .WithMany()

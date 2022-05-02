@@ -1,4 +1,4 @@
-import { MapContainer, TileLayer, Marker, Popup, Polygon, Polyline, useMapEvents, MarkerProps } from "react-leaflet";
+import {MapContainer, Marker, Polyline, Popup, TileLayer} from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css";
 import "leaflet-defaulticon-compatibility";
@@ -55,8 +55,6 @@ const Map: NextPage<any> = ({ children }) => {
 									<Popup>End</Popup>
 								</Marker>
 							);
-						// default:
-						// 	return null
 					}
 				})}
 			</>

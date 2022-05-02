@@ -15,6 +15,14 @@ public class Edge
     
     public double Distance { get; set; }
     
-    public int ParentRouteDetailId { get; set; }
-    public virtual RouteDetail ParentRouteDetail { get; set; }
+    public int? ParentRouteDetailId { get; set; }
+    
+    public EdgeType Type { get; set; }
+    public virtual RouteDetail? ParentRouteDetail { get; set; }
+}
+
+public enum EdgeType
+{
+    MainRoute,
+    SwitchRoute
 }

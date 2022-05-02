@@ -16,10 +16,15 @@ public class VertexRepository: EfRepository<Vertex, Guid>, IVertexRepository
         return _dbContext.Set<Edge>().AsQueryable();
     }
 
-    public async Task AddVertexList(List<Edge> vertices, bool autoSave = false)
+    public async Task AddEdgeList(List<Edge> vertices, bool autoSave = false)
     {
         await _dbContext.Set<Edge>().AddRangeAsync(vertices);
         if (autoSave) await _dbContext.SaveChangesAsync();
+    }    
+    public async Task BulkInsertEdgeList(List<Edge> vertices)
+    {
+        await _dbContext.Set<Edge>().BulkInsertAsync(vertices, opt => opt.AutoMapOutputDirection = false);
+        await _dbContext.BulkSaveChangesAsync(x => x.BatchSize = 1000);
     }
     
 }

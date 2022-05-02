@@ -273,6 +273,7 @@ public class CrawlerController : ControllerBase
                         PointBId = pointB.Id,
                         Distance = distance,
                         ParentRouteDetailId = routeDetail.Id,
+                        Type = EdgeType.MainRoute
                     });
                     startPoint = null;
                     pathId = default;
@@ -283,7 +284,7 @@ public class CrawlerController : ControllerBase
         try
         {
             await _unitOfWork.BeginTransactionAsync();
-            await _vertexRepository.AddVertexList(listVertex, true);
+            await _vertexRepository.AddEdgeList(listVertex, true);
             await _unitOfWork.CommitTransactionAsync();
             return ApiResponse.Ok();
         }
@@ -293,7 +294,71 @@ public class CrawlerController : ControllerBase
             return ApiResponse.Fail(e.Message);
         }
     }
-    
+
+    [HttpGet("build-connect-graph")]
+    public async Task<ApiResponse> HandleBuildConnectGraph()
+    {
+        double rad = 0.01; //1km
+        var vertices = await _vertexRepository.Queryable().AsNoTracking()
+            .Select(x => new EdgeSimpleDto
+            {
+                Id = x.Id,Lat = x.Lat,Lng = x.Lng, RouteId = x.RouteDetail.RouteId
+            })
+            .ToListAsync();
+        var switchEdges = new List<Edge>();
+        var total = vertices.Count;
+        foreach (var (currentVertex, idx) in vertices.WithIndex())
+        {
+            _logger.LogInformation("Loop item left: " + (total - idx));
+            var pointA = new Position() {Lat = currentVertex.Lat, Lng = currentVertex.Lng};
+            var nearestVertex = vertices
+                .Where(loopItemVertex => loopItemVertex.RouteId != currentVertex.RouteId &&
+                                         CalculateUtil.Distance(pointA, new Position() {Lng = loopItemVertex.Lng, Lat = loopItemVertex.Lat}) <= rad).Distinct()
+                .ToList();
+            if (nearestVertex.Any())
+            {
+                foreach (var groupByRouteItem in nearestVertex.GroupBy(x => x.RouteId))
+                {
+                    var items = groupByRouteItem.ToList();
+                    double min = double.MaxValue;
+                    EdgeSimpleDto minItem = null;
+                    foreach (var item in items)
+                    {
+                        var distance = CalculateUtil.Distance(pointA, new Position() {Lng = item.Lng, Lat = item.Lat});
+                        if (distance > 0 && distance < min)
+                        {
+                            min = distance;
+                            minItem = item;
+                        }
+                    }
+                    if(minItem is not null)
+                    {
+                        var pointB = new Position() {Lat = minItem.Lat, Lng = minItem.Lng};
+                        switchEdges.Add(new Edge()
+                        {
+                            PointAId = currentVertex.Id,
+                            PointBId = minItem.Id,
+                            Distance = CalculateUtil.Distance(pointA, pointB),
+                            Type = EdgeType.SwitchRoute,
+                        });
+                    }
+                }
+            }
+        }
+        try
+        {
+            await _unitOfWork.BeginTransactionAsync();
+            await _vertexRepository.BulkInsertEdgeList(switchEdges);
+            await _unitOfWork.CommitTransactionAsync();
+            return ApiResponse.Ok();
+        }
+        catch (Exception e)
+        {
+            await _unitOfWork.RollBackTransactionAsync();
+            return ApiResponse.Fail(e.Message);
+        }
+    }
+
 
     private async Task<List<Route>> PreprocessRouteEntities()
     {
@@ -354,5 +419,13 @@ public class CrawlerController : ControllerBase
                 Street = x.Street,
             }).ToListAsync();
         return stopEntities;
+    }
+
+    private class EdgeSimpleDto
+    {
+        public Guid Id {get;set;}
+        public double Lat {get;set;}
+        public double Lng {get;set;}
+        public int RouteId {get;set;}
     }
 }

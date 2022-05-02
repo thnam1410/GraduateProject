@@ -32,7 +32,7 @@ public class RouteController: ControllerBase
     [HttpGet("get-path-by-route-detail-id")]
     public async Task<ApiResponse<List<Position>>> HandleGetRoutePathByRouteDetailId([FromQuery] int routeDetailId)
     {
-        var vertexStart = await _vertexRepository.Queryable().FirstOrDefaultAsync(x => x.RouteDetailId == 1651 && x.Rank == 1);
+        var vertexStart = await _vertexRepository.Queryable().FirstOrDefaultAsync(x => x.RouteDetailId == routeDetailId && x.Rank == 1);
         var edges = await _vertexRepository.GetEdgeQueryable().Where(x => x.ParentRouteDetailId == routeDetailId)
             .Select(x => new
             {
@@ -64,5 +64,19 @@ public class RouteController: ControllerBase
         }
 
         return ApiResponse<List<Position>>.Ok(results);
+    }
+
+    [HttpGet("get-switch-edges-test")]
+    public async Task<ApiResponse<object>> HandleGetSwitchEdgeTest()
+    {
+        var edges = await _vertexRepository.GetEdgeQueryable().Where(x => x.PointAId.ToString() == "E9DC26F8-CD25-4A67-50D4-08DA2B8BFB8C")
+            .Select(x => new
+            {
+                x.PointAId, x.PointBId,
+                PointALat = x.PointA.Lat, PointALng = x.PointA.Lng,
+                PointBLat = x.PointB.Lat, PointBLng = x.PointB.Lng,
+            })
+            .ToListAsync();
+        return ApiResponse<object>.Ok(edges.Select(x => new Position() {Lng = x.PointBLng, Lat = x.PointBLat}).ToList());
     }
 }

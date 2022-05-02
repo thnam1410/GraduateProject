@@ -7,5 +7,8 @@ public interface IVertexRepository: IRepository<Vertex, Guid>
 {
     IQueryable<Edge> GetEdgeQueryable();
 
-    Task AddVertexList(List<Edge> vertices, bool autoSave = false);
+    Task AddEdgeList(List<Edge> vertices, bool autoSave = false);
+
+    Task BulkInsertEdgeList(List<Edge> vertices);
+
 }
