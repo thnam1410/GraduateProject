@@ -14,6 +14,7 @@ public class Stop : Entity<int>
     public string Status { get; set; }
     public string StopType { get; set; }
     public string Street { get; set; }
+    public int RouteVarId { get; set; }
     
     public virtual ICollection<RouteStop> RouteStops { get; set; } = new List<RouteStop>();
     public virtual ICollection<RouteDetail> RouteList { get; set; } = new List<RouteDetail>();

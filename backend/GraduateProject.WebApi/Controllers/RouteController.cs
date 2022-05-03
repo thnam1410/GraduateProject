@@ -1,5 +1,4 @@
-﻿
-using GraduateProject.Application.Common.Dto;
+﻿using GraduateProject.Application.Common.Dto;
 using GraduateProject.Application.RealEstate.RouteDto;
 using GraduateProject.Application.RealEstate.RouteDto.Services;
 using GraduateProject.Domain.AppEntities.Repositories;
@@ -10,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 namespace GraduateProject.Controllers;
 
 [Route("/api/route")]
-public class RouteController: ControllerBase
+public class RouteController : ControllerBase
 {
     private readonly IRouteService _routeService;
     private readonly IVertexRepository _vertexRepository;
@@ -27,7 +26,7 @@ public class RouteController: ControllerBase
     {
         return ApiResponse<object>.Ok(await _routeService.GetRoute(request));
     }
-    
+
     //Test
     [HttpGet("get-path-by-route-detail-id")]
     public async Task<ApiResponse<List<Position>>> HandleGetRoutePathByRouteDetailId([FromQuery] int routeDetailId)
@@ -78,5 +77,17 @@ public class RouteController: ControllerBase
             })
             .ToListAsync();
         return ApiResponse<object>.Ok(edges.Select(x => new Position() {Lng = x.PointBLng, Lat = x.PointBLat}).ToList());
+    }
+
+    [HttpGet("get-main-routes")]
+    public async Task<ApiResponse<List<Domain.AppEntities.Entities.Route>>> HandleGetMainRoutes()
+    {
+        return ApiResponse<List<Domain.AppEntities.Entities.Route>>.Ok(await _routeService.GetMainRoute());
+    }
+
+    [HttpGet("get-route-info/{routeId}")]
+    public async Task<ApiResponse<object>> HandleGetRouteInfoById([FromRoute] int routeId)
+    {
+        return ApiResponse<object>.Ok(await _routeService.GetRouteDetailsByRouteId(routeId));
     }
 }

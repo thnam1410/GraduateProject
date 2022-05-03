@@ -4,6 +4,7 @@ using GraduateProject.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GraduateProject.Migrator.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220503150509_UpdateRouteTableV2")]
+    partial class UpdateRouteTableV2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -127,9 +129,6 @@ namespace GraduateProject.Migrator.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("RouteVarId")
-                        .HasColumnType("int");
 
                     b.Property<string>("Routes")
                         .IsRequired()
@@ -262,9 +261,6 @@ namespace GraduateProject.Migrator.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("RouteCode")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("RouteRange")
                         .HasColumnType("nvarchar(max)");
 
@@ -369,9 +365,6 @@ namespace GraduateProject.Migrator.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("RouteVarId")
-                        .HasColumnType("int");
 
                     b.Property<string>("Routes")
                         .IsRequired()

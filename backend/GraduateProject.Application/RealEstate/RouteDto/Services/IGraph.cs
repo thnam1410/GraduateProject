@@ -1,4 +1,7 @@
-﻿namespace GraduateProject.Application.RealEstate.RouteDto.Services;
+﻿using System.Collections;
+using GraduateProject.Domain.AppEntities.Entities;
+
+namespace GraduateProject.Application.RealEstate.RouteDto.Services;
 
 public interface IGraph
 {
@@ -10,6 +13,9 @@ public interface IGraph
 
     VertexDto? GetTemporaryVertexMinCost();
 
-    ICollection<EdgeDto> GetEdgesFromVertex(VertexDto? vertexDto);
+    ICollection<EdgeDto> GetEdgesFromVertex(VertexDto? vertexDto, EdgeType? edgeType = null);
+
+    ICollection<VertexDto> GetNeighbors(VertexDto? vertexDto, EdgeType? edgeType = null);
     VertexDto? GetVertexById(Guid id);
+    ICollection<AStarNode> GetAStarNeighbors(AStarNode startNode, AStarNode targetNode, AStarNode currentNode, EdgeType? edgeType = null);
 }

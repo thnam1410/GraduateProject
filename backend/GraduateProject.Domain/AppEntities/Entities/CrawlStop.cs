@@ -15,4 +15,5 @@ public class CrawlStop: Entity<Guid>
     public string StopID { get; set; } //: "1006842"
     public string StopType { get; set; } //: "Bến xe"
     public string Street { get; set; } //: "Phổ Quang"
+    public int RouteVarId { get; set; }
 }

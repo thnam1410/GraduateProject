@@ -10,6 +10,7 @@ public class VertexDto
     public VertexStatus Status { get; set; }
     public double MinCost { get; set; }
     public Guid? SourceId { get; set; }
+    
 }
 
 public enum VertexStatus

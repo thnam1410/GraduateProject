@@ -1,4 +1,6 @@
 ﻿using GraduateProject.Application.Common.Dto;
+using GraduateProject.Application.Extensions;
+using GraduateProject.Domain.AppEntities.Entities;
 using GraduateProject.Domain.AppEntities.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -11,13 +13,17 @@ public class RouteService: IRouteService
     private readonly IVertexRepository _vertexRepository;
     private readonly IStopRepository _stopRepository;
     private readonly IOptionsSnapshot<ConfigDistance> _configDistance;
+    private readonly IRouteRepository _routeRepository;
+    private readonly IObjectMapper _mapper;
 
-    public RouteService(IRouteDetailRepository routeDetailRepository, IVertexRepository vertexRepository, IStopRepository stopRepository, IOptionsSnapshot<ConfigDistance> configDistance)
+    public RouteService(IRouteDetailRepository routeDetailRepository, IVertexRepository vertexRepository, IStopRepository stopRepository, IOptionsSnapshot<ConfigDistance> configDistance, IRouteRepository routeRepository, IObjectMapper mapper)
     {
         _routeDetailRepository = routeDetailRepository;
         _vertexRepository = vertexRepository;
         _stopRepository = stopRepository;
         _configDistance = configDistance;
+        _routeRepository = routeRepository;
+        _mapper = mapper;
     }
 
     public async Task<object> GetRoute(FindRouteRequestDto request)
@@ -48,14 +54,10 @@ public class RouteService: IRouteService
         var graph = new Graph(vertices, edges);
         try
         {
-            var dijkstra = new Dijkstra(graph, new Guid("96688B36-6FDE-4B49-B860-08DA2B8BFB8B"));
-            dijkstra.DoDijkstra();
-            dijkstra.GeneratePathFromDestId(new Guid("697D8947-3F2C-4EB8-FCD2-08DA2B8BFB8B"));
-            var paths = dijkstra.GetPaths();
-            return paths.Select(x => new Position()
+            var paths = new AStar(graph, new Guid("96688B36-6FDE-4B49-B860-08DA2B8BFB8B"), new Guid("FB600B07-CD0F-452C-36D0-08DA2B8BFB8C"));
+            return paths.StartAlgorithms().Select(x => new Position()
             {
-                Lat = x.Lat,
-                Lng = x.Lng,
+                Lat = x.Lat, Lng = x.Lng
             });
         }
         catch (Exception e)
@@ -63,5 +65,50 @@ public class RouteService: IRouteService
             Console.WriteLine(e);
             throw;
         }
+    }
+
+    public Task<List<Route>> GetMainRoute()
+    {
+        return _routeRepository.Queryable().Where(x => x.RouteDetails.Any()).ToListAsync();
+    }
+
+    public async Task<object> GetRouteDetailsByRouteId(int routeId)
+    {
+        var routes = await _routeDetailRepository.Queryable().Where(x => x.RouteId == routeId)
+            .Include(x => x.Stops)
+            .Include(x => x.Route)
+            .OrderBy(x => x.RouteVarId)
+            .ToListAsync();
+        if (routes.Any())
+        {
+            var forwardRoute = routes[0];
+            var backwardRoute = routes[1];
+            var parentRoute = forwardRoute.Route;
+            return new
+            {
+                routeInfo = new
+                {
+                    parentRoute.Name,  // Ten tuyen
+                    parentRoute.RouteCode,  // Ma so tuyen
+                    parentRoute.Type, //Loại hình hoạt động
+                    parentRoute.RouteRange, // Cu ly
+                    parentRoute.BusType, // Loai xe
+                    parentRoute.TimeRange, //Tgian hoat dong
+                    parentRoute.Unit, // Don vi dam nhan
+                },
+                forwardRouteStops = forwardRoute.Stops.Select(x => new
+                {
+                    x.Name,
+                    position = new Position() {Lat = x.Lat, Lng = x.Lng},
+                }),
+
+                backwardRouteStops = backwardRoute.Stops.Select(x => new
+                {
+                    x.Name,
+                    position = new Position() {Lat = x.Lat, Lng = x.Lng},
+                }),
+            };
+        }
+        throw new Exception();
     }
 }

@@ -1,4 +1,5 @@
-﻿using GraduateProject.Application.Common.Dto;
+﻿using System.Text.RegularExpressions;
+using GraduateProject.Application.Common.Dto;
 using GraduateProject.Application.Extensions;
 using GraduateProject.Common.Dto;
 using GraduateProject.Domain.AppEntities.Entities;
@@ -41,20 +42,7 @@ public class CrawlerController : ControllerBase
     public async Task<ApiResponse> HandleCrawlerRoutes()
     {
         HttpClient client = new HttpClient();
-        var listUrls = new List<string>();
-        using (var response = await client.GetAsync(targetUrl))
-        {
-            using (var content = response.Content)
-            {
-                var result = await content.ReadAsStringAsync();
-                var document = new HtmlDocument();
-                document.LoadHtml(result);
-                var body = document.DocumentNode.SelectSingleNode("//*[@id='divResult']");
-                var nodes = body.ChildNodes.Where(x => x.Attributes.Any(a => a.Value == "cms-button"));
-                var urls = nodes.SelectMany(x => x.Attributes).Where(x => x.Name == "href").Select(x => $"{baseUrl}{x.Value}");
-                listUrls.AddRange(urls);
-            }
-        }
+        var listUrls = await ListUrls(client);
 
         var listRoutes = new List<CrawlRoute>();
         var listStops = new List<CrawlStop>();
@@ -96,17 +84,20 @@ public class CrawlerController : ControllerBase
                                 var responseStopData = await client.GetAsync(stopUrl);
                                 responseStopData.EnsureSuccessStatusCode();
 
-                                var pathUrl = $"https://api.xe-buyt.com/businfo/getpathsbyvar/{routeId}_1/{routeVarId}";
-                                _logger.LogInformation($"Fetching API: {pathUrl}");
-                                var responsePathData = await client.GetAsync(pathUrl);
-                                responsePathData.EnsureSuccessStatusCode();
+                                // var pathUrl = $"https://api.xe-buyt.com/businfo/getpathsbyvar/{routeId}_1/{routeVarId}";
+                                // _logger.LogInformation($"Fetching API: {pathUrl}");
+                                // var responsePathData = await client.GetAsync(pathUrl);
+                                // responsePathData.EnsureSuccessStatusCode();
 
                                 var stopData = await responseStopData.Content.ReadFromJsonAsync<List<CrawlStop>>();
-                                var pathData = await responsePathData.Content.ReadFromJsonAsync<CrawlPathDto>();
-                                pathData.RouteId = routeId;
-                                pathData.RouteVarId = routeVarId;
+                                // var pathData = await responsePathData.Content.ReadFromJsonAsync<CrawlPathDto>();
+                                
+                                stopData.ForEach(stop => stop.RouteVarId = routeVarId);
+                                // pathData.RouteId = routeId;
+                                
+                                // pathData.RouteVarId = routeVarId;
                                 listStops.AddRange(stopData);
-                                listPath.Add(pathData);
+                                // listPath.Add(pathData);
                             }
                             catch (Exception e)
                             {
@@ -129,30 +120,30 @@ public class CrawlerController : ControllerBase
         }
 
 
-        var listCrawlEntityRoutes = listRoutes;
+        // var listCrawlEntityRoutes = listRoutes;
         var listCrawlEntityStops = listStops.GroupBy(x => x.AddressNo).Select(x => x.First()).ToList();
-        var listCrawlEntityPath = new List<CrawlPath>();
-        foreach (var path in listPath)
-        {
-            for (int i = 0; i < path.Lat.Count(); i++)
-            {
-                listCrawlEntityPath.Add(new CrawlPath()
-                {
-                    RouteId = path.RouteId.Value,
-                    RouteVarId = path.RouteVarId.Value,
-                    Lat = path.Lat[i],
-                    Lng = path.Lng[i],
-                    Rank = i + 1
-                });
-            }
-        }
+        // var listCrawlEntityPath = new List<CrawlPath>();
+        // foreach (var path in listPath)
+        // {
+        //     for (int i = 0; i < path.Lat.Count(); i++)
+        //     {
+        //         listCrawlEntityPath.Add(new CrawlPath()
+        //         {
+        //             RouteId = path.RouteId.Value,
+        //             RouteVarId = path.RouteVarId.Value,
+        //             Lat = path.Lat[i],
+        //             Lng = path.Lng[i],
+        //             Rank = i + 1
+        //         });
+        //     }
+        // }
 
         try
         {
             await _unitOfWork.BeginTransactionAsync();
-            await _crawlEntityRepository.AddRangeCrawlRouteAsync(listCrawlEntityRoutes);
+            // await _crawlEntityRepository.AddRangeCrawlRouteAsync(listCrawlEntityRoutes);
             _logger.LogInformation("Crawl Routes into DB successfully!");
-            await _crawlEntityRepository.AddRangeCrawlPathAsync(listCrawlEntityPath);
+            // await _crawlEntityRepository.AddRangeCrawlPathAsync(listCrawlEntityPath);
             _logger.LogInformation("Crawl Path into DB successfully!");
             await _crawlEntityRepository.AddRangeCrawlStopAsync(listCrawlEntityStops);
             _logger.LogInformation("Crawl Stops into DB successfully!");
@@ -164,6 +155,26 @@ public class CrawlerController : ControllerBase
         }
 
         return ApiResponse.Ok();
+    }
+
+    private static async Task<List<string>> ListUrls(HttpClient client)
+    {
+        var listUrls = new List<string>();
+        using (var response = await client.GetAsync(targetUrl))
+        {
+            using (var content = response.Content)
+            {
+                var result = await content.ReadAsStringAsync();
+                var document = new HtmlDocument();
+                document.LoadHtml(result);
+                var body = document.DocumentNode.SelectSingleNode("//*[@id='divResult']");
+                var nodes = body.ChildNodes.Where(x => x.Attributes.Any(a => a.Value == "cms-button"));
+                var urls = nodes.SelectMany(x => x.Attributes).Where(x => x.Name == "href").Select(x => $"{baseUrl}{x.Value}");
+                listUrls.AddRange(urls);
+            }
+        }
+
+        return listUrls;
     }
 
     [HttpGet("trigger-preprocess-data-stop-1")]
@@ -194,26 +205,6 @@ public class CrawlerController : ControllerBase
             await _routeRepository.UpdateIdentityInsert(true);
             await _routeRepository.AddRangeAsync(routeEntities, true);
             await _routeRepository.UpdateIdentityInsert(false);
-            var routeDetailEntities = await _routeDetailRepository.Queryable().AsNoTracking().ToListAsync();
-            List<Stop> stopEntities = await _stopRepository.Queryable().ToListAsync();
-            foreach (var stop in stopEntities)
-            {
-                var listRouteCode = stop.Routes.Split(",").Select(x => x.Trim());
-                foreach (var routeCode in listRouteCode)
-                {
-                    var routeDetail = routeDetailEntities.FirstOrDefault(x => string.Equals(x.RouteNo, routeCode, StringComparison.CurrentCultureIgnoreCase));
-                    if (routeDetail is not null && routeDetail.RouteStops.All(x => x.StopId != stop.Id && x.RouteDetailId != routeDetail.Id))
-                    {
-                        stop.RouteStops.Add(new RouteStop()
-                        {
-                            RouteDetailId = routeDetail.Id,
-                            StopId = stop.Id,
-                        });
-                    }
-                }
-            }
-
-            await _stopRepository.UpdateRangeAsync(stopEntities, true);
             await _unitOfWork.CommitTransactionAsync();
         }
         catch (Exception e)
@@ -224,7 +215,6 @@ public class CrawlerController : ControllerBase
 
         return ApiResponse.Ok();
     }
-
     [HttpGet("trigger-preprocess-data-path-3")]
     public async Task<ApiResponse> HandlePreprocessDataPath()
     {
@@ -242,6 +232,44 @@ public class CrawlerController : ControllerBase
 
         return ApiResponse.Ok();
     }
+    
+    [HttpGet("trigger-preprocess-data-stop-route-4")]
+    public async Task<ApiResponse> HandlePreprocessStopRoute()
+    {
+        try
+        {
+            await _unitOfWork.BeginTransactionAsync();
+            var routeDetailEntities = await _routeDetailRepository.Queryable().AsNoTracking()
+                .Include(x => x.Route).ToListAsync();
+            List<Stop> stopEntities = await _stopRepository.Queryable().ToListAsync();
+            foreach (var stop in stopEntities)
+            {
+                var listRouteCode = stop.Routes.Split(",").Select(x => x.Trim());
+                foreach (var routeCode in listRouteCode)
+                {
+                    var routeDetail = routeDetailEntities.FirstOrDefault(x => string.Equals(x.Route.RouteCode, routeCode, StringComparison.CurrentCultureIgnoreCase) && x.RouteVarId == stop.RouteVarId);
+                    if (routeDetail is not null && routeDetail.RouteStops.All(x => x.StopId != stop.Id && x.RouteDetailId != routeDetail.Id))
+                    {
+                        stop.RouteStops.Add(new RouteStop()
+                        {
+                            RouteDetailId = routeDetail.Id,
+                            StopId = stop.Id,
+                        });
+                    }
+                }
+            }
+
+            await _stopRepository.UpdateRangeAsync(stopEntities, true);
+            await _unitOfWork.CommitTransactionAsync();
+            return ApiResponse.Ok();
+        }
+        catch (Exception e)
+        {
+            await _unitOfWork.RollBackTransactionAsync();
+            return ApiResponse.Fail(e.Message);
+        }
+    }
+    
 
     [HttpGet("build-graph")]
     public async Task<ApiResponse> HandleBuildGraph()
@@ -302,7 +330,7 @@ public class CrawlerController : ControllerBase
         var vertices = await _vertexRepository.Queryable().AsNoTracking()
             .Select(x => new EdgeSimpleDto
             {
-                Id = x.Id,Lat = x.Lat,Lng = x.Lng, RouteId = x.RouteDetail.RouteId
+                Id = x.Id, Lat = x.Lat, Lng = x.Lng, RouteId = x.RouteDetail.RouteId
             })
             .ToListAsync();
         var switchEdges = new List<Edge>();
@@ -331,7 +359,8 @@ public class CrawlerController : ControllerBase
                             minItem = item;
                         }
                     }
-                    if(minItem is not null)
+
+                    if (minItem is not null)
                     {
                         var pointB = new Position() {Lat = minItem.Lat, Lng = minItem.Lng};
                         switchEdges.Add(new Edge()
@@ -345,6 +374,7 @@ public class CrawlerController : ControllerBase
                 }
             }
         }
+
         try
         {
             await _unitOfWork.BeginTransactionAsync();
@@ -357,6 +387,62 @@ public class CrawlerController : ControllerBase
             await _unitOfWork.RollBackTransactionAsync();
             return ApiResponse.Fail(e.Message);
         }
+    }
+
+    [HttpGet("start-crawl-infos")]
+    public async Task<ApiResponse> HandleCrawlerRoutesInfo()
+    {
+        HttpClient httpClient = new HttpClient();
+        var listUrls = await ListUrls(httpClient);
+        var routes = await _routeRepository.ToListAsync();
+        foreach (var url in listUrls)
+        {
+            var resUrl = await httpClient.GetAsync(url);
+            var result = await resUrl.Content.ReadAsStringAsync();
+            var document = new HtmlDocument();
+            document.LoadHtml(result);
+
+            var accordion = document.GetElementbyId("accordion");
+            var divRouteIdAttribute = accordion.Descendants("div").SelectMany(e => e.Attributes).FirstOrDefault(x => x.Name == "id");
+            var stringRouteId = divRouteIdAttribute?.Value.Split("v")[0].Replace("r", "");
+            if (stringRouteId is null) continue;
+            var route = routes.FirstOrDefault(x => x.Id == int.Parse(stringRouteId));
+            _logger.LogInformation("Fetch route:" + stringRouteId);
+            if (route is not null)
+            {
+                var unitText = document.DocumentNode.Descendants().Where(x => x.HasClass("cms-col-left-align") && x.Name == "td")
+                    .FirstOrDefault(x => x.InnerText.Contains("Đơn vị đảm nhận:"))?.ParentNode?.ChildNodes
+                    ?.LastOrDefault()?.InnerText;
+                if (!string.IsNullOrWhiteSpace(unitText))
+                {
+                    var cleanUnitText = Regex.Replace(unitText, "<.*?>", string.Empty);
+                    route.Unit = cleanUnitText;
+                }
+
+                var routeCode = document.DocumentNode.Descendants().Where(x => x.HasClass("cms-col-left-align") && x.Name == "td")
+                    .FirstOrDefault(x => x.InnerText.Contains("Mã số tuyến:"))?.ParentNode?.ChildNodes
+                    ?.LastOrDefault()?.InnerText;
+                if (!string.IsNullOrWhiteSpace(unitText))
+                {
+                    route.RouteCode = routeCode;
+                }
+
+                var liNodes = document.DocumentNode
+                    .Descendants()
+                    .First(n => n.HasClass("list") && n.Name == "ul")
+                    .ChildNodes.Where(n => n.Name == "li").ToList();
+                if (liNodes.Any())
+                {
+                    route.Type = liNodes[0].InnerText.Split(": ")[1];
+                    route.BusType = liNodes[1].InnerText.Split(": ")[1];
+                    route.RouteRange = liNodes[2].InnerText.Split(": ")[1];
+                    route.TimeRange = liNodes[3].InnerText.Split(": ")[1];
+                }
+            }
+        }
+
+        await _routeRepository.UpdateRangeAsync(routes, true);
+        return ApiResponse.Ok();
     }
 
 
@@ -417,15 +503,16 @@ public class CrawlerController : ControllerBase
                 Status = x.Status,
                 StopType = x.StopType,
                 Street = x.Street,
+                RouteVarId = x.RouteVarId
             }).ToListAsync();
         return stopEntities;
     }
 
     private class EdgeSimpleDto
     {
-        public Guid Id {get;set;}
-        public double Lat {get;set;}
-        public double Lng {get;set;}
-        public int RouteId {get;set;}
+        public Guid Id { get; set; }
+        public double Lat { get; set; }
+        public double Lng { get; set; }
+        public int RouteId { get; set; }
     }
 }
