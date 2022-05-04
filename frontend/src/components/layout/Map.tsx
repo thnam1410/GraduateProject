@@ -1,4 +1,4 @@
-import {MapContainer, Marker, Polyline, Popup, TileLayer} from "react-leaflet";
+import { MapContainer, Marker, Polyline, Popup, TileLayer } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css";
 import "leaflet-defaulticon-compatibility";
@@ -9,12 +9,16 @@ import { useLeafletContext } from "@react-leaflet/core";
 import { LatLngBoundsExpression, Map as LeafletMap, Polyline as LeafletPolyline } from "leaflet";
 import { ApiUtil, BASE_API_PATH } from "~/src/utils/ApiUtil";
 import GooglePlacesAutocomplete, { geocodeByAddress, geocodeByPlaceId, getLatLng } from "react-google-places-autocomplete";
+import AdminLayout from "./AdminLayout";
+import { Tabs } from "antd";
 
 const Map: NextPage<any> = ({ children }) => {
 	const polyLineRef = useRef<LeafletPolyline>(null);
 	const leafletMap = useRef<LeafletMap>(null);
 	const [positions, setPosition] = useState<any[]>([]);
 	const [address, setAddress] = useState<any>(null);
+	const { TabPane } = Tabs;
+
 	useEffect(() => {
 		// ApiUtil.Axios.get(BASE_API_PATH + "/route/get-path-by-route-detail-id?routeDetailId=1651").then((res) => {
 		// 	const result = res?.data?.result as Array<{ lat: number; lng: number }>;
@@ -66,47 +70,58 @@ const Map: NextPage<any> = ({ children }) => {
 	};
 	return (
 		<>
-			<div
-				style={{
-					position: "absolute",
-					zIndex: 3,
-					width: "40%",
-					left: "60px",
-					top: "10px",
-				}}
-			>
-				{
-					<GooglePlacesAutocomplete
-						apiKey="AIzaSyDQXEJEdPF6r1WQMhj9rWW03oyV39kh0Dg"
-						selectProps={{
-							placeholder: "Nhập vị trí cần chọn",
-							isClearable: true,
-							value: address,
-							onChange: (val: any) => {
-								setAddress(val);
-							},
-						}}
-					/>
-				}
+			<div className="border bg-white-800 absolute duration-500 -left-0 " style={{ width: "27%" }}>
+				<Tabs className="flex" defaultActiveKey="1" onChange={() => {}}>
+					<TabPane className="flex-1" tab="Tab 1" key="1"></TabPane>
+					<TabPane className="flex-1" tab="Tab 2" key="2"></TabPane>
+				</Tabs>
 			</div>
-			<MapContainer
-				ref={leafletMap}
-				center={[10.762622, 106.660172]}
-				zoom={14}
-				scrollWheelZoom={true}
+
+			<div
+				className="absolute inset-y-0 right-0"
 				style={{
-					position: "relative",
-					zIndex: 1,
 					height: "100%",
+					width: "73%",
 				}}
 			>
-				<TileLayer
-					url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-					attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-				/>
-				{renderMarkers()}
-				{renderRoutes()}
-			</MapContainer>
+				<div
+					style={{
+						position: "absolute",
+						zIndex: 3,
+						width: "40%",
+						left: "60px",
+						top: "10px",
+					}}
+				>
+					{
+						<GooglePlacesAutocomplete
+							apiKey="AIzaSyDQXEJEdPF6r1WQMhj9rWW03oyV39kh0Dg"
+							selectProps={{
+								placeholder: "Nhập vị trí cần chọn",
+								isClearable: true,
+								value: address,
+								onChange: (val: any) => {
+									setAddress(val);
+								},
+							}}
+						/>
+					}
+				</div>
+				<MapContainer
+					ref={leafletMap}
+					center={[10.762622, 106.660172]}
+					zoom={14}
+					scrollWheelZoom={true}
+					style={{ height: "100%", width: "100%", zIndex: 1 }}
+				>
+					<TileLayer
+						url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+						attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+					/>
+					{renderMarkers()}
+					{renderRoutes()}
+				</MapContainer>
+			</div>
 		</>
 	);
 };
