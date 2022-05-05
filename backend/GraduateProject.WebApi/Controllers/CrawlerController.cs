@@ -274,11 +274,11 @@ public class CrawlerController : ControllerBase
     [HttpGet("build-graph")]
     public async Task<ApiResponse> HandleBuildGraph()
     {
-        var routeDetails = await _routeDetailRepository.Queryable().Include(x => x.Paths).ToListAsync();
+        var routeDetails = await _routeDetailRepository.Queryable().Include(x => x.Vertices).ToListAsync();
         var listVertex = new List<Edge>();
         foreach (var routeDetail in routeDetails)
         {
-            var listPaths = routeDetail.Paths.OrderBy(x => x.Rank).ToList();
+            var listPaths = routeDetail.Vertices.OrderBy(x => x.Rank).ToList();
             if (listPaths.Count() < 2) continue;
             Position startPoint = null;
             Guid pathId = default;
@@ -477,7 +477,7 @@ public class CrawlerController : ControllerBase
     private async Task<List<Vertex>> PreprocessPathEntities()
     {
         var routeDetails = await _routeDetailRepository.Queryable().AsNoTracking().Select(x => new {x.Id, x.RouteId, x.RouteVarId}).ToListAsync();
-        return (await _crawlEntityRepository.GenericQueryable<CrawlPath>().AsNoTracking().ToListAsync())
+        var vertices = (await _crawlEntityRepository.GenericQueryable<CrawlPath>().AsNoTracking().ToListAsync())
             .Select(x => new Vertex()
             {
                 Lat = x.Lat,
@@ -485,6 +485,37 @@ public class CrawlerController : ControllerBase
                 RouteDetailId = routeDetails.First(y => y.RouteId == x.RouteId && y.RouteVarId == x.RouteVarId).Id,
                 Rank = x.Rank
             }).ToList();
+        var duplicateItems = new List<Vertex>();
+        foreach (var group in vertices.GroupBy(x => x.RouteDetailId))
+        {
+            var groupItems = group.ToList();
+            groupItems.ForEach(item =>
+            {
+                if (duplicateItems.Contains(item)) return;
+                var dupItems = vertices.Where(x => x.Lng.Equals(item.Lng) && x.Lat.Equals(item.Lat) && x.RouteDetailId == item.RouteDetailId).ToList();
+                if (dupItems.Count >= 1)
+                {
+                    dupItems.RemoveAt(0);
+                    duplicateItems.AddRange(dupItems);
+                }
+            });
+        }
+
+        if (duplicateItems.Any())
+        {
+            vertices.RemoveAll(vertex => duplicateItems.Contains(vertex));
+        }
+
+        foreach (var group in vertices.GroupBy(x => x.RouteDetailId))
+        {
+            var groupItems = group.ToList();
+            foreach (var (vertex, index) in groupItems.OrderBy(x => x.Rank).WithIndex())
+            {
+                vertex.Rank = index + 1;
+            }
+        }
+        
+        return vertices;
     }
 
     private async Task<List<Stop>> PreprocessStopEntities()

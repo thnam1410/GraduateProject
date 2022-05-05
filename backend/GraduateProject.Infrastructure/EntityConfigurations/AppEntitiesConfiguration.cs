@@ -56,7 +56,7 @@ public static class AppEntitiesConfiguration
             entity.HasKey(x => x.Id);
             entity.Property(x => x.Id).ValueGeneratedOnAdd();
             entity.HasOne(x => x.RouteDetail)
-                .WithMany(x => x.Paths)
+                .WithMany(x => x.Vertices)
                 .HasForeignKey(x => x.RouteDetailId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
