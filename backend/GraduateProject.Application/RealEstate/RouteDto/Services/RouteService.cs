@@ -53,7 +53,8 @@ public class RouteService: IRouteService
         var graph = new Graph(vertices, edges);
         try
         {
-            var aStarCtor = new AStar(graph, new Guid("E3A135FF-6B08-4332-70F2-08DA2DCF02F1"), new Guid("2EBE1B7F-3529-435A-21D7-08DA2DCF02F1"));
+            // "3ECD9D1D-CBFD-4417-4F43-08DA2DCF02F1"
+            var aStarCtor = new AStar(graph, new Guid("E3A135FF-6B08-4332-70F2-08DA2DCF02F1"), new Guid("3ECD9D1D-CBFD-4417-4F43-08DA2DCF02F1"));
             var paths = aStarCtor.StartAlgorithms();
             var nodeIds = paths.Select(x => x.Id);
             var positions =  paths.Select(x => new Position()

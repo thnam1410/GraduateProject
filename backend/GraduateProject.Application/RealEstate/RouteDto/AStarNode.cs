@@ -14,7 +14,10 @@ public class AStarNode : IHeapItem<AStarNode>
 
     public double FCost
     {
-        get { return GCost + HCost; }
+        get
+        {
+            return GCost + HCost;
+        }
     }
 
     public AStarNode? ParentNode { get; set; }
@@ -72,6 +75,13 @@ public class AStarNode : IHeapItem<AStarNode>
         {
             compare = HCost.CompareTo(other.HCost);
         }
+
+        if (IsSwitchRouteNode && other.IsSwitchRouteNode == false)
+            return -1; // A<B
+
+        if (IsSwitchRouteNode == false && other.IsSwitchRouteNode == true)
+            return 1; // A>B
+        
         return -compare;
     }
 }

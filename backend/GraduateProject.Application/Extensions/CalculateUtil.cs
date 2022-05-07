@@ -5,6 +5,8 @@ namespace GraduateProject.Application.Extensions;
 
 public static class CalculateUtil
 {
+    // public const int RouteAlphaConstant = 100;
+    
     static double ToRadians(
         double angleIn10ThofaDegree)
     {
