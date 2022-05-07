@@ -19,6 +19,7 @@ public class Heap<T> where T : IHeapItem<T>
     }
 
     public bool Any() => currentItemCount > 0;
+    public T[] GetItems() => items;
 
     public T RemoveFirst()
     {

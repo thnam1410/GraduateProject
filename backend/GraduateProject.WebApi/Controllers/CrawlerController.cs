@@ -326,7 +326,7 @@ public class CrawlerController : ControllerBase
     [HttpGet("build-connect-graph")]
     public async Task<ApiResponse> HandleBuildConnectGraph()
     {
-        double rad = 0.01; //1km
+        double litmitDistance = 0.5; //500m
         var vertices = await _vertexRepository.Queryable().AsNoTracking()
             .Select(x => new EdgeSimpleDto
             {
@@ -341,7 +341,7 @@ public class CrawlerController : ControllerBase
             var pointA = new Position() {Lat = currentVertex.Lat, Lng = currentVertex.Lng};
             var nearestVertex = vertices
                 .Where(loopItemVertex => loopItemVertex.RouteId != currentVertex.RouteId &&
-                                         CalculateUtil.Distance(pointA, new Position() {Lng = loopItemVertex.Lng, Lat = loopItemVertex.Lat}) <= rad).Distinct()
+                                         CalculateUtil.Distance(pointA, new Position() {Lng = loopItemVertex.Lng, Lat = loopItemVertex.Lat}) <= litmitDistance).Distinct()
                 .ToList();
             if (nearestVertex.Any())
             {

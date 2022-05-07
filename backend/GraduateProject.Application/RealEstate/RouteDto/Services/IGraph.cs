@@ -7,15 +7,11 @@ public interface IGraph
 {
     IReadOnlyCollection<VertexDto> Vertices { get; }
     IReadOnlyCollection<EdgeDto> Edges { get; }
-    EdgeDto? GetEdge(VertexDto firstVertex, VertexDto secondVertex);
-    ICollection<VertexDto?> NonPermanent();
-    VertexDto? GetNonPermanentVertex();
-
-    VertexDto? GetTemporaryVertexMinCost();
-
-    ICollection<EdgeDto> GetEdgesFromVertex(VertexDto? vertexDto, EdgeType? edgeType = null);
-
-    ICollection<VertexDto> GetNeighbors(VertexDto? vertexDto, EdgeType? edgeType = null);
-    VertexDto? GetVertexById(Guid id);
+    //
+    //
+    // ICollection<EdgeDto> GetEdgesFromVertex(VertexDto? vertexDto, EdgeType? edgeType = null);
+    //
+    // ICollection<VertexDto> GetNeighbors(VertexDto? vertexDto, EdgeType? edgeType = null);
+    // VertexDto? GetVertexById(Guid id);
     ICollection<AStarNode> GetAStarNeighbors(AStarNode startNode, AStarNode targetNode, AStarNode currentNode, EdgeType? edgeType = null);
 }

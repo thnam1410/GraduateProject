@@ -17,62 +17,7 @@ public class Graph : IGraph
 
     public IReadOnlyCollection<VertexDto> Vertices => this._vertices.AsReadOnly();
     public IReadOnlyCollection<EdgeDto> Edges => this._edges.AsReadOnly();
-
-
-    public EdgeDto? GetEdge(VertexDto firstVertex, VertexDto secondVertex)
-    {
-        return _edges.FirstOrDefault(edge => edge.PointAId == firstVertex.Id && edge.PointBId == secondVertex.Id);
-    }
-
-    public ICollection<VertexDto?> NonPermanent()
-    {
-        return _vertices.Where(x => x.Status != VertexStatus.Permanent).ToList();
-    }
-
-    public VertexDto? GetNonPermanentVertex()
-    {
-        return _vertices.FirstOrDefault(x => x.Status != VertexStatus.Permanent);
-    }
-
-    public VertexDto? GetTemporaryVertexMinCost()
-    {
-        double min = double.MaxValue;
-        VertexDto? vertex = null;
-        foreach (var currentVertex in _vertices)
-        {
-            if (currentVertex.Status == VertexStatus.Temporary && currentVertex.MinCost < min)
-            {
-                min = currentVertex.MinCost;
-                vertex = currentVertex;
-            }
-        }
-
-        return vertex;
-    }
-
-    public ICollection<EdgeDto> GetEdgesFromVertex(VertexDto? vertexDto, EdgeType? edgeType = null)
-    {
-        return _edges.AsEnumerable()
-            .Where(x => x.PointAId == vertexDto.Id)
-            .WhereIf(edgeType.HasValue, x => x.Type == edgeType)
-            .ToList();
-    }
-
-    public ICollection<VertexDto> GetNeighbors(VertexDto? vertexDto, EdgeType? edgeType = null)
-    {
-        var pointBIds = _edges.AsEnumerable()
-            .Where(x => x.PointAId == vertexDto.Id)
-            .WhereIf(edgeType.HasValue, x => x.Type == edgeType)
-            .Select(x => x.PointBId)
-            .ToList();
-        return _vertices.Where(x => pointBIds.Contains(x.Id)).ToList();
-    }
-
-    public VertexDto? GetVertexById(Guid id)
-    {
-        return _vertices.FirstOrDefault(x => x.Id == id);
-    }
-
+    
     public ICollection<AStarNode> GetAStarNeighbors(AStarNode startNode, AStarNode targetNode, AStarNode currentNode, EdgeType? edgeType = null)
     {
         var edges = _edges.AsEnumerable()
@@ -92,4 +37,30 @@ public class Graph : IGraph
             })
             .ToList();
     }
+    
+
+    // public ICollection<EdgeDto> GetEdgesFromVertex(VertexDto? vertexDto, EdgeType? edgeType = null)
+    // {
+    //     return _edges.AsEnumerable()
+    //         .Where(x => x.PointAId == vertexDto.Id)
+    //         .WhereIf(edgeType.HasValue, x => x.Type == edgeType)
+    //         .ToList();
+    // }
+    //
+    // public ICollection<VertexDto> GetNeighbors(VertexDto? vertexDto, EdgeType? edgeType = null)
+    // {
+    //     var pointBIds = _edges.AsEnumerable()
+    //         .Where(x => x.PointAId == vertexDto.Id)
+    //         .WhereIf(edgeType.HasValue, x => x.Type == edgeType)
+    //         .Select(x => x.PointBId)
+    //         .ToList();
+    //     return _vertices.Where(x => pointBIds.Contains(x.Id)).ToList();
+    // }
+
+    // public VertexDto? GetVertexById(Guid id)
+    // {
+    //     return _vertices.FirstOrDefault(x => x.Id == id);
+    // }
+
+
 }

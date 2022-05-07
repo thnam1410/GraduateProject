@@ -8,7 +8,7 @@ namespace GraduateProject.Application.RealEstate.RouteDto.Services;
 public class AStar
 {
     private static CustomHeap<AStarNode> openList { get; set; } = new CustomHeap<AStarNode>(1_000_000);
-    private static List<AStarNode> closeList { get; set; } = new List<AStarNode>();
+    private static List<Guid> closeList { get; set; } = new List<Guid>();
     private static AStarNode startNode;
     private static AStarNode targetNode;
     private readonly IGraph _graph;
@@ -37,16 +37,16 @@ public class AStar
 
             //2: Remove node
             tempCurrentNode = currentNode;
-            closeList.Add(currentNode);
+            closeList.Add(currentNode.Id);
 
-            if (currentNode.Id == targetNode.Id)
+            if (currentNode.Id == targetNode.Id) // 1m
             {
                 targetNode.ParentNode = tempCurrentNode;
                 return RetracePath(startNode, targetNode);
             }
 
             //3: Loop through neighbors
-            GenerateNeighborsToOpenList(currentNode);
+            GenerateNeighborsToOpenList(tempCurrentNode);
         }
 
         if (openList.Any()) throw new Exception("Can not find path!");
@@ -60,7 +60,7 @@ public class AStar
         var switchRouteNeighbors = neighbors.Where(x => x.IsSwitchRouteNode == true).ToList();
 
         //High priority for main routes
-        var isAddedMainRoute = AddNeighborsToOpenList(currentNode, mainRouteNeighbors);
+        var isAddedMainRoute = AddNeighborsToOpenList(currentNode, neighbors);
 
         //If not any main routes valid, generate switch routes 
         // if (switchRouteNeighbors.Any() && isAddedMainRoute == false)
@@ -74,7 +74,7 @@ public class AStar
         bool flagAdded = false;
         foreach (var neighborNode in neighbors)
         {
-            if (closeList.Contains(neighborNode)) continue;
+            if (closeList.Contains(neighborNode.Id)) continue;
 
             double newMovementCostToNeighbor = currentNode.GCost + CalculateUtil.DistanceNode(currentNode, neighborNode);
             var openListContainNode = openList.ContainsId(neighborNode.HeapIndex, neighborNode.Id);

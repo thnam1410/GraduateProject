@@ -36,8 +36,7 @@ public class RouteService: IRouteService
                 Lat = x.Lat,
                 Lng = x.Lng,
                 Rank = x.Rank,
-                Status = VertexStatus.Temporary,
-                MinCost = double.MaxValue
+                RouteDetailId = x.RouteDetailId
             })
             .AsSplitQuery()
             .ToListAsync();
@@ -54,11 +53,18 @@ public class RouteService: IRouteService
         var graph = new Graph(vertices, edges);
         try
         {
-            var paths = new AStar(graph, new Guid("96688B36-6FDE-4B49-B860-08DA2B8BFB8B"), new Guid("FB600B07-CD0F-452C-36D0-08DA2B8BFB8C"));
-            return paths.StartAlgorithms().Select(x => new Position()
+            var aStarCtor = new AStar(graph, new Guid("E3A135FF-6B08-4332-70F2-08DA2DCF02F1"), new Guid("2EBE1B7F-3529-435A-21D7-08DA2DCF02F1"));
+            var paths = aStarCtor.StartAlgorithms();
+            var nodeIds = paths.Select(x => x.Id);
+            var positions =  paths.Select(x => new Position()
             {
                 Lat = x.Lat, Lng = x.Lng
             });
+            return new
+            {
+                positions,
+                routes = vertices.Where(x => nodeIds.Contains(x.Id)).GroupBy(x => x.RouteDetailId).Select(x => x.Key)
+            };
         }
         catch (Exception e)
         {
