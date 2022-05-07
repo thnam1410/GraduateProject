@@ -11,6 +11,7 @@ import { ApiUtil, BASE_API_PATH } from "~/src/utils/ApiUtil";
 import GooglePlacesAutocomplete, { geocodeByAddress, geocodeByPlaceId, getLatLng } from "react-google-places-autocomplete";
 import AdminLayout from "./AdminLayout";
 import { Tabs } from "antd";
+import RouteLookupListView from "./RouteLookupListView";
 
 const Map: NextPage<any> = ({ children }) => {
 	const polyLineRef = useRef<LeafletPolyline>(null);
@@ -72,11 +73,16 @@ const Map: NextPage<any> = ({ children }) => {
 	};
 	return (
 		<>
-			<div className="border bg-white-800 absolute duration-500 -left-0 " style={{ width: "27%" }}>
+			<div
+				className="border bg-white-800 absolute duration-500 -left-0 "
+				style={{
+					width: "27%",
+				}}
+			>
 				<div className="flex flex-wrap">
 					<div className="w-full">
 						<ul className="flex mb-0 list-none flex-wrap pt-3 pb-4 flex-row" role="tablist">
-							<li className="-mb-px mr-2 last:mr-0 flex-auto text-center">
+							<li className="-mb-px last:mr-0 flex-auto text-center">
 								<a
 									className={
 										"text-xs font-bold uppercase px-5 py-3 shadow-lg rounded block leading-normal " +
@@ -93,7 +99,7 @@ const Map: NextPage<any> = ({ children }) => {
 									Tra cứu
 								</a>
 							</li>
-							<li className="-mb-px mr-2 last:mr-0 flex-auto text-center">
+							<li className="-mb-px last:mr-0 flex-auto text-center">
 								<a
 									className={
 										"text-xs font-bold uppercase px-5 py-3 shadow-lg rounded block leading-normal " +
@@ -112,13 +118,13 @@ const Map: NextPage<any> = ({ children }) => {
 							</li>
 						</ul>
 						<div
-							className="relative flex flex-col min-w-0 break-words bg-white w-full mb-6 shadow-lg rounded"
-							style={{ height: 800 }}
+							className=" relative flex flex-col min-w-0 break-words bg-white w-full mb-6 shadow-lg rounded"
+							// style={{ height: "100%" }}
 						>
-							<div className="px-4 py-5 flex-auto">
-								<div className="tab-content tab-space">
-									<div className={openTab === 1 ? "block" : "hidden"} id="link1">
-										<p>v</p>
+							<div className=" px-4 py-5 flex-auto">
+								<div className=" tab-content tab-space">
+									<div className={openTab === 1 ? "block " : "hidden"} id="link1">
+										<RouteLookupListView></RouteLookupListView>
 									</div>
 									<div className={openTab === 2 ? "block" : "hidden"} id="link2">
 										<p>a</p>
@@ -133,7 +139,7 @@ const Map: NextPage<any> = ({ children }) => {
 			<div
 				className="absolute inset-y-0 right-0"
 				style={{
-					height: "100%",
+					// height: "100%",
 					width: "73%",
 				}}
 			>
