@@ -80,7 +80,7 @@ const Map: NextPage<any> = ({ children }) => {
 				}}
 			>
 				<div className="flex flex-wrap">
-					<div className="w-full">
+					<div className="h-screen w-full">
 						<ul className="flex mb-0 list-none flex-wrap pt-3 pb-4 flex-row" role="tablist">
 							<li className="-mb-px last:mr-0 flex-auto text-center">
 								<a
@@ -117,10 +117,7 @@ const Map: NextPage<any> = ({ children }) => {
 								</a>
 							</li>
 						</ul>
-						<div
-							className=" relative flex flex-col min-w-0 break-words bg-white w-full mb-6 shadow-lg rounded"
-							// style={{ height: "100%" }}
-						>
+						<div className=" relative flex flex-col min-w-0 break-words bg-white w-full mb-6 shadow-lg rounded">
 							<div className=" px-4 py-5 flex-auto">
 								<div className=" tab-content tab-space">
 									<div className={openTab === 1 ? "block " : "hidden"} id="link1">
@@ -137,7 +134,7 @@ const Map: NextPage<any> = ({ children }) => {
 			</div>
 
 			<div
-				className="absolute inset-y-0 right-0"
+				className="h-screen absolute inset-y-0 right-0"
 				style={{
 					// height: "100%",
 					width: "73%",
