@@ -5,6 +5,7 @@ import { ApiUtil, BASE_API_PATH, ConvertStringUnsign } from "~/src/utils/ApiUtil
 import { pathIconBus_1, pathIconBus_2, pathIconTime_1, pathIconTime_2, PathIconMoney } from "../pages/svg/Path";
 
 interface IGetMainRoute {
+	id: number;
 	name: string;
 	type: string;
 	busType: string;
@@ -14,10 +15,16 @@ interface IGetMainRoute {
 	routeCode: string;
 	routeDetail: string;
 }
+interface Props {
+	check?: string;
+}
 let infoRouteArray: IGetMainRoute[] = [];
 
-const RouteLookupListView: NextPage<any> = ({ props }) => {
+const RouteLookupListView: NextPage<any> = (props) => {
 	const [infoRoutes, setInfoRoutes] = useState<IGetMainRoute[]>([]);
+	const [isAllList, setIsAllList] = useState<boolean>(true);
+	// const [infoRoutes, setInfoRoutes] = useState<IGetMainRoute[]>([]);
+
 	useEffect(() => {
 		ApiUtil.Axios.get(BASE_API_PATH + "/route/get-main-routes").then((res) => {
 			const result = res?.data?.result as Array<IGetMainRoute>;
@@ -39,13 +46,27 @@ const RouteLookupListView: NextPage<any> = ({ props }) => {
 		});
 		setInfoRoutes(valueSearch);
 	};
+
+	// const handleOnChangeDiv = (RouteId: number) => {
+	// 	console.log("RouteId", RouteId);
+	// 	// const params = ApiUtil.serialize({ routeId: RouteId });
+	// 	ApiUtil.Axios.get(BASE_API_PATH + `/route/get-route-info/` + RouteId).then((res) => {
+	// 		console.log("res-routeId", res);
+	// 		setIsAllList(false);
+	// 	});
+	// };
 	const renderList = () => {
 		return (
 			<>
 				{infoRoutes.map((infoRoute, idx) => {
 					return (
 						<>
-							<li className=" mb-2 border-gray-400 flex flex-row">
+							<li
+								onClick={() => {
+									props.handleOnChangeDiv(infoRoute.id);
+								}}
+								className="cursor-pointer mb-2 border-gray-400 flex flex-row"
+							>
 								<div
 									style={{ width: "420px" }}
 									className="select-nonetems-center  duration-500  hover:-translate-y-2 rounded-2xl  border-2 p-3 mt-3 border-black-1000 hover:shadow-2xl"
@@ -99,29 +120,32 @@ const RouteLookupListView: NextPage<any> = ({ props }) => {
 			</>
 		);
 	};
-	return (
-		<div>
-			<input
-				type="search"
-				id="default-search"
-				className="block p-4 pl-8 w-full text-sm text-gray-900 bg-white-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-200 dark:border-gray-600 dark:placeholder-gray-400 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500"
-				placeholder="Tìm tuyến xe"
-				onChange={debounce(handleOnChange, 1000)}
-				required
-			/>
 
-			<div className="container mb-2  w-full items-center justify-center">
-				<ul style={{ height: "calc(100vh - 180px)" }} className="overflow-y-scroll flex flex-col p-3">
-					{renderList()}
-				</ul>
+	return (
+		<>
+			<div>
+				<input
+					type="search"
+					id="default-search"
+					className="block p-4 pl-8 w-full text-sm text-gray-900 bg-white-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-200 dark:border-gray-600 dark:placeholder-gray-400 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500"
+					placeholder="Tìm tuyến xe"
+					onChange={debounce(handleOnChange, 1000)}
+					required
+				/>
+
+				<div className="container mb-2  w-full items-center justify-center">
+					<ul style={{ height: "calc(100vh - 180px)" }} className="overflow-y-scroll flex flex-col p-3">
+						{renderList()}
+					</ul>
+				</div>
 			</div>
-		</div>
+		</>
 	);
 };
 
 export default RouteLookupListView;
-export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
-	return {
-		props: {},
-	};
-};
+// export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
+// 	return {
+// 		props: {},
+// 	};
+// };
