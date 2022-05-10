@@ -4,6 +4,7 @@ using GraduateProject.Domain.AppEntities.Entities;
 using GraduateProject.Domain.AppEntities.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Z.EntityFramework.Plus;
 
 namespace GraduateProject.Application.RealEstate.RouteDto.Services;
 
@@ -38,18 +39,15 @@ public class RouteService: IRouteService
                 Rank = x.Rank,
                 RouteDetailId = x.RouteDetailId
             })
-            .AsSplitQuery()
-            .ToListAsync();
-        var vertexIds = vertices.Select(x => x.Id).ToList();
+            .FromCacheAsync();
         var edges = await _vertexRepository.GetEdgeQueryable().AsNoTracking()
-            // .Where(x => vertexIds.Contains(x.PointAId) || vertexIds.Contains(x.PointBId))
             .Select(x => new EdgeDto()
             {
                 PointAId = x.PointAId,
                 PointBId = x.PointBId,
                 EdgeDistance = x.Distance,
                 Type = x.Type
-            }).AsSplitQuery().ToListAsync();
+            }).FromCacheAsync();
         var graph = new Graph(vertices, edges);
         try
         {

@@ -5,22 +5,22 @@ namespace GraduateProject.Application.RealEstate.RouteDto.Services;
 
 public class Graph : IGraph
 {
-    private readonly List<VertexDto> _vertices;
-    private readonly List<EdgeDto> _edges;
+    private readonly IEnumerable<VertexDto> _vertices;
+    private readonly IEnumerable<EdgeDto> _edges;
 
-    public Graph(List<VertexDto> vertices, List<EdgeDto> edges)
+    public Graph(IEnumerable<VertexDto> vertices, IEnumerable<EdgeDto> edges)
     {
         _vertices = vertices;
         _edges = edges;
     }
 
 
-    public IReadOnlyCollection<VertexDto> Vertices => this._vertices.AsReadOnly();
-    public IReadOnlyCollection<EdgeDto> Edges => this._edges.AsReadOnly();
+    public IEnumerable<VertexDto> Vertices => this._vertices;
+    public IEnumerable<EdgeDto> Edges => this._edges;
     
     public ICollection<AStarNode> GetAStarNeighbors(AStarNode startNode, AStarNode targetNode, AStarNode currentNode, EdgeType? edgeType = null)
     {
-        var edges = _edges.AsEnumerable()
+        var edges = _edges
             .Where(x => x.PointAId == currentNode.Id)
             .WhereIf(edgeType.HasValue, x => x.Type == edgeType)
             .ToList();

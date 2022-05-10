@@ -5,8 +5,8 @@ namespace GraduateProject.Application.RealEstate.RouteDto.Services;
 
 public interface IGraph
 {
-    IReadOnlyCollection<VertexDto> Vertices { get; }
-    IReadOnlyCollection<EdgeDto> Edges { get; }
+    IEnumerable<VertexDto> Vertices { get; }
+    IEnumerable<EdgeDto> Edges { get; }
     //
     //
     // ICollection<EdgeDto> GetEdgesFromVertex(VertexDto? vertexDto, EdgeType? edgeType = null);

@@ -44,13 +44,22 @@ public class Startup
                 options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
                 options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
             });
-
         services.AddControllers();
         services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo {Title = "Graduation Project", Version = "v1"}); });
         services.SetupInfrastructure(connectionString);
         services.RegisterAuthentication(Configuration); // include jwt && identity config
         services.AddScoped<ICurrentUser<Guid>, CurrentUser>();
         services.Configure<ConfigDistance>(Configuration.GetSection(nameof(ConfigDistance)));
+#if DEBUG
+
+        services.AddMiniProfiler(options =>
+        {
+            // All of this is optional. You can simply call .AddMiniProfiler() for all defaults
+
+            // (Optional) Path to use for profiler URLs, default is /mini-profiler-resources
+            options.RouteBasePath = "/profiler";
+        }).AddEntityFramework();
+#endif
         services.AddCors(options =>
         {
             options.AddPolicy("FrontendCors",
@@ -78,7 +87,9 @@ public class Startup
                 c.DisplayRequestDuration();
             });
         }
-
+#if DEBUG
+        app.UseMiniProfiler();
+#endif
         app.UseCors("FrontendCors");
         // app.UseHttpsRedirection();
         app.UseFileServer(new FileServerOptions

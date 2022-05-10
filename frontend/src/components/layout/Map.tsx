@@ -1,50 +1,21 @@
-import { MapContainer, Marker, Polyline, Popup, TileLayer } from "react-leaflet";
+import { MapContainer, Marker, Polyline, Popup, TileLayer, ZoomControl } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css";
 import "leaflet-defaulticon-compatibility";
 import React, { useEffect, useRef, useState } from "react";
-import useBrowser from "~/src/hooks/useBrowser";
 import { GetServerSideProps, NextPage } from "next";
-import { useLeafletContext } from "@react-leaflet/core";
-import { LatLngBoundsExpression, Map as LeafletMap, Polyline as LeafletPolyline } from "leaflet";
-import { ApiUtil, BASE_API_PATH } from "~/src/utils/ApiUtil";
-import GooglePlacesAutocomplete, { geocodeByAddress, geocodeByPlaceId, getLatLng } from "react-google-places-autocomplete";
-import AdminLayout from "./AdminLayout";
+import { Map as LeafletMap, Polyline as LeafletPolyline } from "leaflet";
+import GooglePlacesAutocomplete, { geocodeByPlaceId } from "react-google-places-autocomplete";
 import { Tabs } from "antd";
-import RouteLookupListView from "./RouteLookupListView";
 import RouteInfoView from "./RouteInfoView";
+import { debounce } from "lodash";
 
+const SIDE_BAR_WIDTH = 18;
 const Map: NextPage<any> = ({ children }) => {
 	const polyLineRef = useRef<LeafletPolyline>(null);
 	const leafletMap = useRef<LeafletMap>(null);
 	const [positions, setPosition] = useState<any[]>([]);
-	const [address, setAddress] = useState<any>(null);
-	const [openTab, setOpenTab] = useState<number>(1);
-
-	const { TabPane } = Tabs;
-
-	useEffect(() => {
-		// ApiUtil.Axios.get(BASE_API_PATH + "/route/get-path-by-route-detail-id?routeDetailId=1651").then((res) => {
-		// 	const result = res?.data?.result as Array<{ lat: number; lng: number }>;
-		// 	const positionResult = result.reduce((acc: any[], curr) => {
-		// 		acc.push([curr.lat, curr.lng]);
-		// 		return acc;
-		// 	}, []);
-		// 	setPosition(positionResult);
-		// 	setTimeout(() => leafletMap.current?.fitBounds(polyLineRef.current?.getBounds() as LatLngBoundsExpression));
-		// });
-		const getInfoPlaceId = async () => {
-			const geocodeObj = address && address.value ? await geocodeByPlaceId(address.value.place_id) : null;
-			if (geocodeObj !== null) {
-				let acc = [];
-				let lng = geocodeObj[0]?.geometry?.location?.lng();
-				let lat = geocodeObj[0]?.geometry?.location?.lat();
-				acc.push([lat, lng]);
-				setPosition(acc);
-			}
-		};
-		getInfoPlaceId();
-	}, [address]);
+	const [isOpenSideBar, setIsOpenSideBar] = useState(true);
 
 	const renderMarkers = () => {
 		return (
@@ -72,22 +43,46 @@ const Map: NextPage<any> = ({ children }) => {
 	const renderRoutes = () => {
 		return <Polyline ref={polyLineRef} pathOptions={{ color: "purple" }} positions={positions} />;
 	};
+
+	const onChangeAddress = debounce(async (address) => {
+		try {
+			const geocodeObj = await geocodeByPlaceId(address?.value?.place_id);
+			if (geocodeObj !== null) {
+				let acc = [];
+				let lng = geocodeObj[0]?.geometry?.location?.lng();
+				let lat = geocodeObj[0]?.geometry?.location?.lat();
+				acc.push([lat, lng]);
+				console.log(acc);
+			}
+		} catch (e) {
+			console.log("err", e);
+		}
+	}, 300);
+
 	return (
 		<>
 			<div
-				className="border bg-white-800 absolute duration-500 -left-0 "
+				className="border bg-white-800 absolute duration-500 -left-0"
 				style={{
-					width: "27%",
+					width: isOpenSideBar ? `${SIDE_BAR_WIDTH}%` : 0,
 				}}
 			>
-				{<RouteInfoView></RouteInfoView>}
+				<div
+					className="flex justify-center items-center absolute top-[15px] right-[-30px] h-[20px] w-[20px] bg-white text-black z-10 cursor-pointer rounded bg-gray-300 border-solid border-2 border-sky-500 text-xl p-3"
+					onClick={() => {
+						setIsOpenSideBar(!isOpenSideBar);
+						setTimeout(() => leafletMap.current?.invalidateSize(), 500);
+					}}
+				>
+					{isOpenSideBar ? "<" : ">"}{" "}
+				</div>
+				<RouteInfoView />
 			</div>
 
 			<div
-				className="h-screen absolute inset-y-0 right-0"
+				className="h-screen absolute inset-y-0 right-0 duration-500"
 				style={{
-					// height: "100%",
-					width: "73%",
+					width: isOpenSideBar ? `${100 - SIDE_BAR_WIDTH}%` : "100%",
 				}}
 			>
 				<div
@@ -105,10 +100,7 @@ const Map: NextPage<any> = ({ children }) => {
 							selectProps={{
 								placeholder: "Nhập vị trí cần chọn",
 								isClearable: true,
-								value: address,
-								onChange: (val: any) => {
-									setAddress(val);
-								},
+								onChange: onChangeAddress,
 							}}
 						/>
 					}
@@ -116,10 +108,12 @@ const Map: NextPage<any> = ({ children }) => {
 				<MapContainer
 					ref={leafletMap}
 					center={[10.762622, 106.660172]}
-					zoom={14}
+					zoom={13}
 					scrollWheelZoom={true}
 					style={{ height: "100%", width: "100%", zIndex: 1 }}
+					zoomControl={false}
 				>
+					<ZoomControl position={"bottomright"} />
 					<TileLayer
 						url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
 						attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'

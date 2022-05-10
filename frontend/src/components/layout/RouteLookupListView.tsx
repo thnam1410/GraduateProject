@@ -59,16 +59,13 @@ const RouteLookupListView: NextPage<any> = (props) => {
 								}}
 								className="cursor-pointer mb-2 border-gray-400 flex flex-row"
 							>
-								<div
-									style={{ width: "420px" }}
-									className="select-nonetems-center  duration-500  hover:-translate-y-2 rounded-2xl  border-2 p-3 mt-3 border-black-1000 hover:shadow-2xl"
-								>
-									<div style={{ width: "350px" }} className="flex font-medium">
-										<div className="flex-none w-14">
+								<div className="select-nonetems-center w-full duration-500  hover:-translate-y-2 rounded-2xl  border-2 p-3 mt-3 border-black-1000 hover:shadow-2xl">
+									<div className="flex font-medium">
+										<div className="flex w-1/5">
 											<div className="bg-blue-light shadow-border p-3 w-4 h-4">
 												<svg
 													xmlns="http://www.w3.org/2000/svg"
-													className="w-4 h-4 mx-1 sm:w-6 sm:h-6"
+													className="w-4 h-4 sm:w-6 sm:h-6 mr-2"
 													viewBox="0 0 472.666 472.666"
 												>
 													<path d={pathIconBus_1} />
@@ -76,30 +73,30 @@ const RouteLookupListView: NextPage<any> = (props) => {
 												</svg>
 											</div>
 										</div>
-										<div className="flex-initial w-96">
-											<p className="text-lg leading-3 text-green-600 font-bold">Tuyến số {infoRoute?.routeCode}</p>
-											<p className="text-lg leading-4">{infoRoute?.name}</p>
-											<div className="flex flex-1">
-												<div className="flex flex-1 mr-4">
+										<div className="flex-1 flex flex-col">
+											<p className="text-md leading-3 text-green-600 font-bold">Tuyến số {infoRoute?.routeCode}</p>
+											<p className="text-sm font-bold leading-4 text-black/80">{infoRoute?.name}</p>
+											<div className="flex flex-1 flex-col">
+												<div className="flex flex-1">
 													<svg
 														xmlns="http://www.w3.org/2000/svg"
 														viewBox="0 0 304.547 304.547"
-														className="sm:w-6 sm:h-4"
+														className="sm:w-6 sm:h-4 mr-2"
 													>
 														<path d={pathIconTime_1} />
 														<path d={pathIconTime_2} />
 													</svg>
-													<p className="text-lg leading-4">{infoRoute?.timeRange}</p>
+													<p className="text-sm leading-4">{infoRoute?.timeRange}</p>
 												</div>
 												<div className="flex flex-1">
 													<svg
 														xmlns="http://www.w3.org/2000/svg"
 														viewBox="0 0 489.038 489.038"
-														className="sm:w-6 sm:h-4"
+														className="sm:w-6 sm:h-4 mr-2"
 													>
 														<path d={PathIconMoney} />
 													</svg>
-													<p className="text-lg leading-4">7,000 VNĐ</p>
+													<p className="text-sm leading-4">7,000 VNĐ</p>
 												</div>
 											</div>
 										</div>
