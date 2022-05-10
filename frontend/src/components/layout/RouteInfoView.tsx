@@ -2,12 +2,21 @@ import { debounce, cloneDeep } from "lodash";
 import { GetServerSideProps, NextPage } from "next";
 import { useCallback, useEffect, useState } from "react";
 import { ApiUtil, BASE_API_PATH, ConvertStringUnsign } from "~/src/utils/ApiUtil";
-import { pathIconBus_1, pathIconBus_2, pathIconTime_1, pathIconTime_2, PathIconMoney } from "../pages/svg/Path";
+import RouteInfoDetailView from "./RouteInfoDetailView";
 import RouteLookupListView from "./RouteLookupListView";
+import useMergeState from "~/src/hooks/useMergeState";
 
-const RouteInfoView: NextPage<any> = ({ props }) => {
+interface IState {
+	isAllList: boolean;
+	infoRouteDetail: any;
+}
+const RouteInfoView: NextPage<any> = (props) => {
 	const [openTab, setOpenTab] = useState<number>(1);
-	const [isAllList, setIsAllList] = useState<boolean>(true);
+	// const [isAllList, setIsAllList] = useState<boolean>(true);
+	const [state, setState] = useMergeState<IState>({
+		isAllList: true,
+		infoRouteDetail: null,
+	});
 
 	useEffect(() => {}, []);
 
@@ -18,14 +27,27 @@ const RouteInfoView: NextPage<any> = ({ props }) => {
 		// const params = ApiUtil.serialize({ routeId: RouteId });
 		ApiUtil.Axios.get(BASE_API_PATH + `/route/get-route-info/` + RouteId).then((res) => {
 			console.log("res-routeId", res);
-			setIsAllList(false);
+			if (res.data?.success) {
+				const data = res.data?.result;
+				setState({
+					isAllList: false,
+					infoRouteDetail: data,
+				});
+			}
+		});
+	};
+
+	const handleOnChangeBack = () => {
+		setState({
+			isAllList: true,
+			infoRouteDetail: null,
 		});
 	};
 
 	return (
 		<>
 			<div className="flex flex-wrap">
-				<div style={{ display: isAllList ? "unset" : "none" }} className="h-screen w-full">
+				<div style={{ display: state.isAllList ? "unset" : "none" }} className="h-screen w-full">
 					<ul className="flex mb-0 list-none flex-wrap pt-3 pb-4 flex-row" role="tablist">
 						<li className="-mb-px last:mr-0 flex-auto text-center">
 							<a
@@ -66,7 +88,7 @@ const RouteInfoView: NextPage<any> = ({ props }) => {
 						<div className=" px-4 py-5 flex-auto">
 							<div className=" tab-content tab-space">
 								<div className={openTab === 1 ? "block " : "hidden"} id="link1">
-									<RouteLookupListView check={"as"} handleOnChangeDiv={handleOnChangeDiv} />
+									<RouteLookupListView handleOnChangeDiv={handleOnChangeDiv} />
 								</div>
 								<div className={openTab === 2 ? "block" : "hidden"} id="link2">
 									<p>a</p>
@@ -76,8 +98,8 @@ const RouteInfoView: NextPage<any> = ({ props }) => {
 					</div>
 				</div>
 
-				<div style={{ display: isAllList ? "none" : "unset" }} className="h-screen w-full">
-					View Chi tiết
+				<div style={{ display: state.isAllList ? "none" : "unset" }} className="h-screen w-full">
+					<RouteInfoDetailView data={state.infoRouteDetail} handleOnChangeBack={handleOnChangeBack} />
 				</div>
 			</div>
 		</>

@@ -47,14 +47,6 @@ const RouteLookupListView: NextPage<any> = (props) => {
 		setInfoRoutes(valueSearch);
 	};
 
-	// const handleOnChangeDiv = (RouteId: number) => {
-	// 	console.log("RouteId", RouteId);
-	// 	// const params = ApiUtil.serialize({ routeId: RouteId });
-	// 	ApiUtil.Axios.get(BASE_API_PATH + `/route/get-route-info/` + RouteId).then((res) => {
-	// 		console.log("res-routeId", res);
-	// 		setIsAllList(false);
-	// 	});
-	// };
 	const renderList = () => {
 		return (
 			<>
