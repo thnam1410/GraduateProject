@@ -10,7 +10,7 @@ import { Tabs } from "antd";
 import RouteInfoView from "./RouteInfoView";
 import { debounce } from "lodash";
 
-const SIDE_BAR_WIDTH = 18;
+const SIDE_BAR_WIDTH = 23;
 const Map: NextPage<any> = ({ children }) => {
 	const polyLineRef = useRef<LeafletPolyline>(null);
 	const leafletMap = useRef<LeafletMap>(null);
@@ -62,13 +62,13 @@ const Map: NextPage<any> = ({ children }) => {
 	return (
 		<>
 			<div
-				className="border bg-white-800 absolute duration-500 -left-0"
+				className="border bg-white-800 flex h-screen justify-center items-center absolute duration-500 -left-0"
 				style={{
 					width: isOpenSideBar ? `${SIDE_BAR_WIDTH}%` : 0,
 				}}
 			>
 				<div
-					className="flex justify-center items-center absolute top-[15px] right-[-30px] h-[20px] w-[20px] bg-white text-black z-10 cursor-pointer rounded bg-gray-300 border-solid border-2 border-sky-500 text-xl p-3"
+					className="flex m-auto justify-center p-3 items-center absolute py-6 justify-center content-center right-[-30px] h-[20px] w-[20px] bg-white text-black z-10 cursor-pointer rounded bg-gray-300 border-solid border-2 border-sky-500 text-xl"
 					onClick={() => {
 						setIsOpenSideBar(!isOpenSideBar);
 						setTimeout(() => leafletMap.current?.invalidateSize(), 500);
@@ -90,7 +90,7 @@ const Map: NextPage<any> = ({ children }) => {
 						position: "absolute",
 						zIndex: 3,
 						width: "40%",
-						left: "60px",
+						left: "30px",
 						top: "10px",
 					}}
 				>
