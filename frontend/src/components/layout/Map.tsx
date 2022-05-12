@@ -52,7 +52,6 @@ const Map: NextPage<any> = ({ children }) => {
 				let lng = geocodeObj[0]?.geometry?.location?.lng();
 				let lat = geocodeObj[0]?.geometry?.location?.lat();
 				acc.push([lat, lng]);
-				console.log(acc);
 			}
 		} catch (e) {
 			console.log("err", e);
@@ -96,7 +95,13 @@ const Map: NextPage<any> = ({ children }) => {
 				>
 					{
 						<GooglePlacesAutocomplete
-							apiKey="AIzaSyDQXEJEdPF6r1WQMhj9rWW03oyV39kh0Dg"
+							apiKey="AIzaSyBeDWp7xuLoIgN2juf0t2Q4koofdolhYCE"
+							debounce={300}
+							minLengthAutocomplete={3}
+							apiOptions={{
+								language: "VN",
+								region: "VN",
+							}}
 							selectProps={{
 								placeholder: "Nhập vị trí cần chọn",
 								isClearable: true,

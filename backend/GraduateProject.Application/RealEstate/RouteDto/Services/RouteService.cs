@@ -8,7 +8,7 @@ using Z.EntityFramework.Plus;
 
 namespace GraduateProject.Application.RealEstate.RouteDto.Services;
 
-public class RouteService: IRouteService
+public class RouteService : IRouteService
 {
     private readonly IRouteDetailRepository _routeDetailRepository;
     private readonly IVertexRepository _vertexRepository;
@@ -17,7 +17,8 @@ public class RouteService: IRouteService
     private readonly IRouteRepository _routeRepository;
     private readonly IObjectMapper _mapper;
 
-    public RouteService(IRouteDetailRepository routeDetailRepository, IVertexRepository vertexRepository, IStopRepository stopRepository, IOptionsSnapshot<ConfigDistance> configDistance, IRouteRepository routeRepository, IObjectMapper mapper)
+    public RouteService(IRouteDetailRepository routeDetailRepository, IVertexRepository vertexRepository, IStopRepository stopRepository,
+        IOptionsSnapshot<ConfigDistance> configDistance, IRouteRepository routeRepository, IObjectMapper mapper)
     {
         _routeDetailRepository = routeDetailRepository;
         _vertexRepository = vertexRepository;
@@ -29,33 +30,43 @@ public class RouteService: IRouteService
 
     public async Task<object> GetRoute(FindRouteRequestDto request)
     {
-        var searchRadius = _configDistance.Value.SearchRadius;
-        var vertices = await _vertexRepository.Queryable().AsNoTracking()
-            .Select(x => new VertexDto()
-            {
-                Id = x.Id,
-                Lat = x.Lat,
-                Lng = x.Lng,
-                Rank = x.Rank,
-                RouteDetailId = x.RouteDetailId
-            })
-            .FromCacheAsync();
-        var edges = await _vertexRepository.GetEdgeQueryable().AsNoTracking()
-            .Select(x => new EdgeDto()
-            {
-                PointAId = x.PointAId,
-                PointBId = x.PointBId,
-                EdgeDistance = x.Distance,
-                Type = x.Type
-            }).FromCacheAsync();
+        var limitSearchRadius = _configDistance.Value.SearchRadius;
+        const int limitTrustNeight = 10;
+        
+        var vertices = (await GetVertices()).ToList();
+        var edges = await GetEdges();
         var graph = new Graph(vertices, edges);
+
+        var startPointNeighborVertices = new List<VertexDto>();
+        var endPointNeighborVertices = new List<VertexDto>();
+        foreach (var vertex in vertices)
+        {
+            var distanceToStart = CalculateUtil.Distance(request.StartPoint, vertex.Position);
+            var distanceToEnd = CalculateUtil.Distance(request.EndPoint, vertex.Position);
+            if (distanceToStart <= limitSearchRadius)
+            {
+                vertex.DistanceToStart = distanceToStart;
+                vertex.DistanceToEnd = CalculateUtil.Distance(request.EndPoint, vertex.Position);
+                startPointNeighborVertices.Add(vertex);
+            }
+
+            if (distanceToEnd <= limitSearchRadius)
+            {
+                vertex.DistanceToEnd = distanceToEnd;
+                endPointNeighborVertices.Add(vertex);
+            }
+        }
+        if (!startPointNeighborVertices.Any()) throw new Exception("Route nearby not found!");
+        var trustNeighbors = new List<VertexDto>();
+        var startPoint = startPointNeighborVertices.OrderBy(x => x.DistanceToStart).First();
+        var endPoint = endPointNeighborVertices.OrderBy(x => x.DistanceToEnd).First();
+
         try
         {
-            // "3ECD9D1D-CBFD-4417-4F43-08DA2DCF02F1"
-            var aStarCtor = new AStar(graph, new Guid("E3A135FF-6B08-4332-70F2-08DA2DCF02F1"), new Guid("3ECD9D1D-CBFD-4417-4F43-08DA2DCF02F1"));
+            var aStarCtor = new AStar(graph, startPoint.Id, endPoint.Id);
             var paths = aStarCtor.StartAlgorithms();
             var nodeIds = paths.Select(x => x.Id);
-            var positions =  paths.Select(x => new Position()
+            var positions = paths.Select(x => new Position()
             {
                 Lat = x.Lat, Lng = x.Lng
             });
@@ -70,6 +81,34 @@ public class RouteService: IRouteService
             Console.WriteLine(e);
             throw;
         }
+    }
+
+    private async Task<IEnumerable<EdgeDto>> GetEdges()
+    {
+        var edges = await _vertexRepository.GetEdgeQueryable().AsNoTracking()
+            .Select(x => new EdgeDto()
+            {
+                PointAId = x.PointAId,
+                PointBId = x.PointBId,
+                EdgeDistance = x.Distance,
+                Type = x.Type
+            }).FromCacheAsync();
+        return edges;
+    }
+
+    private async Task<IEnumerable<VertexDto>> GetVertices()
+    {
+        var vertices = await _vertexRepository.Queryable().AsNoTracking()
+            .Select(x => new VertexDto()
+            {
+                Id = x.Id,
+                Lat = x.Lat,
+                Lng = x.Lng,
+                Rank = x.Rank,
+                RouteDetailId = x.RouteDetailId
+            })
+            .FromCacheAsync();
+        return vertices;
     }
 
     public Task<List<Route>> GetMainRoute()
@@ -93,8 +132,8 @@ public class RouteService: IRouteService
             {
                 routeInfo = new
                 {
-                    parentRoute.Name,  // Ten tuyen
-                    parentRoute.RouteCode,  // Ma so tuyen
+                    parentRoute.Name, // Ten tuyen
+                    parentRoute.RouteCode, // Ma so tuyen
                     parentRoute.Type, //Loại hình hoạt động
                     parentRoute.RouteRange, // Cu ly
                     parentRoute.BusType, // Loai xe
@@ -114,6 +153,7 @@ public class RouteService: IRouteService
                 }),
             };
         }
+
         throw new Exception();
     }
 }
