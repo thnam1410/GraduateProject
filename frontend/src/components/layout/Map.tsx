@@ -62,7 +62,7 @@ const Map: NextPage<any> = ({ children }) => {
 	return (
 		<>
 			<div
-				className="border bg-white-800 flex h-screen justify-center items-center absolute duration-500 -left-0"
+				className="border bg-white-800 flex items-center absolute duration-500 -left-0"
 				style={{
 					width: isOpenSideBar ? `${SIDE_BAR_WIDTH}%` : 0,
 				}}
