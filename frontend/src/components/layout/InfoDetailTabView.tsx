@@ -1,11 +1,12 @@
 import { GetServerSideProps, NextPage } from "next";
 import { useState } from "react";
+import RouteDescriptionView from "./RouteDescriptionView";
 import RouteStopList from "./RouteStopList";
 
 const InfoDetailTabView: NextPage<any> = (props) => {
-	const [openTab, setOpenTab] = useState<number>(2);
+	const [openTab, setOpenTab] = useState<number>(3);
 	const routeStopList = props.routeStopList;
-
+	const data = props.data;
 	return (
 		<>
 			<div className="h-screen w-full">
@@ -73,7 +74,7 @@ const InfoDetailTabView: NextPage<any> = (props) => {
 								<RouteStopList routeStopList={routeStopList} />
 							</div>
 							<div className={openTab === 3 ? "block" : "hidden"} id="link3">
-								<p>tab3</p>
+								<RouteDescriptionView data={data} />
 							</div>
 						</div>
 					</div>

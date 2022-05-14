@@ -23,10 +23,8 @@ const RouteInfoView: NextPage<any> = (props) => {
 	const handleOnChange = (event: any) => {};
 
 	const handleOnChangeDiv = (RouteId: number) => {
-		console.log("RouteId", RouteId);
 		// const params = ApiUtil.serialize({ routeId: RouteId });
 		ApiUtil.Axios.get(BASE_API_PATH + `/route/get-route-info/` + RouteId).then((res) => {
-			console.log("res-routeId", res);
 			if (res.data?.success) {
 				const data = res.data?.result;
 				setState({

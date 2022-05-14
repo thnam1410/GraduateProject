@@ -5,10 +5,8 @@ import InfoDetailTabView from "./InfoDetailTabView";
 
 const RouteInfoDetailView: NextPage<any> = (props) => {
 	const [openTab, setOpenTab] = useState<number>(1);
-	console.log("props", props);
 	const routeStopBackwardList = props.data?.backwardRouteStops;
 	const routeStopforwardList = props.data?.forwardRouteStops;
-
 	return (
 		<>
 			<div className="flex mt-6 ml-2 h-12">
@@ -68,10 +66,10 @@ const RouteInfoDetailView: NextPage<any> = (props) => {
 					<div className="w-full   flex-auto">
 						<div className="w-full tab-content">
 							<div className={openTab === 1 ? "block " : "hidden"} id="link1">
-								<InfoDetailTabView routeStopList={routeStopBackwardList} />
+								<InfoDetailTabView data={props.data} routeStopList={routeStopBackwardList} />
 							</div>
 							<div className={openTab === 2 ? "block" : "hidden"} id="link2">
-								<InfoDetailTabView routeStopList={routeStopforwardList} />
+								<InfoDetailTabView data={props.data} routeStopList={routeStopforwardList} />
 							</div>
 						</div>
 					</div>
