@@ -74,7 +74,7 @@ const BusMap: NextPage<any> = ({ children }) => {
 					}}
 				>
 					<GooglePlacesAutocomplete
-						apiKey="AIzaSyBeDWp7xuLoIgN2juf0t2Q4koofdolhYCE"
+						apiKey={process.env.NEXT_PUBLIC_GG_PLACE_API_KEY}
 						debounce={300}
 						minLengthAutocomplete={3}
 						apiOptions={{
