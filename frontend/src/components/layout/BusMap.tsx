@@ -4,54 +4,34 @@ import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility
 import "leaflet-defaulticon-compatibility";
 import React, { useEffect, useRef, useState } from "react";
 import { GetServerSideProps, NextPage } from "next";
-import { Map as LeafletMap, Polyline as LeafletPolyline } from "leaflet";
+import { LatLngTuple, Map as LeafletMap, Polyline as LeafletPolyline } from "leaflet";
 import GooglePlacesAutocomplete, { geocodeByPlaceId } from "react-google-places-autocomplete";
 import { Tabs } from "antd";
 import RouteInfoView from "./RouteInfoView";
 import { debounce } from "lodash";
+import Map, { IMapRef } from "~/src/components/Map";
 
 const SIDE_BAR_WIDTH = 23;
-const Map: NextPage<any> = ({ children }) => {
-	const polyLineRef = useRef<LeafletPolyline>(null);
-	const leafletMap = useRef<LeafletMap>(null);
-	const [positions, setPosition] = useState<any[]>([]);
+const BusMap: NextPage<any> = ({ children }) => {
 	const [isOpenSideBar, setIsOpenSideBar] = useState(true);
-
-	const renderMarkers = () => {
-		return (
-			<>
-				{positions.map((position, idx) => {
-					switch (idx) {
-						case 0:
-							return (
-								<Marker position={position} draggable={false}>
-									<Popup>Start</Popup>
-								</Marker>
-							);
-						case positions.length - 1:
-							return (
-								<Marker position={position} draggable={false}>
-									<Popup>End</Popup>
-								</Marker>
-							);
-					}
-				})}
-			</>
-		);
-	};
-
-	const renderRoutes = () => {
-		return <Polyline ref={polyLineRef} pathOptions={{ color: "purple" }} positions={positions} />;
-	};
+	const mapRef = useRef<IMapRef>(null);
 
 	const onChangeAddress = debounce(async (address) => {
+		mapRef.current?.leafletMap?.current?.fitBounds([[10.7756587, 106.7004238]]);
+		mapRef.current?.leafletMap?.current?.setZoom(15);
 		try {
 			const geocodeObj = await geocodeByPlaceId(address?.value?.place_id);
 			if (geocodeObj !== null) {
-				let acc = [];
 				let lng = geocodeObj[0]?.geometry?.location?.lng();
 				let lat = geocodeObj[0]?.geometry?.location?.lat();
-				acc.push([lat, lng]);
+				if (lng && lat) {
+					mapRef.current?.setFocusPoints?.([{
+						pos: [lat, lng],
+						type: "CurrentSearch",
+					}]);
+					mapRef.current?.leafletMap?.current?.fitBounds([[lat, lng]]);
+					mapRef.current?.leafletMap?.current?.setZoom(15);
+				}
 			}
 		} catch (e) {
 			console.log("err", e);
@@ -70,7 +50,7 @@ const Map: NextPage<any> = ({ children }) => {
 					className="flex m-auto justify-center p-3 items-center absolute py-6 justify-center content-center right-[-30px] h-[20px] w-[20px] bg-white text-black z-10 cursor-pointer rounded bg-gray-300 border-solid border-2 border-sky-500 text-xl"
 					onClick={() => {
 						setIsOpenSideBar(!isOpenSideBar);
-						setTimeout(() => leafletMap.current?.invalidateSize(), 500);
+						setTimeout(() => mapRef.current?.leafletMap?.current?.invalidateSize(), 500);
 					}}
 				>
 					{isOpenSideBar ? "<" : ">"}{" "}
@@ -93,45 +73,28 @@ const Map: NextPage<any> = ({ children }) => {
 						top: "10px",
 					}}
 				>
-					{
-						<GooglePlacesAutocomplete
-							apiKey="AIzaSyBeDWp7xuLoIgN2juf0t2Q4koofdolhYCE"
-							debounce={300}
-							minLengthAutocomplete={3}
-							apiOptions={{
-								language: "VN",
-								region: "VN",
-							}}
-							selectProps={{
-								placeholder: "Nhập vị trí cần chọn",
-								isClearable: true,
-								onChange: onChangeAddress,
-							}}
-						/>
-					}
-				</div>
-				<MapContainer
-					ref={leafletMap}
-					center={[10.762622, 106.660172]}
-					zoom={13}
-					scrollWheelZoom={true}
-					style={{ height: "100%", width: "100%", zIndex: 1 }}
-					zoomControl={false}
-				>
-					<ZoomControl position={"bottomright"} />
-					<TileLayer
-						url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-						attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+					<GooglePlacesAutocomplete
+						apiKey="AIzaSyBeDWp7xuLoIgN2juf0t2Q4koofdolhYCE"
+						debounce={300}
+						minLengthAutocomplete={3}
+						apiOptions={{
+							language: "VN",
+							region: "VN",
+						}}
+						selectProps={{
+							placeholder: "Nhập vị trí cần chọn",
+							isClearable: true,
+							onChange: onChangeAddress,
+						}}
 					/>
-					{renderMarkers()}
-					{renderRoutes()}
-				</MapContainer>
+				</div>
+				<Map ref={mapRef} />
 			</div>
 		</>
 	);
 };
 
-export default Map;
+export default BusMap;
 export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
 	return {
 		props: {},

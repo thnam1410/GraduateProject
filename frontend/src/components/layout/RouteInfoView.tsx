@@ -24,15 +24,19 @@ const RouteInfoView: NextPage<any> = (props) => {
 
 	const handleOnChangeDiv = (RouteId: number) => {
 		// const params = ApiUtil.serialize({ routeId: RouteId });
-		ApiUtil.Axios.get(BASE_API_PATH + `/route/get-route-info/` + RouteId).then((res) => {
-			if (res.data?.success) {
-				const data = res.data?.result;
-				setState({
-					isAllList: false,
-					infoRouteDetail: data,
-				});
-			}
-		});
+		ApiUtil.Axios.get(BASE_API_PATH + `/route/get-route-info/` + RouteId)
+			.then((res) => {
+				if (res.data?.success) {
+					const data = res.data?.result;
+					setState({
+						isAllList: false,
+						infoRouteDetail: data,
+					});
+				}
+			})
+			.catch((err) => {
+				console.log("err", err);
+			});
 	};
 
 	const handleOnChangeBack = () => {
