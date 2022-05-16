@@ -47,5 +47,11 @@ html,body,#__next,main,#map{
     margin: 0;
     padding: 0;
 }
-
+.leaflet-popup-content {
+	min-height: 80px;
+	min-width: 140px;
+	p {
+		margin: 0 !important;
+	}
+}
 

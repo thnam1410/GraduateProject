@@ -1,6 +1,9 @@
 import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { MapContainer, Marker, Polyline, Popup, TileLayer, ZoomControl } from "react-leaflet";
 import { LatLngBounds, LatLngTuple, Map as LeafletMap, Polyline as LeafletPolyline } from "leaflet";
+import axios from "axios";
+import { ApiUtil, BASE_API_PATH } from "~/src/utils/ApiUtil";
+import { isEmpty } from "lodash";
 
 interface IProps {}
 
@@ -8,35 +11,94 @@ export interface IMapRef {
 	leafletMap: React.RefObject<LeafletMap>;
 	setFocusPoints: React.Dispatch<React.SetStateAction<CustomLatLngTuble[] | null>>;
 }
+
 interface CustomLatLngTuble {
 	pos: [number, number];
 	type: "CurrentSearch" | "SubStop";
+	detail?: PointDetail;
+}
+
+interface PointDetail {
+	name?: string;
+	routes?: string;
+	address?: string;
+	code?: string;
+}
+
+interface Stop {
+	lat: number;
+	lng: number;
+	name: string;
+	address: string;
+	routes: string;
+	code: string;
 }
 
 const Map = forwardRef<any, IProps>((props, ref) => {
 	const leafletMap = useRef<LeafletMap>(null);
 	const polyLineRef = useRef<LeafletPolyline>(null);
 	const [positions, setPosition] = useState<any[]>([]);
-	const [focusPoints, setFocusPoints] = useState<CustomLatLngTuble[] | null>(null);
+	const [focusPoints, setFocusPoints] = useState<CustomLatLngTuble[]>([]);
 
 	useEffect(() => {
 		if (focusPoints) fetchBusStopNearby();
 	}, [focusPoints]);
 
-	const fetchBusStopNearby = () => {
-		//TODO: Fetch nearby bustop in 1km distance
+	const fetchBusStopNearby = async () => {
+		console.log("focusPoints", focusPoints);
+		if (focusPoints && focusPoints.length === 1) {
+			const response = await ApiUtil.Axios.get(BASE_API_PATH + "/route/get-bus-stop-nearby", {
+				params: {
+					lat: focusPoints[0].pos[0],
+					lng: focusPoints[0].pos[1],
+				},
+			});
+			if (response?.data?.success) {
+				const results = (response?.data?.result || []) as Stop[];
+				if (results.length) {
+					const nextState = results.map((stop) => ({
+						pos: [stop.lat, stop.lng],
+						type: "SubStop",
+						detail: {
+							name: stop?.name,
+							address: stop?.address,
+							routes: stop?.routes,
+							code: stop?.code,
+						},
+					})) as CustomLatLngTuble[];
+					setFocusPoints((prev) => [...prev, ...nextState]);
+				}
+			} else {
+				console.log("err", response?.data);
+			}
+		}
 	};
 
 	const renderMarkersBusStopNearby = () => {
 		return focusPoints?.map((point) => {
 			switch (point.type) {
 				case "CurrentSearch":
-					return <Marker position={point.pos} draggable={false} />;
-				case "SubStop":
-					//TODO: Change marker icon
 					return (
 						<Marker position={point.pos} draggable={false}>
-							<Popup>Stops</Popup>
+							<Popup>
+								<div className={"w-full h-full"}>
+									<h4 className="font-bold">{point?.detail?.name}</h4>
+								</div>
+							</Popup>
+						</Marker>
+					);
+				case "SubStop":
+					return (
+						<Marker position={point.pos} draggable={false}>
+							<Popup>
+								<h3 className="font-bold">
+									{`${isEmpty(point?.detail?.code) ? "" : `[${point?.detail?.code}]`} 
+								    ${point?.detail?.name}`}
+								</h3>
+								<p>{point?.detail?.address}</p>
+								<br />
+								<p>Các tuyến đi qua: {point?.detail?.routes}</p>
+							</Popup>
 						</Marker>
 					);
 			}

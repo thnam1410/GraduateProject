@@ -84,20 +84,20 @@ public class CrawlerController : ControllerBase
                                 var responseStopData = await client.GetAsync(stopUrl);
                                 responseStopData.EnsureSuccessStatusCode();
 
-                                // var pathUrl = $"https://api.xe-buyt.com/businfo/getpathsbyvar/{routeId}_1/{routeVarId}";
-                                // _logger.LogInformation($"Fetching API: {pathUrl}");
-                                // var responsePathData = await client.GetAsync(pathUrl);
-                                // responsePathData.EnsureSuccessStatusCode();
+                                var pathUrl = $"https://api.xe-buyt.com/businfo/getpathsbyvar/{routeId}_1/{routeVarId}";
+                                _logger.LogInformation($"Fetching API: {pathUrl}");
+                                var responsePathData = await client.GetAsync(pathUrl);
+                                responsePathData.EnsureSuccessStatusCode();
 
                                 var stopData = await responseStopData.Content.ReadFromJsonAsync<List<CrawlStop>>();
-                                // var pathData = await responsePathData.Content.ReadFromJsonAsync<CrawlPathDto>();
+                                var pathData = await responsePathData.Content.ReadFromJsonAsync<CrawlPathDto>();
                                 
                                 stopData.ForEach(stop => stop.RouteVarId = routeVarId);
-                                // pathData.RouteId = routeId;
+                                pathData.RouteId = routeId;
                                 
-                                // pathData.RouteVarId = routeVarId;
+                                pathData.RouteVarId = routeVarId;
                                 listStops.AddRange(stopData);
-                                // listPath.Add(pathData);
+                                listPath.Add(pathData);
                             }
                             catch (Exception e)
                             {
@@ -120,23 +120,23 @@ public class CrawlerController : ControllerBase
         }
 
 
-        // var listCrawlEntityRoutes = listRoutes;
+        var listCrawlEntityRoutes = listRoutes;
         var listCrawlEntityStops = listStops.GroupBy(x => x.AddressNo).Select(x => x.First()).ToList();
-        // var listCrawlEntityPath = new List<CrawlPath>();
-        // foreach (var path in listPath)
-        // {
-        //     for (int i = 0; i < path.Lat.Count(); i++)
-        //     {
-        //         listCrawlEntityPath.Add(new CrawlPath()
-        //         {
-        //             RouteId = path.RouteId.Value,
-        //             RouteVarId = path.RouteVarId.Value,
-        //             Lat = path.Lat[i],
-        //             Lng = path.Lng[i],
-        //             Rank = i + 1
-        //         });
-        //     }
-        // }
+        var listCrawlEntityPath = new List<CrawlPath>();
+        foreach (var path in listPath)
+        {
+            for (int i = 0; i < path.Lat.Count(); i++)
+            {
+                listCrawlEntityPath.Add(new CrawlPath()
+                {
+                    RouteId = path.RouteId.Value,
+                    RouteVarId = path.RouteVarId.Value,
+                    Lat = path.Lat[i],
+                    Lng = path.Lng[i],
+                    Rank = i + 1
+                });
+            }
+        }
 
         try
         {

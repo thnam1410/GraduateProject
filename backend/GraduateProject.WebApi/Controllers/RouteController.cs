@@ -91,4 +91,10 @@ public class RouteController : ControllerBase
     {
         return ApiResponse<object>.Ok(await _routeService.GetRouteDetailsByRouteId(routeId));
     }
+
+    [HttpGet("get-bus-stop-nearby")]
+    public async Task<ApiResponse<object>> HandleGetBusStopNearby([FromQuery] Position position)
+    {
+        return ApiResponse<object>.Ok(await _routeService.GetBusStopNearby(position));
+    }
 }

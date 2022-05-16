@@ -25,12 +25,17 @@ const BusMap: NextPage<any> = ({ children }) => {
 				let lng = geocodeObj[0]?.geometry?.location?.lng();
 				let lat = geocodeObj[0]?.geometry?.location?.lat();
 				if (lng && lat) {
-					mapRef.current?.setFocusPoints?.([{
-						pos: [lat, lng],
-						type: "CurrentSearch",
-					}]);
-					mapRef.current?.leafletMap?.current?.fitBounds([[lat, lng]]);
-					mapRef.current?.leafletMap?.current?.setZoom(15);
+					mapRef.current?.setFocusPoints?.([
+						{
+							pos: [lat, lng],
+							type: "CurrentSearch",
+							detail: {
+								name: address?.label
+							}
+						},
+					]);
+					const ZOOM = 15;
+					mapRef.current?.leafletMap?.current?.flyTo([lat, lng], ZOOM);
 				}
 			}
 		} catch (e) {

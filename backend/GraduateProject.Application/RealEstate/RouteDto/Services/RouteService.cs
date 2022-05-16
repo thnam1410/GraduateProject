@@ -32,7 +32,7 @@ public class RouteService : IRouteService
     {
         var limitSearchRadius = _configDistance.Value.SearchRadius;
         const int limitTrustNeight = 10;
-        
+
         var vertices = (await GetVertices()).ToList();
         var edges = await GetEdges();
         var graph = new Graph(vertices, edges);
@@ -56,6 +56,7 @@ public class RouteService : IRouteService
                 endPointNeighborVertices.Add(vertex);
             }
         }
+
         if (!startPointNeighborVertices.Any()) throw new Exception("Route nearby not found!");
         var trustNeighbors = new List<VertexDto>();
         var startPoint = startPointNeighborVertices.OrderBy(x => x.DistanceToStart).First();
@@ -155,5 +156,15 @@ public class RouteService : IRouteService
         }
 
         throw new Exception();
+    }
+
+    public async Task<object> GetBusStopNearby(Position position)
+    {
+        var stops = await _stopRepository.Queryable().Select(x => new
+        {
+            x.Lat, x.Lng, x.Name, x.Routes, Address = x.AddressNo, x.Code
+        }).FromCacheAsync();
+        return stops.Where(x => CalculateUtil.Distance(position, new Position() {Lat = x.Lat, Lng = x.Lng}) <= 1).ToList();
+
     }
 }

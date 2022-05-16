@@ -56,17 +56,11 @@ public class AStar
     private void GenerateNeighborsToOpenList(AStarNode currentNode)
     {
         var neighbors = _graph.GetAStarNeighbors(startNode, targetNode, currentNode);
-        var mainRouteNeighbors = neighbors.Where(x => x.IsSwitchRouteNode == false).ToList();
-        var switchRouteNeighbors = neighbors.Where(x => x.IsSwitchRouteNode == true).ToList();
+        // var mainRouteNeighbors = neighbors.Where(x => x.IsSwitchRouteNode == false).ToList();
+        // var switchRouteNeighbors = neighbors.Where(x => x.IsSwitchRouteNode == true).ToList();
 
         //High priority for main routes
         var isAddedMainRoute = AddNeighborsToOpenList(currentNode, neighbors);
-
-        //If not any main routes valid, generate switch routes 
-        // if (switchRouteNeighbors.Any() && isAddedMainRoute == false)
-        // {
-        // AddNeighborsToOpenList(currentNode, switchRouteNeighbors);
-        // }
     }
 
     private static bool AddNeighborsToOpenList(AStarNode currentNode, ICollection<AStarNode> neighbors)
