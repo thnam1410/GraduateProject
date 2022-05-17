@@ -1,5 +1,6 @@
 import { GetServerSideProps, NextPage } from "next";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useStore } from "~/src/zustand/store";
 import RouteDescriptionView from "./RouteDescriptionView";
 import RouteStopList from "./RouteStopList";
 
@@ -7,6 +8,12 @@ const InfoDetailTabView: NextPage<any> = (props) => {
 	const [openTab, setOpenTab] = useState<number>(3);
 	const routeStopList = props.routeStopList;
 	const data = props.data;
+	const setPositions = useStore((state: any) => state.setPositions);
+
+	useEffect(() => {
+		setPositions(routeStopList);
+	}, []);
+
 	return (
 		<>
 			<div className="h-screen w-full">

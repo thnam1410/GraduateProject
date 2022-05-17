@@ -4,6 +4,7 @@ import { LatLngBounds, LatLngTuple, Map as LeafletMap, Polyline as LeafletPolyli
 import axios from "axios";
 import { ApiUtil, BASE_API_PATH } from "~/src/utils/ApiUtil";
 import { isEmpty } from "lodash";
+import { useStore } from "~/src/zustand/store";
 
 interface IProps {}
 
@@ -37,7 +38,9 @@ interface Stop {
 const Map = forwardRef<any, IProps>((props, ref) => {
 	const leafletMap = useRef<LeafletMap>(null);
 	const polyLineRef = useRef<LeafletPolyline>(null);
-	const [positions, setPosition] = useState<any[]>([]);
+	// const [positions, setPosition] = useState<any[]>([]);
+	const positions: any[] = useStore((state: any) => state.positions);
+	console.log("🚀 ~ file: Map.tsx ~ line 43 ~ positions", positions);
 	const [focusPoints, setFocusPoints] = useState<CustomLatLngTuble[]>([]);
 
 	useEffect(() => {

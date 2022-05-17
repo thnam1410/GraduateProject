@@ -1,5 +1,6 @@
 import { NextPage } from "next";
 import { useState } from "react";
+import { useStore } from "~/src/zustand/store";
 import { PathIconBack } from "../pages/svg/Path";
 import InfoDetailTabView from "./InfoDetailTabView";
 
@@ -7,6 +8,7 @@ const RouteInfoDetailView: NextPage<any> = (props) => {
 	const [openTab, setOpenTab] = useState<number>(1);
 	const routeStopBackwardList = props.data?.backwardRouteStops;
 	const routeStopforwardList = props.data?.forwardRouteStops;
+
 	return (
 		<>
 			<div className="flex mt-6 ml-2 h-12">
@@ -65,12 +67,16 @@ const RouteInfoDetailView: NextPage<any> = (props) => {
 				<div className=" relative w-full flex flex-col min-w-0 break-words bg-white w-full mb-6 shadow-lg rounded">
 					<div className="w-full   flex-auto">
 						<div className="w-full tab-content">
-							<div className={openTab === 1 ? "block " : "hidden"} id="link1">
-								<InfoDetailTabView data={props.data} routeStopList={routeStopBackwardList} />
-							</div>
-							<div className={openTab === 2 ? "block" : "hidden"} id="link2">
-								<InfoDetailTabView data={props.data} routeStopList={routeStopforwardList} />
-							</div>
+							{openTab === 1 ? (
+								<div id="link1">
+									<InfoDetailTabView data={props.data} routeStopList={routeStopBackwardList} />
+								</div>
+							) : null}
+							{openTab === 2 ? (
+								<div id="link2">
+									<InfoDetailTabView data={props.data} routeStopList={routeStopforwardList} />
+								</div>
+							) : null}
 						</div>
 					</div>
 				</div>

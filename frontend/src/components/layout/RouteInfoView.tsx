@@ -5,6 +5,7 @@ import { ApiUtil, BASE_API_PATH, ConvertStringUnsign } from "~/src/utils/ApiUtil
 import RouteInfoDetailView from "./RouteInfoDetailView";
 import RouteLookupListView from "./RouteLookupListView";
 import useMergeState from "~/src/hooks/useMergeState";
+import { useStore } from "~/src/zustand/store";
 
 interface IState {
 	isAllList: boolean;
@@ -13,10 +14,14 @@ interface IState {
 const RouteInfoView: NextPage<any> = (props) => {
 	const [openTab, setOpenTab] = useState<number>(1);
 	// const [isAllList, setIsAllList] = useState<boolean>(true);
-	const [state, setState] = useMergeState<IState>({
-		isAllList: true,
-		infoRouteDetail: null,
-	});
+	// const [state, setState] = useMergeState<IState>({
+	// 	isAllList: true,
+	// 	infoRouteDetail: null,
+	// });
+	const isAllList = useStore((state: any) => state.isAllList);
+	const infoRouteDetail = useStore((state: any) => state.infoRouteDetail);
+	const setStateRouteInfoView = useStore((state: any) => state.setStateRouteInfoView);
+	const setStateRouteActionBackInfoView = useStore((state: any) => state.setStateRouteActionBackInfoView);
 
 	useEffect(() => {}, []);
 
@@ -28,10 +33,11 @@ const RouteInfoView: NextPage<any> = (props) => {
 			.then((res) => {
 				if (res.data?.success) {
 					const data = res.data?.result;
-					setState({
+					const value = {
 						isAllList: false,
 						infoRouteDetail: data,
-					});
+					};
+					setStateRouteInfoView(value);
 				}
 			})
 			.catch((err) => {
@@ -40,16 +46,16 @@ const RouteInfoView: NextPage<any> = (props) => {
 	};
 
 	const handleOnChangeBack = () => {
-		setState({
+		const value = {
 			isAllList: true,
-			infoRouteDetail: null,
-		});
+		};
+		setStateRouteActionBackInfoView(value);
 	};
 
 	return (
 		<>
 			<div className="flex flex-wrap w-full">
-				<div style={{ display: state.isAllList ? "unset" : "none" }} className="h-screen w-full">
+				<div style={{ display: isAllList ? "unset" : "none" }} className="h-screen w-full">
 					<ul className="flex mb-0 list-none flex-wrap pt-3 pb-4 flex-row" role="tablist">
 						<li className="-mb-px last:mr-0 flex-auto text-center">
 							<a
@@ -100,9 +106,11 @@ const RouteInfoView: NextPage<any> = (props) => {
 					</div>
 				</div>
 
-				<div style={{ display: state.isAllList ? "none" : "unset" }} className="h-screen w-full">
-					<RouteInfoDetailView data={state.infoRouteDetail} handleOnChangeBack={handleOnChangeBack} />
-				</div>
+				{isAllList === false ? (
+					<div className="h-screen w-full">
+						<RouteInfoDetailView data={infoRouteDetail} handleOnChangeBack={handleOnChangeBack} />
+					</div>
+				) : null}
 			</div>
 		</>
 	);
