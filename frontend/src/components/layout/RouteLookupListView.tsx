@@ -3,6 +3,7 @@ import { GetServerSideProps, NextPage } from "next";
 import { useCallback, useEffect, useState } from "react";
 import { ApiUtil, BASE_API_PATH, ConvertStringUnsign } from "~/src/utils/ApiUtil";
 import { pathIconBus_1, pathIconBus_2, pathIconTime_1, pathIconTime_2, PathIconMoney } from "../pages/svg/Path";
+import { RouteDetailInfo, useStore } from "~/src/zustand/store";
 
 interface IGetMainRoute {
 	id: number;
@@ -22,8 +23,7 @@ let infoRouteArray: IGetMainRoute[] = [];
 
 const RouteLookupListView: NextPage<any> = (props) => {
 	const [infoRoutes, setInfoRoutes] = useState<IGetMainRoute[]>([]);
-	const [isAllList, setIsAllList] = useState<boolean>(true);
-	// const [infoRoutes, setInfoRoutes] = useState<IGetMainRoute[]>([]);
+	const setStateRouteInfoView = useStore((state) => state.setStateRouteInfoView);
 
 	useEffect(() => {
 		ApiUtil.Axios.get(BASE_API_PATH + "/route/get-main-routes").then((res) => {
@@ -47,18 +47,30 @@ const RouteLookupListView: NextPage<any> = (props) => {
 		setInfoRoutes(valueSearch);
 	};
 
+	const handleOnChangeRoute = (routeId: number) => () => {
+		ApiUtil.Axios.get(BASE_API_PATH + `/route/get-route-info/` + routeId)
+			.then((res) => {
+				if (res.data?.success) {
+					const infoRouteDetail = res?.data?.result as RouteDetailInfo;
+					setStateRouteInfoView({
+						isAllList: false,
+						infoRouteDetail,
+						positions: infoRouteDetail.forwardRoutePos.map((pos) => [pos.lat, pos.lng]),
+					});
+				}
+			})
+			.catch((err) => {
+				console.log("err", err);
+			});
+	};
+
 	const renderList = () => {
 		return (
 			<>
 				{infoRoutes.map((infoRoute, idx) => {
 					return (
 						<>
-							<li
-								onClick={() => {
-									props.handleOnChangeDiv(infoRoute.id);
-								}}
-								className="cursor-pointer mb-2 border-gray-400 flex flex-row"
-							>
+							<li onClick={handleOnChangeRoute(infoRoute.id)} className="cursor-pointer mb-2 border-gray-400 flex flex-row">
 								<div className="select-nonetems-center w-full duration-500  hover:-translate-y-2 rounded-2xl  border-2 p-3 mt-3 border-black-1000 hover:shadow-2xl">
 									<div className="flex font-medium">
 										<div className="flex w-1/5">

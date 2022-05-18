@@ -38,17 +38,20 @@ interface Stop {
 const Map = forwardRef<any, IProps>((props, ref) => {
 	const leafletMap = useRef<LeafletMap>(null);
 	const polyLineRef = useRef<LeafletPolyline>(null);
-	// const [positions, setPosition] = useState<any[]>([]);
-	const positions: any[] = useStore((state: any) => state.positions);
-	console.log("🚀 ~ file: Map.tsx ~ line 43 ~ positions", positions);
+	const positions: LatLngTuple[] = useStore((state) => state.positions);
 	const [focusPoints, setFocusPoints] = useState<CustomLatLngTuble[]>([]);
 
 	useEffect(() => {
 		if (focusPoints) fetchBusStopNearby();
 	}, [focusPoints]);
 
+	useEffect(() => {
+		if (leafletMap.current && !isEmpty(positions)) {
+			leafletMap.current?.fitBounds(positions);
+		}
+	}, [positions]);
+
 	const fetchBusStopNearby = async () => {
-		console.log("focusPoints", focusPoints);
 		if (focusPoints && focusPoints.length === 1) {
 			const response = await ApiUtil.Axios.get(BASE_API_PATH + "/route/get-bus-stop-nearby", {
 				params: {
@@ -111,7 +114,7 @@ const Map = forwardRef<any, IProps>((props, ref) => {
 	const renderMarkers = () => {
 		return (
 			<>
-				{positions.map((position, idx) => {
+				{positions?.map((position, idx) => {
 					switch (idx) {
 						case 0:
 							return (

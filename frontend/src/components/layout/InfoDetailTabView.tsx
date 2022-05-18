@@ -9,11 +9,6 @@ const InfoDetailTabView: NextPage<any> = (props) => {
 	const routeStopList = props.routeStopList;
 	const routePos = props.routePos;
 	const data = props.data;
-	const setPositions = useStore((state: any) => state.setPositions);
-
-	useEffect(() => {
-		setPositions(routePos);
-	}, []);
 
 	return (
 		<>
