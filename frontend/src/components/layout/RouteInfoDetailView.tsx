@@ -8,6 +8,8 @@ const RouteInfoDetailView: NextPage<any> = (props) => {
 	const [openTab, setOpenTab] = useState<number>(1);
 	const routeStopBackwardList = props.data?.backwardRouteStops;
 	const routeStopforwardList = props.data?.forwardRouteStops;
+	const backwardRoutePos = props.data?.backwardRoutePos;
+	const forwardRoutePos = props.data?.forwardRoutePos;
 
 	return (
 		<>
@@ -69,12 +71,16 @@ const RouteInfoDetailView: NextPage<any> = (props) => {
 						<div className="w-full tab-content">
 							{openTab === 1 ? (
 								<div id="link1">
-									<InfoDetailTabView data={props.data} routeStopList={routeStopBackwardList} />
+									<InfoDetailTabView
+										data={props.data}
+										routePos={backwardRoutePos}
+										routeStopList={routeStopBackwardList}
+									/>
 								</div>
 							) : null}
 							{openTab === 2 ? (
 								<div id="link2">
-									<InfoDetailTabView data={props.data} routeStopList={routeStopforwardList} />
+									<InfoDetailTabView data={props.data} routePos={forwardRoutePos} routeStopList={routeStopforwardList} />
 								</div>
 							) : null}
 						</div>

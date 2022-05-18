@@ -7,11 +7,12 @@ import RouteStopList from "./RouteStopList";
 const InfoDetailTabView: NextPage<any> = (props) => {
 	const [openTab, setOpenTab] = useState<number>(3);
 	const routeStopList = props.routeStopList;
+	const routePos = props.routePos;
 	const data = props.data;
 	const setPositions = useStore((state: any) => state.setPositions);
 
 	useEffect(() => {
-		setPositions(routeStopList);
+		setPositions(routePos);
 	}, []);
 
 	return (

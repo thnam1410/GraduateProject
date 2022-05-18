@@ -119,8 +119,10 @@ public class RouteService : IRouteService
 
     public async Task<object> GetRouteDetailsByRouteId(int routeId)
     {
-        var routes = await _routeDetailRepository.Queryable().Where(x => x.RouteId == routeId)
+        var routes = await _routeDetailRepository.Queryable()
+            .Where(x => x.RouteId == routeId)
             .Include(x => x.Stops)
+            .Include(x=>x.Vertices)
             .Include(x => x.Route)
             .OrderBy(x => x.RouteVarId)
             .ToListAsync();
@@ -145,13 +147,15 @@ public class RouteService : IRouteService
                 {
                     x.Name,
                     position = new Position() {Lat = x.Lat, Lng = x.Lng},
-                }),
+                }), // cac tram dung -> hien marker
+                forwardRoutePos = forwardRoute.Vertices.OrderBy(x => x.Rank).Select(x => new Position(){Lat = x.Lat, Lng = x.Lng}),
 
                 backwardRouteStops = backwardRoute.Stops.Select(x => new
                 {
                     x.Name,
                     position = new Position() {Lat = x.Lat, Lng = x.Lng},
                 }),
+                backwardRoutePos = backwardRoute.Vertices.OrderBy(x => x.Rank).Select(x => new Position(){Lat = x.Lat, Lng = x.Lng}),
             };
         }
 

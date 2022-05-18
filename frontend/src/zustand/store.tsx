@@ -3,11 +3,7 @@ import _ from "lodash";
 export const useStore = create((set) => ({
 	positions: [],
 	setPositions: (value: any[]) => {
-		const dataPositions = _.map(value, (item) => ({
-			lat: item?.position?.lat,
-			lng: item?.position?.lng,
-		}));
-		set((state) => ({ positions: dataPositions }));
+		set((state) => ({ positions: value }));
 	},
 	//RouteInfoView
 	isAllList: true,
