@@ -30,7 +30,7 @@ export const useStore = create<MapStore>((set) => ({
 	},
 	setStateRouteActionBackInfoView: (payload) => {
 		console.log("setStateRouteActionBackInfoView");
-		set((state) => ({ ...state, isAllList: payload.isAllList, infoRouteDetail: null, positions: [] }));
+		set((state) => ({ ...state, isAllList: payload.isAllList, infoRouteDetail: null, positions: [], positionsBusStop: [] }));
 	},
 }));
 
