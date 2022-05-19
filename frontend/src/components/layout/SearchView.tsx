@@ -1,21 +1,53 @@
-import React, { useState } from "react";
-import GooglePlacesAutocomplete from "react-google-places-autocomplete";
+import React, { useRef, useState } from "react";
+import GooglePlacesAutocomplete, { geocodeByPlaceId } from "react-google-places-autocomplete";
 import { GoogleAddress } from "~/src/types/Common";
 import { Button } from "antd";
+import { ApiUtil, BASE_API_PATH } from "~/src/utils/ApiUtil";
+import {RoutePathDto, useMapControlStore} from "~/src/zustand/MapControlStore";
+import {isEmpty} from "lodash";
 
 const SearchView = () => {
 	const [startPosition, setStartPosition] = useState<GoogleAddress | null>(null);
 	const [endPosition, setEndPosition] = useState<GoogleAddress | null>(null);
+	const [isDisableButton, setIsDisableButton] = useState<boolean>(false);
+	const setRoutePath = useMapControlStore(state => state.setRoutePath)
 
 	const onChangePoint = (setStateFn: React.Dispatch<React.SetStateAction<GoogleAddress | null>>) => (address: GoogleAddress) => {
 		setStateFn(address);
+		if (isDisableButton) setIsDisableButton(!isDisableButton);
 	};
-	
+
 	const onFindRoute = () => {
-		console.log('startPosition',startPosition)
-		console.log('endPosition',endPosition)
-	}
-	
+		if (!startPosition || !endPosition) return ApiUtil.ToastError("Vui lòng nhập đầy đủ các điểm đi và điểm đến!");
+		Promise.all([geocodeByPlaceId(startPosition?.value?.place_id), geocodeByPlaceId(endPosition?.value?.place_id)])
+			.then(([resStart, resEnd]) => {
+				const formBody = {
+					startPoint: {
+						lat: resStart[0]?.geometry?.location?.lat(),
+						lng: resStart[0]?.geometry?.location?.lng(),
+					},
+					endPoint: {
+						lat: resEnd[0]?.geometry?.location?.lat(),
+						lng: resEnd[0]?.geometry?.location?.lng(),
+					},
+				};
+				ApiUtil.Axios.post(BASE_API_PATH + "/route", formBody)
+					.then((res) => {
+						const result = res?.data?.result as RoutePathDto;
+						if(!isEmpty(result)){
+							setRoutePath(result)
+						}
+					})
+					.catch((err) => {
+						throw err;
+					});
+			})
+			.catch((err) => {
+				console.log("err", err);
+				ApiUtil.ToastError("Có lỗi xảy ra!");
+			});
+	};
+
 	return (
 		<div className="flex flex-col">
 			<div className={"search-form flex flex-col justify-between"}>
@@ -57,7 +89,9 @@ const SearchView = () => {
 						/>
 					</div>
 				</div>
-				<Button type="primary"  className='rounded self-center' style={{width: 170}} onClick={onFindRoute}>Tìm tuyến đường</Button>
+				<Button type="primary" className="rounded self-center" style={{ width: 170 }} onClick={onFindRoute}>
+					Tìm tuyến đường
+				</Button>
 			</div>
 		</div>
 	);

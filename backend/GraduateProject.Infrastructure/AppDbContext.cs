@@ -16,4 +16,5 @@ public class AppDbContext: DbContext
         modelBuilder.ConfigureUmsEntities();
         modelBuilder.ConfigAppEntities();
     }
+    
 }

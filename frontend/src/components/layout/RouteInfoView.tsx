@@ -7,6 +7,7 @@ import RouteLookupListView from "./RouteLookupListView";
 import useMergeState from "~/src/hooks/useMergeState";
 import { useStore } from "~/src/zustand/store";
 import SearchView from "~/src/components/layout/SearchView";
+import {useMapControlStore} from "~/src/zustand/MapControlStore";
 
 interface IState {
 	isAllList: boolean;
@@ -16,7 +17,7 @@ interface IState {
 const RouteInfoView: NextPage<any> = (props) => {
 	const [openTab, setOpenTab] = useState<number>(1);
 	const isAllList = useStore((state) => state.isAllList);
-
+	const switchMap = useMapControlStore(state => state.switchMap)
 	return (
 		<>
 			<div className="flex flex-wrap w-full" style={{ minWidth: 350 }}>
@@ -30,7 +31,9 @@ const RouteInfoView: NextPage<any> = (props) => {
 								}
 								onClick={(e) => {
 									e.preventDefault();
+									if(openTab === 1) return;
 									setOpenTab(1);
+									switchMap()
 								}}
 								data-toggle="tab"
 								href="#link1"
@@ -47,7 +50,10 @@ const RouteInfoView: NextPage<any> = (props) => {
 								}
 								onClick={(e) => {
 									e.preventDefault();
+									if(openTab === 2) return;
 									setOpenTab(2);
+									switchMap()
+
 								}}
 								data-toggle="tab"
 								href="#link2"

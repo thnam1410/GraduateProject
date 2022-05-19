@@ -10,11 +10,14 @@ import { Tabs } from "antd";
 import RouteInfoView from "./RouteInfoView";
 import { debounce } from "lodash";
 import Map, { IMapRef } from "~/src/components/Map";
+import { useMapControlStore } from "~/src/zustand/MapControlStore";
+import SearchMap from "~/src/components/layout/SearchMap";
 
 const SIDE_BAR_WIDTH = 23;
 const BusMap: NextPage<any> = ({ children }) => {
 	const [isOpenSideBar, setIsOpenSideBar] = useState(true);
 	const mapRef = useRef<IMapRef>(null);
+	const isFindPathMap = useMapControlStore((state) => state.isFindPathMap);
 
 	const onChangeAddress = debounce(async (address) => {
 		mapRef.current?.leafletMap?.current?.fitBounds([[10.7756587, 106.7004238]]);
@@ -30,8 +33,8 @@ const BusMap: NextPage<any> = ({ children }) => {
 							pos: [lat, lng],
 							type: "CurrentSearch",
 							detail: {
-								name: address?.label
-							}
+								name: address?.label,
+							},
 						},
 					]);
 					const ZOOM = 15;
@@ -69,31 +72,33 @@ const BusMap: NextPage<any> = ({ children }) => {
 					width: isOpenSideBar ? `${100 - SIDE_BAR_WIDTH}%` : "100%",
 				}}
 			>
-				<div
-					style={{
-						position: "absolute",
-						zIndex: 3,
-						width: "40%",
-						left: "30px",
-						top: "10px",
-					}}
-				>
-					<GooglePlacesAutocomplete
-						apiKey={process.env.NEXT_PUBLIC_GG_PLACE_API_KEY}
-						debounce={300}
-						minLengthAutocomplete={3}
-						apiOptions={{
-							language: "VN",
-							region: "VN",
+				{!isFindPathMap && (
+					<div
+						style={{
+							position: "absolute",
+							zIndex: 3,
+							width: "40%",
+							left: "30px",
+							top: "10px",
 						}}
-						selectProps={{
-							placeholder: "Nhập vị trí cần chọn",
-							isClearable: true,
-							onChange: onChangeAddress,
-						}}
-					/>
-				</div>
-				<Map ref={mapRef} />
+					>
+						<GooglePlacesAutocomplete
+							apiKey={process.env.NEXT_PUBLIC_GG_PLACE_API_KEY}
+							debounce={300}
+							minLengthAutocomplete={3}
+							apiOptions={{
+								language: "VN",
+								region: "VN",
+							}}
+							selectProps={{
+								placeholder: "Nhập vị trí cần chọn",
+								isClearable: true,
+								onChange: onChangeAddress,
+							}}
+						/>
+					</div>
+				)}
+				{isFindPathMap ? <SearchMap /> : <Map ref={mapRef} />}
 			</div>
 		</>
 	);

@@ -7,21 +7,24 @@ namespace GraduateProject.Application.RealEstate.RouteDto.Services;
 
 public class AStar
 {
-    private static CustomHeap<AStarNode> openList { get; set; } = new CustomHeap<AStarNode>(1_000_000);
-    private static List<Guid> closeList { get; set; } = new List<Guid>();
+    private static CustomHeap<AStarNode> openList { get; set; }
+    private static List<Guid> closeList { get; set; }
     private static AStarNode startNode;
     private static AStarNode targetNode;
     private readonly IGraph _graph;
-    private static AStarNode tempCurrentNode = null;
+    private static AStarNode tempCurrentNode;
 
     public AStar(IGraph graph, Guid startNodeId, Guid targetNodeId)
     {
         _graph = graph;
+        openList = new CustomHeap<AStarNode>(1_000_000);
+        closeList = new List<Guid>();
         var firstNodeVertex = _graph.Vertices.FirstOrDefault(x => x.Id == startNodeId) ?? throw new Exception("Can not find path for start node");
         var targetNodeVertex = _graph.Vertices.FirstOrDefault(x => x.Id == targetNodeId) ?? throw new Exception("Can not find path for target node");
 
         startNode = new AStarNode(firstNodeVertex.Id, firstNodeVertex.Lat, firstNodeVertex.Lng, targetNodeVertex);
         targetNode = new AStarNode(targetNodeVertex.Id, targetNodeVertex.Lat, targetNodeVertex.Lng);
+        tempCurrentNode = null;
     }
 
     public List<AStarNode> StartAlgorithms()
@@ -29,6 +32,7 @@ public class AStar
         openList.Add(startNode);
         while (openList.Any())
         {
+            if (closeList.Count >= 10000) throw new Exception("Algorithms out of run time, Can not find path!");
             var count = openList.Count;
             //1: Find smallest f_cost node - Heap data structure
             //Formula compare: (A.FCost < B.FCost) || (A.FCost == B.FCost && A.HCost < B.HCost)

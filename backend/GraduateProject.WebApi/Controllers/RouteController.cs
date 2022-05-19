@@ -22,10 +22,17 @@ public class RouteController : ControllerBase
     }
 
 
-    [HttpGet("")]
-    public async Task<ApiResponse<object>> HandleGetRoutes([FromQuery] FindRouteRequestDto request)
+    [HttpPost("")]
+    public async Task<ApiResponse<Dictionary<int, AStarPathDto>>> HandleGetRoutes([FromBody] FindRouteRequestDto request)
     {
-        return ApiResponse<object>.Ok(await _routeService.GetRoute(request));
+        try
+        {
+            return ApiResponse<Dictionary<int, AStarPathDto>>.Ok(await _routeService.GetRoute(request));
+        }
+        catch (Exception e)
+        {
+            return ApiResponse<Dictionary<int, AStarPathDto>>.Fail(e.Message);
+        }
     }
 
     //Test

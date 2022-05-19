@@ -31,6 +31,12 @@ public static class AppEntitiesConfiguration
             entity.HasKey(x => x.Id);
         });
         
+        builder.Entity<PathHistory>(entity =>
+        {
+            entity.HasKey(x => x.Id);
+            entity.Property(x => x.Id).HasDefaultValueSql("NEWID()");
+        });
+        
         builder.Entity<RouteDetail>(entity =>
         {
             entity.HasKey(x => x.Id);
