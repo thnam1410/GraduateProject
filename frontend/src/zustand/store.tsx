@@ -6,8 +6,15 @@ import { Position } from "~/src/types/Common";
 export const useStore = create<MapStore>((set) => ({
 	positions: [],
 	setPositions: (positions) => {
-		console.log("setPositions");
+		console.log("setPositions", positions);
 		set((state) => ({ ...state, positions }));
+	},
+	positionsBusStop: [],
+	setPositionsBusStop: (positionsBusStop) => {
+		set((state) => ({ ...state, positionsBusStop }));
+	},
+	setPositionAndBusStop: (positions, positionsBusStop) => {
+		set((state) => ({ ...state, positions, positionsBusStop }));
 	},
 	//RouteInfoView
 	isAllList: true,
@@ -18,6 +25,7 @@ export const useStore = create<MapStore>((set) => ({
 			isAllList: payload.isAllList,
 			infoRouteDetail: payload.infoRouteDetail,
 			positions: payload.positions,
+			positionsBusStop: payload.positionsBusStop,
 		}));
 	},
 	setStateRouteActionBackInfoView: (payload) => {
@@ -30,11 +38,23 @@ interface MapStore {
 	positions: LatLngTuple[];
 	isAllList: boolean;
 	infoRouteDetail: RouteDetailInfo | null;
-
+	positionsBusStop: CustomBusStopLatLngTuble[];
 	setPositions: (value: LatLngTuple[]) => void;
-	setStateRouteInfoView: (value: { isAllList: boolean; infoRouteDetail: any; positions: LatLngTuple[] }) => void;
+	setPositionsBusStop: (positionsBusStop: CustomBusStopLatLngTuble[]) => void;
+	setPositionAndBusStop: (positions: any, positionsBusStop: CustomBusStopLatLngTuble[]) => void;
+	setStateRouteInfoView: (value: {
+		isAllList: boolean;
+		infoRouteDetail: any;
+		positions: LatLngTuple[];
+		positionsBusStop: CustomBusStopLatLngTuble[];
+	}) => void;
 	setStateRouteActionBackInfoView: (value: any) => void;
 }
+
+export type CustomBusStopLatLngTuble = {
+	pos: [number, number];
+	name?: string;
+};
 
 export type RouteDetailInfo = {
 	routeInfo: {
@@ -46,8 +66,8 @@ export type RouteDetailInfo = {
 		timeRange: string;
 		unit: string;
 	};
-	forwardRouteStops: { name: string; position: Position[] };
+	forwardRouteStops: { name: string; position: Position }[];
 	forwardRoutePos: Position[];
-	backwardRouteStops: { name: string; position: Position[] };
+	backwardRouteStops: { name: string; position: Position }[];
 	backwardRoutePos: Position[];
 };

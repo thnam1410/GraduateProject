@@ -52,10 +52,15 @@ const RouteLookupListView: NextPage<any> = (props) => {
 			.then((res) => {
 				if (res.data?.success) {
 					const infoRouteDetail = res?.data?.result as RouteDetailInfo;
+					const positionBusStop = infoRouteDetail.forwardRouteStops.map((x) => ({
+						name: x.name,
+						pos: [x.position.lat, x.position.lng] as [number, number],
+					}));
 					setStateRouteInfoView({
 						isAllList: false,
 						infoRouteDetail,
 						positions: infoRouteDetail.forwardRoutePos.map((pos) => [pos.lat, pos.lng]),
+						positionsBusStop: positionBusStop,
 					});
 				}
 			})

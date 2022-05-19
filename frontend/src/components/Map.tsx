@@ -19,6 +19,11 @@ interface CustomLatLngTuble {
 	detail?: PointDetail;
 }
 
+interface CustomBusStopLatLngTuble {
+	pos: [number, number];
+	name?: string;
+}
+
 interface PointDetail {
 	name?: string;
 	routes?: string;
@@ -39,6 +44,7 @@ const Map = forwardRef<any, IProps>((props, ref) => {
 	const leafletMap = useRef<LeafletMap>(null);
 	const polyLineRef = useRef<LeafletPolyline>(null);
 	const positions: LatLngTuple[] = useStore((state) => state.positions);
+	const positionsBusStop: CustomBusStopLatLngTuble[] = useStore((state) => state.positionsBusStop);
 	const [focusPoints, setFocusPoints] = useState<CustomLatLngTuble[]>([]);
 
 	useEffect(() => {
@@ -133,6 +139,21 @@ const Map = forwardRef<any, IProps>((props, ref) => {
 			</>
 		);
 	};
+	const renderMarkerBustop = () => {
+		return positionsBusStop?.map((point: any) => {
+			return (
+				<>
+					<Marker position={point.pos} draggable={false}>
+						<Popup>
+							<div className={"w-full h-full"}>
+								<h4 className="font-bold">{point?.name}</h4>
+							</div>
+						</Popup>
+					</Marker>
+				</>
+			);
+		});
+	};
 	const renderRoutes = () => {
 		return <Polyline ref={polyLineRef} pathOptions={{ color: "purple" }} positions={positions} />;
 	};
@@ -158,6 +179,7 @@ const Map = forwardRef<any, IProps>((props, ref) => {
 			/>
 			{renderMarkers()}
 			{renderMarkersBusStopNearby()}
+			{renderMarkerBustop()}
 			{renderRoutes()}
 		</MapContainer>
 	);

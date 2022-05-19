@@ -9,6 +9,7 @@ const RouteInfoDetailView: NextPage<any> = () => {
 	const infoRouteDetail = useStore((state) => state.infoRouteDetail);
 	const setStateRouteActionBackInfoView = useStore((state) => state.setStateRouteActionBackInfoView);
 	const setPositions = useStore((state) => state.setPositions);
+	const setPositionAndBusStop = useStore((state) => state.setPositionAndBusStop);
 	const { backwardRouteStops, forwardRouteStops, backwardRoutePos, forwardRoutePos } = infoRouteDetail || {};
 	return (
 		<>
@@ -39,9 +40,14 @@ const RouteInfoDetailView: NextPage<any> = () => {
 							onClick={(e) => {
 								e.preventDefault();
 								setOpenTab(1);
-								console.log('infoRouteDetail',infoRouteDetail)
 								if (infoRouteDetail?.forwardRouteStops) {
-									setPositions(infoRouteDetail.forwardRoutePos.map((x) => [x.lat, x.lng]));
+									// setPositions(infoRouteDetail.forwardRoutePos.map((x) => [x.lat, x.lng]));
+									const positions = infoRouteDetail.forwardRoutePos.map((x) => [x.lat, x.lng]);
+									const positionBusStop = infoRouteDetail.forwardRouteStops.map((x) => ({
+										name: x.name,
+										pos: [x.position.lat, x.position.lng] as [number, number],
+									}));
+									setPositionAndBusStop(positions, positionBusStop);
 								}
 							}}
 							data-toggle="tab"
@@ -60,9 +66,13 @@ const RouteInfoDetailView: NextPage<any> = () => {
 							onClick={(e) => {
 								e.preventDefault();
 								setOpenTab(2);
-								console.log('infoRouteDetail',infoRouteDetail)
 								if (infoRouteDetail?.backwardRoutePos) {
-									setPositions(infoRouteDetail.backwardRoutePos.map((x) => [x.lat, x.lng]));
+									const positions = infoRouteDetail.backwardRoutePos.map((x) => [x.lat, x.lng]);
+									const positionBusStop = infoRouteDetail.backwardRouteStops.map((x) => ({
+										name: x.name,
+										pos: [x.position.lat, x.position.lng] as [number, number],
+									}));
+									setPositionAndBusStop(positions, positionBusStop);
 								}
 							}}
 							data-toggle="tab"
