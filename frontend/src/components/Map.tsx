@@ -54,6 +54,7 @@ const Map = forwardRef<any, IProps>((props, ref) => {
 	const leafletMap = useRef<LeafletMap>(null);
 	const polyLineRef = useRef<LeafletPolyline>(null);
 	const positions: LatLngTuple[] = useStore((state) => state.positions);
+	const positionZoomIn: LatLngTuple[] = useStore((state) => state.positionZoomIn);
 	const positionsBusStop: CustomBusStopLatLngTuble[] = useStore((state) => state.positionsBusStop);
 	const [focusPoints, setFocusPoints] = useState<CustomLatLngTuble[]>([]);
 
@@ -62,10 +63,10 @@ const Map = forwardRef<any, IProps>((props, ref) => {
 	}, [focusPoints]);
 
 	useEffect(() => {
-		if (leafletMap.current && !isEmpty(positions)) {
-			leafletMap.current?.fitBounds(positions);
+		if (leafletMap.current && !isEmpty(positionZoomIn)) {
+			leafletMap.current?.fitBounds(positionZoomIn);
 		}
-	}, [positions]);
+	}, [positionZoomIn]);
 
 	const fetchBusStopNearby = async () => {
 		if (focusPoints && focusPoints.length === 1) {
@@ -187,7 +188,7 @@ const Map = forwardRef<any, IProps>((props, ref) => {
 				url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
 				attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
 			/>
-			{/* {renderMarkers()} */}
+			{renderMarkers()}
 			{renderMarkersBusStopNearby()}
 			{renderMarkerBustop()}
 			{renderRoutes()}

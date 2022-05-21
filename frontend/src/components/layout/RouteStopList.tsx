@@ -1,18 +1,33 @@
 import { GetServerSideProps, NextPage } from "next";
 import { useState } from "react";
 import { PathIconDown } from "../pages/svg/Path";
+import { LatLngTuple } from "leaflet";
+import { useStore } from "~/src/zustand/store";
+
+interface RouteStop {
+	name: string;
+	position :{
+		lat:number,
+		lng:number
+	};
+}
 const RouteStopList: NextPage<any> = (props) => {
 	const routeStopList: [] = props.routeStopList || [];
+	const setPositionZoomIn = useStore((state) => state.setPositionZoomIn);
+
+	const onChangePostionZoomIn = (item:RouteStop) => () => {
+		const positonZoomIn = [[item.position.lat, item.position.lng]] as LatLngTuple[];
+		setPositionZoomIn(positonZoomIn)
+	}
+
 	return (
 		<>
 			<ul style={{ height: "calc(100vh - 230px)" }} className="overflow-y-scroll flex flex-col p-3">
-				{routeStopList.map((item: any, index: number) => {
+				{routeStopList.map((item: RouteStop, index: number) => {
 					return (
 						<>
 							<li
-								onClick={() => {
-									// props.handleOnChangeDiv(infoRoute.id);
-								}}
+								onClick={onChangePostionZoomIn(item)}
 								className="cursor-pointer border-gray-400 flex flex-row"
 							>
 								<div className="flex">

@@ -4,8 +4,11 @@ import { useStore } from "~/src/zustand/store";
 import RouteDescriptionView from "./RouteDescriptionView";
 import RouteStopList from "./RouteStopList";
 
+
+
+
 const InfoDetailTabView: NextPage<any> = (props) => {
-	const [openTab, setOpenTab] = useState<number>(3);
+	const [openTab, setOpenTab] = useState<number>(1);
 	const routeStopList = props.routeStopList;
 	const routePos = props.routePos;
 	const data = props.data;
@@ -25,10 +28,10 @@ const InfoDetailTabView: NextPage<any> = (props) => {
 								setOpenTab(1);
 							}}
 							data-toggle="tab"
-							href="#link1"
+							href="#link2"
 							role="tablist"
 						>
-							Biểu đồ giờ
+							Trạm dừng
 						</a>
 					</li>
 					<li className="-mb-px last:mr-0 flex-auto text-center">
@@ -45,23 +48,6 @@ const InfoDetailTabView: NextPage<any> = (props) => {
 							href="#link2"
 							role="tablist"
 						>
-							Trạm dừng
-						</a>
-					</li>
-					<li className="-mb-px last:mr-0 flex-auto text-center">
-						<a
-							className={
-								"text-xs font-bold uppercase px-5 py-3 shadow-lg rounded block leading-normal " +
-								(openTab === 3 ? "text-gray bg-gray-600" : "text-white-600 bg-gray")
-							}
-							onClick={(e) => {
-								e.preventDefault();
-								setOpenTab(3);
-							}}
-							data-toggle="tab"
-							href="#link2"
-							role="tablist"
-						>
 							Thông tin
 						</a>
 					</li>
@@ -69,14 +55,10 @@ const InfoDetailTabView: NextPage<any> = (props) => {
 				<div className=" relative w-full flex flex-col min-w-0 break-words bg-white w-full mb-6 shadow-lg rounded">
 					<div className="w-full  px-4 py-5 flex-auto">
 						<div className="w-full tab-content tab-space">
-							<div className={openTab === 1 ? "block " : "hidden"} id="link1">
-								{/* <InfoDetailTabView /> */}
-								tab1
-							</div>
-							<div className={openTab === 2 ? "block" : "hidden"} id="link2">
+							<div className={openTab === 1 ? "block" : "hidden"} id="link2">
 								<RouteStopList routeStopList={routeStopList} />
 							</div>
-							<div className={openTab === 3 ? "block" : "hidden"} id="link3">
+							<div className={openTab === 2 ? "block" : "hidden"} id="link3">
 								<RouteDescriptionView data={data} />
 							</div>
 						</div>

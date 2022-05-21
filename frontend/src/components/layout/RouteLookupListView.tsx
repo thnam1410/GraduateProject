@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { ApiUtil, BASE_API_PATH, ConvertStringUnsign } from "~/src/utils/ApiUtil";
 import { pathIconBus_1, pathIconBus_2, pathIconTime_1, pathIconTime_2, PathIconMoney } from "../pages/svg/Path";
 import { RouteDetailInfo, useStore } from "~/src/zustand/store";
+import { LatLngTuple } from "leaflet";
 
 interface IGetMainRoute {
 	id: number;
@@ -52,6 +53,8 @@ const RouteLookupListView: NextPage<any> = (props) => {
 			.then((res) => {
 				if (res.data?.success) {
 					const infoRouteDetail = res?.data?.result as RouteDetailInfo;
+					const position = infoRouteDetail.forwardRoutePos.map((pos) => [pos.lat, pos.lng]) as LatLngTuple[];
+					const positionZoomIn = [position[0]]  as LatLngTuple[];
 					const positionBusStop = infoRouteDetail.forwardRouteStops.map((x) => ({
 						name: x.name,
 						pos: [x.position.lat, x.position.lng] as [number, number],
@@ -59,7 +62,8 @@ const RouteLookupListView: NextPage<any> = (props) => {
 					setStateRouteInfoView({
 						isAllList: false,
 						infoRouteDetail,
-						positions: infoRouteDetail.forwardRoutePos.map((pos) => [pos.lat, pos.lng]),
+						positions: position,
+						positionZoomIn:positionZoomIn,
 						positionsBusStop: positionBusStop,
 					});
 				}

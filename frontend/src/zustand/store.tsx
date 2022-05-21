@@ -6,9 +6,13 @@ import { Position } from "~/src/types/Common";
 export const useStore = create<MapStore>((set) => ({
 	positions: [],
 	setPositions: (positions) => {
-		console.log("setPositions", positions);
 		set((state) => ({ ...state, positions }));
 	},
+	positionZoomIn : [],
+	setPositionZoomIn: (positionZoomIn) => {
+		set((state) => ({ ...state, positionZoomIn }));
+	},
+
 	positionsBusStop: [],
 	setPositionsBusStop: (positionsBusStop) => {
 		set((state) => ({ ...state, positionsBusStop }));
@@ -25,27 +29,30 @@ export const useStore = create<MapStore>((set) => ({
 			isAllList: payload.isAllList,
 			infoRouteDetail: payload.infoRouteDetail,
 			positions: payload.positions,
+			positionZoomIn : payload.positionZoomIn,
 			positionsBusStop: payload.positionsBusStop,
 		}));
 	},
 	setStateRouteActionBackInfoView: (payload) => {
-		console.log("setStateRouteActionBackInfoView");
 		set((state) => ({ ...state, isAllList: payload.isAllList, infoRouteDetail: null, positions: [], positionsBusStop: [] }));
 	},
 }));
 
 interface MapStore {
 	positions: LatLngTuple[];
+	positionZoomIn: LatLngTuple[];
 	isAllList: boolean;
 	infoRouteDetail: RouteDetailInfo | null;
 	positionsBusStop: CustomBusStopLatLngTuble[];
 	setPositions: (value: LatLngTuple[]) => void;
+	setPositionZoomIn: (positionZoomIn: LatLngTuple[]) => void;
 	setPositionsBusStop: (positionsBusStop: CustomBusStopLatLngTuble[]) => void;
 	setPositionAndBusStop: (positions: any, positionsBusStop: CustomBusStopLatLngTuble[]) => void;
 	setStateRouteInfoView: (value: {
 		isAllList: boolean;
 		infoRouteDetail: any;
 		positions: LatLngTuple[];
+		positionZoomIn: LatLngTuple[];
 		positionsBusStop: CustomBusStopLatLngTuble[];
 	}) => void;
 	setStateRouteActionBackInfoView: (value: any) => void;
