@@ -2,9 +2,11 @@ import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } f
 import { MapContainer, Marker, Polyline, Popup, TileLayer, ZoomControl } from "react-leaflet";
 import { LatLngBounds, LatLngTuple, Map as LeafletMap, Polyline as LeafletPolyline } from "leaflet";
 import axios from "axios";
+import L from "leaflet";
 import { ApiUtil, BASE_API_PATH } from "~/src/utils/ApiUtil";
 import { isEmpty } from "lodash";
 import { useStore } from "~/src/zustand/store";
+import { urlBusStop } from "./pages/svg/UrlImage";
 
 interface IProps {}
 
@@ -38,6 +40,14 @@ interface Stop {
 	address: string;
 	routes: string;
 	code: string;
+}
+
+const GetIconBusStop =  (urlImg:string) =>{
+	return L.icon({
+		iconUrl: urlImg,
+		iconSize:[40,50],
+		// iconAnchor:[22,94],
+	})
 }
 
 const Map = forwardRef<any, IProps>((props, ref) => {
@@ -124,13 +134,13 @@ const Map = forwardRef<any, IProps>((props, ref) => {
 					switch (idx) {
 						case 0:
 							return (
-								<Marker position={position} draggable={false}>
+								<Marker position={position} draggable={false} icon={GetIconBusStop(urlBusStop)}>
 									<Popup>Start</Popup>
 								</Marker>
 							);
 						case positions.length - 1:
 							return (
-								<Marker position={position} draggable={false}>
+								<Marker position={position} draggable={false} icon={GetIconBusStop(urlBusStop)}>
 									<Popup>End</Popup>
 								</Marker>
 							);
@@ -143,7 +153,7 @@ const Map = forwardRef<any, IProps>((props, ref) => {
 		return positionsBusStop?.map((point: any) => {
 			return (
 				<>
-					<Marker position={point.pos} draggable={false}>
+					<Marker position={point.pos} draggable={false}  icon={GetIconBusStop(urlBusStop)}>
 						<Popup>
 							<div className={"w-full h-full"}>
 								<h4 className="font-bold">{point?.name}</h4>
@@ -177,7 +187,7 @@ const Map = forwardRef<any, IProps>((props, ref) => {
 				url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
 				attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
 			/>
-			{renderMarkers()}
+			{/* {renderMarkers()} */}
 			{renderMarkersBusStopNearby()}
 			{renderMarkerBustop()}
 			{renderRoutes()}
