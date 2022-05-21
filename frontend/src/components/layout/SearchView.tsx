@@ -5,6 +5,7 @@ import { Button } from "antd";
 import { ApiUtil, BASE_API_PATH } from "~/src/utils/ApiUtil";
 import {RoutePathDto, useMapControlStore} from "~/src/zustand/MapControlStore";
 import {isEmpty} from "lodash";
+import BusTripView from "./BusTripView";
 
 const SearchView = () => {
 	const [startPosition, setStartPosition] = useState<GoogleAddress | null>(null);
@@ -93,6 +94,9 @@ const SearchView = () => {
 					Tìm tuyến đường
 				</Button>
 			</div>
+			<div className="container mb-2  w-full items-center justify-center">
+					<BusTripView />
+				</div>
 		</div>
 	);
 };
