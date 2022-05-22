@@ -8,5 +8,6 @@ public class RouteProfile: Profile
     public RouteProfile()
     {
         CreateMap<Route, RouteDto>();
+        CreateMap<RouteDetail, RouteDetailDto>();
     }
 }

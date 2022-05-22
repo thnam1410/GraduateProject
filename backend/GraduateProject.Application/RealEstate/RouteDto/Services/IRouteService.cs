@@ -5,7 +5,7 @@ namespace GraduateProject.Application.RealEstate.RouteDto.Services;
 
 public interface IRouteService
 {
-    Task<Dictionary<int, AStarPathDto>> GetRoute(FindRouteRequestDto request);
+    Task<RouteResponseDto> GetRoute(FindRouteRequestDto request);
     Task<List<Route>> GetMainRoute();
     Task<object> GetRouteDetailsByRouteId(int routeId);
     Task<object> GetBusStopNearby(Position position);

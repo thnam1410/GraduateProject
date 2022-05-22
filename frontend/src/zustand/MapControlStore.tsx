@@ -1,12 +1,16 @@
 import create from "zustand";
-import { LatLngTuple } from "leaflet";
+import {LatLngTuple} from "leaflet";
+import {RouteDetail} from "~/src/types/RouteDetail";
 
 export type RoutePathDetailDto = {
 	isSwitch: boolean;
 	positions: LatLngTuple[];
 };
 
-export type RoutePathDto = Record<number, RoutePathDetailDto>;
+export type RoutePathDto = {
+	paths: Record<number, RoutePathDetailDto>;
+	routeDetailList: RouteDetail[];
+}
 
 interface MapControlStore {
 	isFindPathMap: boolean;

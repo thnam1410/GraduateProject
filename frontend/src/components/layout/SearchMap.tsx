@@ -12,8 +12,8 @@ const SearchMap = () => {
 	const renderRoutes = () => {
 		if (!routePaths || isEmpty(routePaths)) return null;
 		console.log('routePaths',routePaths)
-		return Object.keys(routePaths).map((key) => {
-			const item = routePaths[parseInt(key)] as RoutePathDetailDto;
+		return Object.keys(routePaths.paths).map((key) => {
+			const item = routePaths.paths[parseInt(key)] as RoutePathDetailDto;
 			let extraProps = {};
 			if (item.isSwitch) {
 				extraProps = {

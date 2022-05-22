@@ -4,6 +4,7 @@ using GraduateProject.Application.Common.Dto;
 using GraduateProject.Application.Extensions;
 using GraduateProject.Application.Ums.Dto;
 using GraduateProject.Authentication;
+using GraduateProject.Extensions;
 using GraduateProject.Infrastructure.Extensions;
 using GraduateProject.Services;
 using Microsoft.Extensions.FileProviders;
@@ -102,6 +103,7 @@ public class Startup
         app.UseAuthentication();
         app.UseAuthorization();
 
+        app.PreCacheVerticesAndPath();
         app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
     }
 }
