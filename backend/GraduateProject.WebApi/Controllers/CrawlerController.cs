@@ -326,7 +326,7 @@ public class CrawlerController : ControllerBase
     [HttpGet("build-connect-graph")]
     public async Task<ApiResponse> HandleBuildConnectGraph()
     {
-        double litmitDistance = 0.5; //500m
+        double litmitDistance = 0.3; //300m
         var vertices = await _vertexRepository.Queryable().AsNoTracking()
             .Select(x => new EdgeSimpleDto
             {

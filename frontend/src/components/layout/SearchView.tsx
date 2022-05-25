@@ -3,15 +3,15 @@ import GooglePlacesAutocomplete, { geocodeByPlaceId } from "react-google-places-
 import { GoogleAddress } from "~/src/types/Common";
 import { Button } from "antd";
 import { ApiUtil, BASE_API_PATH } from "~/src/utils/ApiUtil";
-import {RoutePathDto, useMapControlStore} from "~/src/zustand/MapControlStore";
-import {isEmpty} from "lodash";
+import { RoutePathDto, useMapControlStore } from "~/src/zustand/MapControlStore";
+import { isEmpty } from "lodash";
 import BusTripView from "./BusTripView";
 
 const SearchView = () => {
 	const [startPosition, setStartPosition] = useState<GoogleAddress | null>(null);
 	const [endPosition, setEndPosition] = useState<GoogleAddress | null>(null);
 	const [isDisableButton, setIsDisableButton] = useState<boolean>(false);
-	const setRoutePath = useMapControlStore(state => state.setRoutePath)
+	const setRoutePath = useMapControlStore((state) => state.setRoutePath);
 
 	const onChangePoint = (setStateFn: React.Dispatch<React.SetStateAction<GoogleAddress | null>>) => (address: GoogleAddress) => {
 		setStateFn(address);
@@ -35,8 +35,8 @@ const SearchView = () => {
 				ApiUtil.Axios.post(BASE_API_PATH + "/route", formBody)
 					.then((res) => {
 						const result = res?.data?.result as RoutePathDto;
-						if(!isEmpty(result)){
-							setRoutePath(result)
+						if (!isEmpty(result)) {
+							setRoutePath(result);
 						}
 					})
 					.catch((err) => {
@@ -95,8 +95,8 @@ const SearchView = () => {
 				</Button>
 			</div>
 			<div className="container mb-2  w-full items-center justify-center">
-					<BusTripView />
-				</div>
+				<BusTripView />
+			</div>
 		</div>
 	);
 };
