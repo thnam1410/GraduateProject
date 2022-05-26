@@ -12,6 +12,7 @@ import { GetServerSideProps, NextApiRequest } from "next";
 import { getToken } from "next-auth/jwt";
 import { isEmpty } from "lodash";
 import Overlay, { OverlayRef } from "../../components/Overlay/Overlay";
+import { useStore } from "~/src/zustand/store";
 
 interface IFormInput {
 	userName: string;
@@ -26,6 +27,8 @@ interface Props {
 const Login = (props: Props) => {
 	const router = useRouter();
 	const session = useSession();
+	const setUserSession = useStore((state) => state.setUserSession);
+
 	const overlayRef = useRef<OverlayRef>(null);
 	const {
 		register,
@@ -47,10 +50,9 @@ const Login = (props: Props) => {
 
 	const redirectByRights = (userSession: UserSession) => {
 		overlayRef.current?.close();
-		if (userSession.rights.includes(Role.ADMIN)) {
-			return router.push("/admin");
-		}
-		return router.push("/");
+		console.log("aa1", userSession);
+		setUserSession(userSession);
+		return router.push("/bus-map");
 	};
 	const onFinish = handleSubmit(async (values: IFormInput) => {
 		const { userName, password } = values;
@@ -68,11 +70,24 @@ const Login = (props: Props) => {
 	});
 	return (
 		<div className="container mx-auto">
-			<div className="flex justify-center px-6 my-12">
+			<div className="absolute top-0 right-0 mr-6">
+				<Link href={"/bus-map"}>
+					<button
+						type="button"
+						className="mt-3 mr-4 text-white bg-gradient-to-r from-cyan-400 via-cyan-500 to-cyan-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+					>
+						Trang chủ
+					</button>
+				</Link>
+			</div>
+			<div className="flex absolute inset-x-0 bottom-0 justify-center px-6 my-12" style={{ height: "80%" }}>
 				<div className="w-full xl:w-3/4 lg:w-11/12 flex">
 					<div
-						className="w-full h-auto bg-gray-400 hidden lg:block lg:w-1/2 bg-cover rounded-l-lg"
-						style={{ backgroundImage: "url('https://source.unsplash.com/K4mSJ7kc0As/600x800')" }}
+						className="w-full h-auto bg-gray-400 hidden lg:block lg:w-2/3 bg-cover rounded-l-lg"
+						style={{
+							backgroundImage:
+								"url('https://previews.123rf.com/images/bigmouse/bigmouse1702/bigmouse170200102/72523905-parada-de-autob%C3%BAs-de-dibujos-animados-con-el-transporte-y-la-gente-vector.jpg')",
+						}}
 					/>
 					<div className="w-full lg:w-1/2 bg-white p-5 rounded-lg lg:rounded-l-none">
 						<h3 className="pt-4 text-2xl text-center">Đăng nhập!</h3>
@@ -120,14 +135,8 @@ const Login = (props: Props) => {
 									name="password"
 									render={({ message }) => (message ? <p className="text-red-400">{message}</p> : null)}
 								/>
-								{/*<p className="text-xs italic text-red-500">Please choose a password.</p>*/}
 							</div>
-							{/*<div className="mb-4">*/}
-							{/*	<input className="mr-2 leading-tight" type="checkbox" id="checkbox_id" />*/}
-							{/*	<label className="text-sm" htmlFor="checkbox_id">*/}
-							{/*		Remember Me*/}
-							{/*	</label>*/}
-							{/*</div>*/}
+
 							<div className="mb-6 text-center">
 								<button
 									className="w-full px-4 py-2 font-bold text-white bg-blue-500 rounded-full hover:bg-blue-700 focus:outline-none focus:shadow-outline"
@@ -141,9 +150,6 @@ const Login = (props: Props) => {
 								<Link href={"/auth/register"}>
 									<a className="inline-block text-sm text-blue-500 align-baseline hover:text-blue-800">Tạo tài khoản</a>
 								</Link>
-							</div>
-							<div className="text-center">
-								<a className="inline-block text-sm text-blue-500 align-baseline hover:text-blue-800">Quên mất khẩu</a>
 							</div>
 						</form>
 					</div>

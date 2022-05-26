@@ -2,13 +2,18 @@ import create from "zustand";
 import _ from "lodash";
 import { LatLngTuple } from "leaflet";
 import { Position } from "~/src/types/Common";
+import { UserSession } from "../types/UserInfo";
 
 export const useStore = create<MapStore>((set) => ({
 	positions: [],
 	setPositions: (positions) => {
 		set((state) => ({ ...state, positions }));
 	},
-	positionZoomIn : [],
+	userSession: null,
+	setUserSession: (userSession) => {
+		set((state) => ({ ...state, userSession }));
+	},
+	positionZoomIn: [],
 	setPositionZoomIn: (positionZoomIn) => {
 		set((state) => ({ ...state, positionZoomIn }));
 	},
@@ -29,7 +34,7 @@ export const useStore = create<MapStore>((set) => ({
 			isAllList: payload.isAllList,
 			infoRouteDetail: payload.infoRouteDetail,
 			positions: payload.positions,
-			positionZoomIn : payload.positionZoomIn,
+			positionZoomIn: payload.positionZoomIn,
 			positionsBusStop: payload.positionsBusStop,
 		}));
 	},
@@ -44,6 +49,8 @@ interface MapStore {
 	isAllList: boolean;
 	infoRouteDetail: RouteDetailInfo | null;
 	positionsBusStop: CustomBusStopLatLngTuble[];
+	userSession: UserSession | null;
+	setUserSession: (value: UserSession) => void;
 	setPositions: (value: LatLngTuple[]) => void;
 	setPositionZoomIn: (positionZoomIn: LatLngTuple[]) => void;
 	setPositionsBusStop: (positionsBusStop: CustomBusStopLatLngTuble[]) => void;

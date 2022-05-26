@@ -9,14 +9,7 @@ import { debounce } from "lodash";
 import Map, { IMapRef } from "~/src/components/Map";
 import { useMapControlStore } from "~/src/zustand/MapControlStore";
 import SearchMap from "~/src/components/layout/SearchMap";
-import {
-	PathIconBusHeader1,
-	PathIconBusHeader2,
-	PathIconBusHeader3,
-	PathIconBusHeader4,
-	PathIconBusHeader5,
-	PathIconBusHeader6,
-} from "../pages/svg/Path";
+import HeaderView from "./HeaderView";
 
 const SIDE_BAR_WIDTH = 23;
 const BusMap: NextPage<any> = ({ children }) => {
@@ -54,33 +47,13 @@ const BusMap: NextPage<any> = ({ children }) => {
 	return (
 		<div>
 			<div className="absolute inset-x-0 top-0 bg-emerald-500" style={{ height: "8%", width: "100%" }}>
-				<div className="flex w-1/5">
-					<div className="bg-blue-light shadow-border p-3 w-4 h-4">
-						<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512.002 512.002" className=" sm:w-12 sm:h-12 mr-3">
-							<path style={{ fill: "#ffad61" }} d={PathIconBusHeader1} />
-							<circle style={{ fill: "#666" }} cx="128.5" cy="338.002" r="46.294" />
-							<circle style={{ fill: "#666" }} cx="377.299" cy="338.002" r="46.294" />
-							<circle style={{ fill: "#f2f2f2" }} cx="128.5" cy="338.002" r="14.814" />
-							<circle style={{ fill: "#f2f2f2" }} cx="377.299" cy="338.002" r="14.814" />
-							<path style={{ fill: "#f2f2f2" }} d={PathIconBusHeader2} />
-							<path style={{ fill: "#73c1dd" }} d={PathIconBusHeader3} />
-							<path style={{ fill: "#f2f2f2" }} d="M221.792 203.209h77.698V339.43h-77.698z" />
-							<path style={{ fill: "#4d3d36" }} d={PathIconBusHeader4} />
-							<path style={{ fill: "#4d3d36" }} d={PathIconBusHeader5} />
-							<path style={{ fill: "#4d3d36" }} d={PathIconBusHeader6} />
-						</svg>
-					</div>
-					<div className="bg-blue-light shadow-border ml-12 mt-4">
-						<p className="text-3xl text-white">BusMap</p>
-					</div>
-				</div>
+				<HeaderView />
 			</div>
 			<div className="absolute inset-x-0 bottom-0" style={{ height: "92%" }}>
 				<div
 					className="border bg-white-800 flex items-center absolute duration-500 -left-0"
 					style={{
 						width: isOpenSideBar ? `${SIDE_BAR_WIDTH}%` : 0,
-						// height: "95%",
 					}}
 				>
 					<div
