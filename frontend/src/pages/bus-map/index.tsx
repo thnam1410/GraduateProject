@@ -8,7 +8,7 @@ const BusMapPage: NextPage<any> = (props) => {
 	if (!checkBrowser) return null;
 	return (
 		<>
-			<div id="map" style={{ position: "relative" }}>
+			<div id="map">
 				<BusMap/>
 			</div>
 		</>

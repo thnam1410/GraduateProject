@@ -19,7 +19,6 @@ const HeaderView: NextPage<any> = ({ children }) => {
 	useEffect(() => {}, [userSession]);
 
 	const renderRightLogin = () => {
-		console.log("userSession", userSession);
 		return (
 			<>
 				{userSession !== null ? (
@@ -50,7 +49,7 @@ const HeaderView: NextPage<any> = ({ children }) => {
 
 	return (
 		<>
-			<div className="flex w-1/5">
+			<div className="flex w-1/5 pb-2">
 				<div className="bg-blue-light shadow-border p-3 w-4 h-4">
 					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512.002 512.002" className=" sm:w-12 sm:h-12 mr-3">
 						<path style={{ fill: "#ffad61" }} d={PathIconBusHeader1} />
@@ -67,7 +66,7 @@ const HeaderView: NextPage<any> = ({ children }) => {
 					</svg>
 				</div>
 				<div className="bg-blue-light shadow-border ml-12 mt-4">
-					<p className="text-3xl text-white">BusMap</p>
+					<p className="text-3xl text-white m-0">BusMap</p>
 				</div>
 				<div className="absolute top-0 right-0">{renderRightLogin()}</div>
 			</div>

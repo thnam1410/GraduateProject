@@ -29,7 +29,7 @@ const RouteInfoDetailView: NextPage<any> = () => {
 				</div>
 			</div>
 
-			<div className="h-screen w-full">
+			<div className="h-full w-full">
 				<ul className="flex mb-0 list-none flex-wrap pt-3 pb-4 flex-row" role="tablist">
 					<li className="-mb-px last:mr-0 flex-auto text-center">
 						<a

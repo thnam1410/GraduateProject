@@ -45,16 +45,7 @@ public class RouteService : IRouteService
         {
             if (pathHistory.IsError) throw new Exception(pathHistory.ErrorMessage);
             var resultPaths = JsonConvert.DeserializeObject<ResultPaths>(pathHistory.JsonPath) ?? new ResultPaths();
-            var routeDetails = await _routeDetailRepository.Queryable().Where(x => resultPaths.RouteDetailListIds.Contains(x.Id)).ToListAsync();
-            return new RouteResponseDto()
-            {
-                Paths = resultPaths.Paths,
-                RouteDetailList = resultPaths.RouteDetailListIds.Select(id =>
-                {
-                    var itemRouteDetail = routeDetails.First(x => x.Id == id);
-                    return _mapper.Map<RouteDetail, RouteDetailDto>(itemRouteDetail);
-                }).ToList()
-            };
+            return await RouteResponseDto(resultPaths);
         }
 
 
@@ -105,16 +96,7 @@ public class RouteService : IRouteService
                 IsError = false,
                 JsonPath = JsonConvert.SerializeObject(resultPaths)
             }, true);
-            var routeDetails = await _routeDetailRepository.Queryable().Where(x => resultPaths.RouteDetailListIds.Contains(x.Id)).ToListAsync();
-            return new RouteResponseDto()
-            {
-                Paths = resultPaths.Paths,
-                RouteDetailList = resultPaths.RouteDetailListIds.Select(id =>
-                {
-                    var itemRouteDetail = routeDetails.First(x => x.Id == id);
-                    return _mapper.Map<RouteDetail, RouteDetailDto>(itemRouteDetail);
-                }).ToList()
-            };
+            return await RouteResponseDto(resultPaths);
         }
         catch (Exception e)
         {
@@ -132,50 +114,54 @@ public class RouteService : IRouteService
         }
     }
 
+    private async Task<RouteResponseDto> RouteResponseDto(ResultPaths resultPaths)
+    {
+        var routeDetails = await _routeDetailRepository.Queryable()
+            .Include(x => x.Route)
+            .Include(x => x.Stops)
+            .Where(x => resultPaths.RouteDetailListIds.Contains(x.Id))
+            .ToListAsync();
+        var routeStops = routeDetails.SelectMany(x => x.Stops).ToList();
+        
+        var pathRouteDetailIds = new HashSet<int>();
+        var stops = new HashSet<int>();
+        resultPaths.Paths.Values
+            .Where(x => !x.IsSwitch)
+            .SelectMany(x => x.Positions)
+            .ToList()
+            .ForEach(pos =>
+            {
+                pathRouteDetailIds.Add(pos.RouteDetailId);
+                var nearestStop = routeStops.Select(x => new
+                {
+                    x.Id,
+                    Distance = CalculateUtil.Distance(new Position() {Lat = x.Lat, Lng = x.Lng}, new Position() {Lat = pos.Lat, Lng = pos.Lng})
+                }).OrderBy(x => x.Distance).FirstOrDefault();
+                if (nearestStop is not null && nearestStop.Distance <= 0.05) stops.Add(nearestStop.Id);
+            });
+
+        return new RouteResponseDto()
+        {
+            Paths = resultPaths.Paths,
+            // RouteDetailList = routeDetails
+            //     .Where(x => pathRouteDetailIds.Contains(x.Id))
+            //     .Select(routeDetail => _mapper.Map<Route, RouteDto>(routeDetail.Route))
+            //     .ToList(),
+            RouteDetailList = pathRouteDetailIds.Select(id =>
+            {
+                var routeDetail = routeDetails.First(x => x.Id == id);
+                return _mapper.Map<Route, RouteDto>(routeDetail.Route);
+            }).ToList(),
+            Stops = stops.Select(stopId => _mapper.Map<Stop, StopDto>(routeStops.First(x => x.Id == stopId))).ToList()
+        };
+    }
+
     private ResultPaths GetResultPaths(List<AStarNode> vertices, List<VertexDto> listVertices, List<EdgeDto> listEdges)
     {
         int index = 1;
         var paths = new Dictionary<int, AStarPathDto>();
         var routeDetailList = new HashSet<int>();
         AStarNode previous = null;
-        // for (var i = 0; i < vertices.Count; i++)
-        // {
-        //     var current = vertices[i];
-        //     if (i == 0)
-        //     {
-        //         AddItemIntoDictionary(paths, current, index, current.IsSwitchRouteNode);
-        //         if (current.IsSwitchRouteNode) index++;
-        //     }
-        //
-        //     //For case first and second item are different type
-        //     if (i == 1)
-        //     {
-        //         if (current.IsSwitchRouteNode != previous!.IsSwitchRouteNode)
-        //         {
-        //             AddItemIntoDictionary(paths, current, previous.IsSwitchRouteNode ? index - 1 : index, default);
-        //         }
-        //     }
-        //
-        //     if (previous is not null)
-        //     {
-        //         // If current node is not the same type as previous  
-        //         // 1. Create node route paths
-        //         // 2. Add switch paths from these 2 nodes
-        //         // Else add vertex to exist route path
-        //         if (current.IsSwitchRouteNode != previous.IsSwitchRouteNode)
-        //         {
-        //             if (current.IsSwitchRouteNode) index++;
-        //             AddItemIntoDictionary(paths, previous, index, current.IsSwitchRouteNode);
-        //             AddItemIntoDictionary(paths, current, index, current.IsSwitchRouteNode);
-        //             previous = current;
-        //             continue;
-        //         }
-        //
-        //         AddItemIntoDictionary(paths, current, index, current.IsSwitchRouteNode);
-        //     }
-        //
-        //     previous = current;
-        // }
 
         for (int i = 0; i < vertices.Count; i++)
         {
@@ -190,7 +176,11 @@ public class RouteService : IRouteService
                 var item = new AStarPathDto()
                 {
                     IsSwitch = !isSameRoute,
-                    Positions = new List<Position>() {previous.Position, current.Position}
+                    Positions = new List<PositionWithRouteInfo>()
+                    {
+                        new() {Lat = previous.Lat, Lng = previous.Lng, RouteDetailId = listVertices.First(x => x.Id == previous.Id).RouteDetailId},
+                        new() {Lat = current.Lat, Lng = current.Lng, RouteDetailId = listVertices.First(x => x.Id == current.Id).RouteDetailId},
+                    }
                 };
                 if (isSameRoute && !IsSwitchEdge(listEdges, current, previous)) routeDetailList.Add(listVertices.First(x => x.Id == current.Id).RouteDetailId);
                 paths.Add(index, item);
@@ -218,23 +208,6 @@ public class RouteService : IRouteService
     {
         var edge = edges.FirstOrDefault(x => (x.PointAId == nodeA.Id && x.PointBId == nodeB.Id) || (x.PointBId == nodeA.Id && x.PointAId == nodeB.Id));
         return edge?.Type == EdgeType.SwitchRoute;
-    }
-
-    private void AddItemIntoDictionary(Dictionary<int, AStarPathDto> dict, AStarNode node, int index, bool type)
-    {
-        if (dict.ContainsKey(index))
-        {
-            var item = dict.First(x => x.Key == index);
-            item.Value.Positions.Add(node.Position);
-        }
-        else
-        {
-            dict.Add(index, new AStarPathDto()
-            {
-                IsSwitch = type,
-                Positions = new List<Position>() {node.Position}
-            });
-        }
     }
 
     private async Task<IEnumerable<EdgeDto>> GetEdges()

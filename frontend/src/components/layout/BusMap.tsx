@@ -45,13 +45,13 @@ const BusMap: NextPage<any> = ({ children }) => {
 	}, 300);
 
 	return (
-		<div>
-			<div className="absolute inset-x-0 top-0 bg-emerald-500" style={{ height: "8%", width: "100%" }}>
+		<div className='flex flex-col w-full h-full'>
+			<div className="bg-emerald-500" style={{ height: "8%", width: "100%" }}>
 				<HeaderView />
 			</div>
-			<div className="absolute inset-x-0 bottom-0" style={{ height: "92%" }}>
+			<div className={'relative w-full h-full'}>
 				<div
-					className="border bg-white-800 flex items-center absolute duration-500 -left-0"
+					className="h-full border bg-white-800 flex items-start absolute duration-500 -left-0"
 					style={{
 						width: isOpenSideBar ? `${SIDE_BAR_WIDTH}%` : 0,
 					}}
@@ -67,9 +67,9 @@ const BusMap: NextPage<any> = ({ children }) => {
 					</div>
 					<RouteInfoView />
 				</div>
-
+				
 				<div
-					className="h-screen absolute bottom-0 right-0 duration-500"
+					className="h-full absolute bottom-0 right-0 duration-500"
 					style={{
 						width: isOpenSideBar ? `${100 - SIDE_BAR_WIDTH}%` : "100%",
 						height: "100%",

@@ -1,15 +1,14 @@
 import { NextPage } from "next";
 import { useState } from "react";
 import { useStore } from "~/src/zustand/store";
-import { PathIconBack } from "../pages/svg/Path";
+import { PathIconBack, pathIconBus_1, pathIconBus_2 } from "../pages/svg/Path";
 import InfoDetailTabView from "./InfoDetailTabView";
 import { useMapControlStore } from "~/src/zustand/MapControlStore";
 
 const BusTripView: NextPage<any> = () => {
 	const routePaths = useMapControlStore((state) => state.routePaths);
-	console.log("routePaths", routePaths);
 	return (
-		<div className="h-screen w-full mt-3">
+		<div className="h-full w-full mt-3">
 			<div className=" relative w-full flex flex-col min-w-0 break-words bg-white w-full mb-6 shadow-lg rounded">
 				<div className="w-full flex-auto">
 					<div className="w-full tab-content">
@@ -22,6 +21,31 @@ const BusTripView: NextPage<any> = () => {
 							>
 								Lộ trình
 							</div>
+						</div>
+						<div className="guide-paths mt-3">
+							{(routePaths?.stops || []).map((stop) => {
+								return (
+									<div className="guide-item flex px-2 py-1 rounded border-gray-400" key={stop.name + stop.addressNo}>
+										<div className={"icon"} style={{width: 65}}>
+											{" "}
+											<div className="bg-blue-light shadow-border p-3 w-4 h-4">
+												<svg
+													xmlns="http://www.w3.org/2000/svg"
+													className="w-4 h-4 sm:w-6 sm:h-6 mr-2"
+													viewBox="0 0 472.666 472.666"
+												>
+													<path d={pathIconBus_1} />
+													<path d={pathIconBus_2} />
+												</svg>
+											</div>
+										</div>
+										<div className={"flex-1"}>
+											<h3 className='font-bold'>{stop.name}</h3>
+											<p>Địa chỉ: {stop.addressNo}</p>
+										</div>
+									</div>
+								);
+							})}
 						</div>
 					</div>
 				</div>

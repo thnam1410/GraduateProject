@@ -1,17 +1,20 @@
 import React, { useRef } from "react";
-import { MapContainer, Polyline, TileLayer, ZoomControl } from "react-leaflet";
-import { Map as LeafletMap } from "leaflet";
-import { RoutePathDetailDto, RoutePathDto, useMapControlStore } from "~/src/zustand/MapControlStore";
-import shallow from "zustand/shallow";
+import { MapContainer, Marker, Polyline, Popup, TileLayer, ZoomControl } from "react-leaflet";
+import L, { Map as LeafletMap } from "leaflet";
+import { RoutePathDetailDto, useMapControlStore } from "~/src/zustand/MapControlStore";
 import { isEmpty } from "lodash";
+import { urlBusStop } from "../pages/svg/UrlImage";
 
+const iconBusStop = L.icon({
+	iconUrl: urlBusStop,
+	iconSize: [40, 50],
+});
 const SearchMap = () => {
 	const leafletMap = useRef<LeafletMap>(null);
 	const routePaths = useMapControlStore((state) => state.routePaths);
 
 	const renderRoutes = () => {
 		if (!routePaths || isEmpty(routePaths)) return null;
-		console.log('routePaths',routePaths)
 		return Object.keys(routePaths.paths).map((key) => {
 			const item = routePaths.paths[parseInt(key)] as RoutePathDetailDto;
 			let extraProps = {};
@@ -22,6 +25,21 @@ const SearchMap = () => {
 				};
 			}
 			return <Polyline key={key} positions={item.positions} pathOptions={{ color: "purple" }} {...extraProps} />;
+		});
+	};
+
+	const renderStops = () => {
+		return (routePaths?.stops || []).map((stop) => {
+			return (
+				<Marker position={[stop.lat, stop.lng]} key={stop.addressNo} draggable={false} icon={iconBusStop}>
+					<Popup>
+						<div className={"w-full h-full"}>
+							<h4 className="font-bold">{stop.name}</h4>
+							<h3>{stop.addressNo}</h3>
+						</div>
+					</Popup>
+				</Marker>
+			);
 		});
 	};
 	return (
@@ -39,6 +57,7 @@ const SearchMap = () => {
 				attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
 			/>
 			{renderRoutes()}
+			{renderStops()}
 		</MapContainer>
 	);
 };

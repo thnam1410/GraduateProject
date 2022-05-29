@@ -13,4 +13,5 @@ public class VertexDto
     public double DistanceToEnd { get; set; }
 
     public Position Position => new() {Lat = this.Lat, Lng = this.Lng};
+    public PositionWithRouteInfo PositionWithRouteInfo => new() {Lat = this.Lat, Lng = this.Lng, RouteDetailId = this.RouteDetailId};
 }

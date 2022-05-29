@@ -1,13 +1,13 @@
 import { debounce, cloneDeep } from "lodash";
 import { GetServerSideProps, NextPage } from "next";
-import { useCallback, useEffect, useState } from "react";
+import {useCallback, useEffect, useRef, useState} from "react";
 import { ApiUtil, BASE_API_PATH, ConvertStringUnsign } from "~/src/utils/ApiUtil";
 import RouteInfoDetailView from "./RouteInfoDetailView";
 import RouteLookupListView from "./RouteLookupListView";
 import useMergeState from "~/src/hooks/useMergeState";
 import { useStore } from "~/src/zustand/store";
 import SearchView from "~/src/components/layout/SearchView";
-import {useMapControlStore} from "~/src/zustand/MapControlStore";
+import { useMapControlStore } from "~/src/zustand/MapControlStore";
 
 interface IState {
 	isAllList: boolean;
@@ -16,12 +16,14 @@ interface IState {
 
 const RouteInfoView: NextPage<any> = (props) => {
 	const [openTab, setOpenTab] = useState<number>(1);
+	const divRef = useRef<HTMLDivElement>(null);
 	const isAllList = useStore((state) => state.isAllList);
-	const switchMap = useMapControlStore(state => state.switchMap)
+	const switchMap = useMapControlStore((state) => state.switchMap);
+
 	return (
 		<>
-			<div className="flex flex-wrap w-full" style={{ minWidth: 350 }}>
-				<div style={{ display: isAllList ? "unset" : "none" }} className="h-screen w-full">
+			<div className="flex flex-wrap h-full w-full overflow-hidden" style={{ minWidth: 350 }}>
+				<div style={{ display: isAllList ? "unset" : "none" }} className="h-full w-full">
 					<ul className="flex mb-0 list-none flex-wrap pt-3 pb-4 flex-row" role="tablist">
 						<li className="-mb-px last:mr-0 flex-auto text-center">
 							<a
@@ -31,9 +33,9 @@ const RouteInfoView: NextPage<any> = (props) => {
 								}
 								onClick={(e) => {
 									e.preventDefault();
-									if(openTab === 1) return;
+									if (openTab === 1) return;
 									setOpenTab(1);
-									switchMap()
+									switchMap();
 								}}
 								data-toggle="tab"
 								href="#link1"
@@ -50,10 +52,9 @@ const RouteInfoView: NextPage<any> = (props) => {
 								}
 								onClick={(e) => {
 									e.preventDefault();
-									if(openTab === 2) return;
+									if (openTab === 2) return;
 									setOpenTab(2);
-									switchMap()
-
+									switchMap();
 								}}
 								data-toggle="tab"
 								href="#link2"
@@ -63,13 +64,13 @@ const RouteInfoView: NextPage<any> = (props) => {
 							</a>
 						</li>
 					</ul>
-					<div className=" relative flex flex-col min-w-0 break-words bg-white w-full mb-6 shadow-lg rounded">
-						<div className=" px-4 py-5 flex-auto">
-							<div className=" tab-content tab-space">
-								<div className={openTab === 1 ? "block " : "hidden"} id="link1">
-									<RouteLookupListView />
+					<div ref={divRef} className="parent-div relative h-full flex flex-col min-w-0 break-words bg-white w-full mb-6 shadow-lg rounded">
+						<div className="px-4 py-5 flex-auto">
+							<div className="tab-content tab-space h-full w-full">
+								<div className={openTab === 1 ? "block w-full h-full" : "hidden"} id="link1">
+									<RouteLookupListView parentDivRef={divRef} />
 								</div>
-								<div className={openTab === 2 ? "block" : "hidden"} id="link2">
+								<div className={openTab === 2 ? "block w-full h-full" : "hidden"} id="link2">
 									<SearchView />
 								</div>
 							</div>
@@ -78,7 +79,7 @@ const RouteInfoView: NextPage<any> = (props) => {
 				</div>
 
 				{!isAllList && (
-					<div className="h-screen w-full">
+					<div className="h-full w-full">
 						<RouteInfoDetailView />
 					</div>
 				)}
