@@ -1,7 +1,8 @@
 import { GetServerSideProps, NextPage } from "next";
 import Link from "next/link";
-import { useSession } from "next-auth/react";
-import { UserSession } from "../../types/UserInfo";
+import { signOut } from "next-auth/react";
+
+import { urlUser } from "../pages/svg/UrlImage";
 import {
 	PathIconBusHeader1,
 	PathIconBusHeader2,
@@ -12,12 +13,19 @@ import {
 } from "../pages/svg/Path";
 import { useEffect, useState } from "react";
 import { useStore } from "~/src/zustand/store";
+import { useRouter } from "next/router";
 const HeaderView: NextPage<any> = ({ children }) => {
 	const userSession = useStore((state) => state.userSession);
 	const [showOptions, setShowOptions] = useState<boolean>(false);
 	useEffect(() => {}, [userSession]);
 	const handleClick = () => {
 		setShowOptions(!showOptions);
+	};
+	const router = useRouter();
+
+	const onLogout = async () => {
+		const data = await signOut({ redirect: false, callbackUrl: "/auth/login" });
+		router.push(data.url);
 	};
 
 	const renderRightLogin = () => {
@@ -26,7 +34,7 @@ const HeaderView: NextPage<any> = ({ children }) => {
 				{userSession !== null ? (
 					<>
 						<div className="mt-3 mr-4 relative inline-block text-left">
-							<div>
+							{/* <div>
 								<button
 									onClick={handleClick}
 									type="button"
@@ -44,30 +52,52 @@ const HeaderView: NextPage<any> = ({ children }) => {
 										aria-hidden="true"
 									></svg>
 								</button>
-							</div>
 
+							</div> */}
+							<div onClick={handleClick} className="flex justify-center items-center space-x-3 cursor-pointer">
+								<div className="w-8 h-8 rounded-full overflow-hidden border-2 dark:border-white border-gray-900">
+									<img src={urlUser} alt="" className="w-full h-full object-cover" />
+								</div>
+								<div className="font-semibold dark:text-white text-gray-900 text-lg">
+									<div className="cursor-pointer">{userSession?.user?.fullName}</div>
+								</div>
+							</div>
 							{showOptions && (
 								<div
 									className="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none"
-									style={{ zIndex: 3 }}
+									style={{ zIndex: 3, backgroundColor: "aqua" }}
 									role="menu"
 									aria-orientation="vertical"
 									aria-labelledby="menu-button"
 									tabIndex={-1}
 								>
-									<div className="py-1" role="none">
-										<form method="POST" action="#" role="none">
-											<button
-												type="submit"
-												className="text-gray-700 block w-full text-left px-4 py-2 text-sm"
-												role="menuitem"
-												tabIndex={-1}
-												id="menu-item-3"
+									<ul className="space-y-3 dark:text-white">
+										<hr className="dark:border-gray-700" />
+										<li className="font-medium">
+											<div
+												onClick={onLogout}
+												className="cursor-pointer justify-center flex items-center transform transition-colors duration-200 border-r-4 border-transparent hover:border-red-600"
 											>
-												Đăng xuất
-											</button>
-										</form>
-									</div>
+												<div className="mr-3 text-red-600">
+													<svg
+														className="w-6 h-6"
+														fill="none"
+														stroke="currentColor"
+														viewBox="0 0 24 24"
+														xmlns="http://www.w3.org/2000/svg"
+													>
+														<path
+															strokeLinecap="round"
+															strokeLinejoin="round"
+															strokeWidth="2"
+															d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+														></path>
+													</svg>
+												</div>
+												Logout
+											</div>
+										</li>
+									</ul>
 								</div>
 							)}
 						</div>

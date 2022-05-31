@@ -50,7 +50,6 @@ const Login = (props: Props) => {
 
 	const redirectByRights = (userSession: UserSession) => {
 		overlayRef.current?.close();
-		console.log("aa1", userSession);
 		setUserSession(userSession);
 		return router.push("/bus-map");
 	};
@@ -62,7 +61,6 @@ const Login = (props: Props) => {
 			password,
 			redirect: false,
 		});
-		console.log("res", res);
 		if (res!.error) {
 			ApiUtil.ToastError(res!.error);
 			overlayRef.current?.close();
