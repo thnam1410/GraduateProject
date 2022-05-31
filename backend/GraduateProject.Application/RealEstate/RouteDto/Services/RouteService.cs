@@ -124,7 +124,7 @@ public class RouteService : IRouteService
         var routeStops = routeDetails.SelectMany(x => x.Stops).ToList();
         
         var pathRouteDetailIds = new HashSet<int>();
-        var stops = new HashSet<int>();
+        var stops = new HashSet<StopStorageDto>();
         resultPaths.Paths.Values
             .Where(x => !x.IsSwitch)
             .SelectMany(x => x.Positions)
@@ -137,7 +137,23 @@ public class RouteService : IRouteService
                     x.Id,
                     Distance = CalculateUtil.Distance(new Position() {Lat = x.Lat, Lng = x.Lng}, new Position() {Lat = pos.Lat, Lng = pos.Lng})
                 }).OrderBy(x => x.Distance).FirstOrDefault();
-                if (nearestStop is not null && nearestStop.Distance <= 0.05) stops.Add(nearestStop.Id);
+                if (nearestStop is not null && nearestStop.Distance <= 0.05)
+                {
+                    var existItem = stops.FirstOrDefault(x => x.StopId == nearestStop.Id);
+                    if (existItem is not null && nearestStop.Distance < existItem.Distance)
+                    {
+                        existItem.StopId = nearestStop.Id;
+                    }
+                    else
+                    {
+                        stops.Add(new StopStorageDto()
+                        {
+                            StopId = nearestStop.Id,
+                            Distance = nearestStop.Distance,
+                            RouteDetailId = pos.RouteDetailId
+                        });
+                    }
+                }
             });
 
         return new RouteResponseDto()
@@ -152,7 +168,17 @@ public class RouteService : IRouteService
                 var routeDetail = routeDetails.First(x => x.Id == id);
                 return _mapper.Map<Route, RouteDto>(routeDetail.Route);
             }).ToList(),
-            Stops = stops.Select(stopId => _mapper.Map<Stop, StopDto>(routeStops.First(x => x.Id == stopId))).ToList()
+            Stops = stops.Select(stopDto =>
+            {
+                var item = _mapper.Map<Stop, StopDto>(routeStops.First(x => x.Id == stopDto.StopId));
+                var routeDetail = routeDetails.FirstOrDefault(x => x.Id == stopDto.RouteDetailId);
+                if (routeDetail is not null)
+                {
+                    item.RouteCode = routeDetail.Route.RouteCode;
+                    item.RouteName = routeDetail.Route.Name;
+                }
+                return item;
+            }).ToList()
         };
     }
 
@@ -301,5 +327,12 @@ public class RouteService : IRouteService
     {
         public Dictionary<int, AStarPathDto> Paths { get; set; }
         public HashSet<int> RouteDetailListIds { get; set; }
+    }
+
+    private class StopStorageDto
+    {
+        public double Distance { get; set; }
+        public int StopId { get; set; }
+        public int RouteDetailId { get; set; }
     }
 }

@@ -129,7 +129,6 @@ const RouteLookupListView: NextPage<IProps> = (props) => {
 			);
 		});
 	};
-console.log('divRef',divRef)
 	return (
 		<div className="w-full h-full">
 			<input
@@ -142,14 +141,13 @@ console.log('divRef',divRef)
 			/>
 			<div ref={divRef} className="w-full h-full">
 				{
-					divRef.current?.clientHeight && <div
+					divRef.current?.clientHeight != null && <div
 						className="list-items container mb-2 w-full items-center justify-center"
 						style={{ maxHeight: divRef.current?.clientHeight - 100, overflowY: "scroll" }}
 					>
 						<div className="flex flex-col p-3">{renderList()}</div>
 					</div>
 				}
-
 			</div>
 		</div>
 	);

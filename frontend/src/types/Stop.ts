@@ -10,4 +10,6 @@ export type StopDto = {
 	stopType: string;
 	street: string;
 	routeVarId: number;
+	routeCode: string;
+	routeName: string;
 };

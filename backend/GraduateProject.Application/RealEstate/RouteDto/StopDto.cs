@@ -13,4 +13,6 @@ public class StopDto
     public string StopType { get; set; }
     public string Street { get; set; }
     public int RouteVarId { get; set; }
+    public string? RouteCode { get; set; }
+    public string? RouteName { get; set; }
 }

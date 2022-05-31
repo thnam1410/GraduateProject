@@ -10,6 +10,7 @@ import Map, { IMapRef } from "~/src/components/Map";
 import { useMapControlStore } from "~/src/zustand/MapControlStore";
 import SearchMap from "~/src/components/layout/SearchMap";
 import HeaderView from "./HeaderView";
+import Overlay from "~/src/components/Overlay/Overlay";
 
 const SIDE_BAR_WIDTH = 23;
 const BusMap: NextPage<any> = ({ children }) => {

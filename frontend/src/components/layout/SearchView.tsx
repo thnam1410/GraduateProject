@@ -6,13 +6,14 @@ import { ApiUtil, BASE_API_PATH } from "~/src/utils/ApiUtil";
 import { RoutePathDto, useMapControlStore } from "~/src/zustand/MapControlStore";
 import { isEmpty } from "lodash";
 import BusTripView from "./BusTripView";
+import Overlay, { OverlayRef } from "~/src/components/Overlay/Overlay";
 
 const SearchView = () => {
 	const [startPosition, setStartPosition] = useState<GoogleAddress | null>(null);
 	const [endPosition, setEndPosition] = useState<GoogleAddress | null>(null);
 	const [isDisableButton, setIsDisableButton] = useState<boolean>(false);
 	const setRoutePath = useMapControlStore((state) => state.setRoutePath);
-
+	const overlayRef = useRef<OverlayRef>(null);
 	const onChangePoint = (setStateFn: React.Dispatch<React.SetStateAction<GoogleAddress | null>>) => (address: GoogleAddress) => {
 		setStateFn(address);
 		if (isDisableButton) setIsDisableButton(!isDisableButton);
@@ -20,6 +21,7 @@ const SearchView = () => {
 
 	const onFindRoute = () => {
 		if (!startPosition || !endPosition) return ApiUtil.ToastError("Vui lòng nhập đầy đủ các điểm đi và điểm đến!");
+		overlayRef.current?.open("Hệ thống đang xử lý, vui lòng chờ trong giây lát...");
 		Promise.all([geocodeByPlaceId(startPosition?.value?.place_id), geocodeByPlaceId(endPosition?.value?.place_id)])
 			.then(([resStart, resEnd]) => {
 				const formBody = {
@@ -41,12 +43,15 @@ const SearchView = () => {
 					})
 					.catch((err) => {
 						throw err;
-					});
+					}).finally(() => {
+					overlayRef.current?.close();
+				});
 			})
 			.catch((err) => {
 				console.log("err", err);
 				ApiUtil.ToastError("Có lỗi xảy ra!");
-			});
+			})
+
 	};
 
 	return (
@@ -97,6 +102,7 @@ const SearchView = () => {
 			<div className="container mb-2  w-full items-center justify-center">
 				<BusTripView />
 			</div>
+			<Overlay ref={overlayRef} />
 		</div>
 	);
 };

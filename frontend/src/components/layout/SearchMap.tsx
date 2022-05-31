@@ -13,6 +13,8 @@ const SearchMap = () => {
 	const leafletMap = useRef<LeafletMap>(null);
 	const routePaths = useMapControlStore((state) => state.routePaths);
 
+
+
 	const renderRoutes = () => {
 		if (!routePaths || isEmpty(routePaths)) return null;
 		return Object.keys(routePaths.paths).map((key) => {
