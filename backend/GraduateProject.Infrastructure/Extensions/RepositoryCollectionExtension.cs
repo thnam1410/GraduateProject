@@ -16,6 +16,7 @@ public static class RepositoryCollectionExtension
         services.AddTransient<IStopRepository, StopRepository>();
         services.AddTransient<IRouteRepository, RouteRepository>();
         services.AddTransient<IPathHistoryRepository, PathHistoryRepository>();
+        services.AddTransient<IInfoRouteSearchRepository, InfoRouteSearchRepository>();
         return services;
     }
 }

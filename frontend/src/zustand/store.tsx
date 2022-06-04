@@ -17,8 +17,12 @@ export const useStore = create<MapStore>((set) => ({
 	setPositionZoomIn: (positionZoomIn) => {
 		set((state) => ({ ...state, positionZoomIn }));
 	},
+	isOpen:false,
 
 	positionsBusStop: [],
+	setIsOpen :(isOpen) => {
+	set((state) => ({ ...state, isOpen }));
+	}, 
 	setPositionsBusStop: (positionsBusStop) => {
 		set((state) => ({ ...state, positionsBusStop }));
 	},
@@ -50,6 +54,8 @@ interface MapStore {
 	infoRouteDetail: RouteDetailInfo | null;
 	positionsBusStop: CustomBusStopLatLngTuble[];
 	userSession: UserSession | null;
+	isOpen: boolean | null;
+	setIsOpen: (value: boolean) => void;
 	setUserSession: (value: UserSession) => void;
 	setPositions: (value: LatLngTuple[]) => void;
 	setPositionZoomIn: (positionZoomIn: LatLngTuple[]) => void;

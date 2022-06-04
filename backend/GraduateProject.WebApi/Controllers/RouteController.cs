@@ -98,6 +98,12 @@ public class RouteController : ControllerBase
     {
         return ApiResponse<object>.Ok(await _routeService.GetRouteDetailsByRouteId(routeId));
     }
+    
+    [HttpGet("get-route-info-search/{routeId}")]
+    public async Task<ApiResponse<object>> HandleGetRouteInfoSearchByUser([FromRoute] int routeId)
+    {
+        return ApiResponse<object>.Ok(await _routeService.GetRouteDetailsByRouteId(routeId));
+    }
 
     [HttpGet("get-bus-stop-nearby")]
     public async Task<ApiResponse<object>> HandleGetBusStopNearby([FromQuery] Position position)
