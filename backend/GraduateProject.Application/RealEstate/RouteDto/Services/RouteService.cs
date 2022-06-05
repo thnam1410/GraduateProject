@@ -118,22 +118,22 @@ public class RouteService : IRouteService
     }
     
     
-    // public async Task<RouteResponseDto> GetInfoRouteSearch(string userId)
-    // {
-    //     var 
-    //
-    //     try
-    //     {
-    //        
-    //         return await RouteResponseDto(null);
-    //     }
-    //     catch (Exception e)
-    //     {
-    //         Console.WriteLine(e);
-    //        
-    //         throw;
-    //     }
-    // }
+    public async Task<List<InfoRouteSearch>> GetInfoRouteSearch(string userId)
+    {
+    
+        try
+        {
+            var InfoRouteSearch = await _infoRouteSearchRepository.Queryable()
+                .Include(x => x.Route)
+                .OrderBy(x => x.TimeSearch).ToListAsync();       
+            return InfoRouteSearch;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+    }
 
     private async Task<RouteResponseDto> RouteResponseDto(ResultPaths resultPaths)
     {

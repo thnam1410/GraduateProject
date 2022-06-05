@@ -1,6 +1,7 @@
 ﻿using GraduateProject.Application.Common.Dto;
 using GraduateProject.Application.RealEstate.RouteDto;
 using GraduateProject.Application.RealEstate.RouteDto.Services;
+using GraduateProject.Domain.AppEntities.Entities;
 using GraduateProject.Domain.AppEntities.Repositories;
 using GraduateProject.Extensions;
 using Microsoft.AspNetCore.Mvc;
@@ -87,6 +88,12 @@ public class RouteController : ControllerBase
         return ApiResponse<object>.Ok(edges.Select(x => new Position() {Lng = x.PointBLng, Lat = x.PointBLat}).ToList());
     }
 
+    [HttpGet("get-info-search")]
+    public async Task<ApiResponse<List<InfoRouteSearch>>> HandleGetInfoSearchByUser()
+    {
+        var result = await _routeService.GetInfoRouteSearch("a");
+        return ApiResponse<List<InfoRouteSearch>>.Ok(result);
+    }
     [HttpGet("get-main-routes")]
     public async Task<ApiResponse<List<Domain.AppEntities.Entities.Route>>> HandleGetMainRoutes()
     {
