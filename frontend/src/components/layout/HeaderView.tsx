@@ -1,6 +1,8 @@
 import { GetServerSideProps, NextPage } from "next";
 import Link from "next/link";
 import { signOut } from "next-auth/react";
+import { getSession, signIn, useSession } from "next-auth/react";
+import { UserSession } from "../../types/UserInfo";
 
 import { urlUser } from "../pages/svg/UrlImage";
 import {
@@ -10,14 +12,17 @@ import {
 	PathIconBusHeader4,
 	PathIconBusHeader5,
 	PathIconBusHeader6,
+	PathHistory,
 } from "../pages/svg/Path";
 import { useEffect, useState } from "react";
 import { useStore } from "~/src/zustand/store";
 import { useRouter } from "next/router";
 const HeaderView: NextPage<any> = ({ children }) => {
-	const userSession = useStore((state) => state.userSession);
 	const [showOptions, setShowOptions] = useState<boolean>(false);
-	useEffect(() => {}, [userSession]);
+	const session = useSession();
+	const user = session?.data?.user as UserSession;
+	console.log("🚀 ~ file: HeaderView.tsx ~ line 24 ~ user", user);
+	useEffect(() => {});
 	const handleClick = () => {
 		setShowOptions(!showOptions);
 	};
@@ -31,35 +36,23 @@ const HeaderView: NextPage<any> = ({ children }) => {
 	const renderRightLogin = () => {
 		return (
 			<>
-				{userSession !== null ? (
-					<>
+				{user ? (
+					<div className="flex">
+						<div className="group mt-4 mr-4 relative" data-tooltip-target="tooltip-top" data-tooltip-placement="top">
+							<svg width="30" height="30" xmlns="http://www.w3.org/2000/svg">
+								<path fillRule="evenodd" d={PathHistory} />
+							</svg>
+							<span className="absolute z-50 hidden px-6 py-2 -mt-16 text-center text-gray-700 bg-grat-400 border border-orange-500 border-gray-600 rounded tooltip-text group-hover:block">
+								Lịch sử tìm kiếm
+							</span>
+						</div>
 						<div className="mt-3 mr-4 relative inline-block text-left">
-							{/* <div>
-								<button
-									onClick={handleClick}
-									type="button"
-									className=" inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-indigo-500"
-									id="menu-button"
-									aria-expanded="true"
-									aria-haspopup="true"
-								>
-									{userSession?.user?.fullName}
-									<svg
-										className="-mr-1 ml-2 h-5 w-5"
-										xmlns="http://www.w3.org/2000/svg"
-										viewBox="0 0 20 20"
-										fill="currentColor"
-										aria-hidden="true"
-									></svg>
-								</button>
-
-							</div> */}
 							<div onClick={handleClick} className="flex justify-center items-center space-x-3 cursor-pointer">
 								<div className="w-8 h-8 rounded-full overflow-hidden border-2 dark:border-white border-gray-900">
 									<img src={urlUser} alt="" className="w-full h-full object-cover" />
 								</div>
 								<div className="font-semibold dark:text-white text-gray-900 text-lg">
-									<div className="cursor-pointer">{userSession?.user?.fullName}</div>
+									<div className="cursor-pointer">{user?.user?.fullName}</div>
 								</div>
 							</div>
 							{showOptions && (
@@ -101,7 +94,7 @@ const HeaderView: NextPage<any> = ({ children }) => {
 								</div>
 							)}
 						</div>
-					</>
+					</div>
 				) : (
 					<>
 						<Link href={"/auth/login"}>
@@ -126,9 +119,9 @@ const HeaderView: NextPage<any> = ({ children }) => {
 		);
 	};
 
-	return (
-		<>
-			<div className="flex w-1/5 pb-2">
+	const renderIconBusmap = () => {
+		return (
+			<>
 				<div className="bg-blue-light shadow-border p-3 w-4 h-4">
 					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512.002 512.002" className=" sm:w-12 sm:h-12 mr-3">
 						<path style={{ fill: "#ffad61" }} d={PathIconBusHeader1} />
@@ -147,6 +140,15 @@ const HeaderView: NextPage<any> = ({ children }) => {
 				<div className="bg-blue-light shadow-border ml-12 mt-4">
 					<p className="text-3xl text-white m-0">BusMap</p>
 				</div>
+			</>
+		);
+	};
+
+	return (
+		<>
+			<div className="flex w-1/5 pb-2">
+				{renderIconBusmap()}
+
 				<div className="absolute top-0 right-0">{renderRightLogin()}</div>
 			</div>
 		</>
