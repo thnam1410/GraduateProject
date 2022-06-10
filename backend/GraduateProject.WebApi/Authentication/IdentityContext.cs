@@ -1,4 +1,5 @@
-﻿using GraduateProject.Domain.Ums.Entities;
+﻿using GraduateProject.Domain.AppEntities.Entities;
+using GraduateProject.Domain.Ums.Entities;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -65,7 +66,14 @@ public class IdentityContext : IdentityDbContext<UserAccount, Role, Guid, UserCl
             entity.ToTable("UserLogin", UmsSchemaName);
             entity.HasKey(t => new {t.UserId, t.LoginProvider, t.ProviderKey});
         });
-
+        builder.Entity<InfoRouteSearch>(entity =>
+        {
+            entity.ToTable("InfoRouteSearch", UmsSchemaName);
+            entity.HasKey(x => x.Id);
+            entity.HasOne(x => x.Route)
+                .WithMany()
+                .HasForeignKey(x => x.RouteId);
+        });
         builder.Entity<UserRole>(entity =>
         {
             entity.ToTable("UserRole", UmsSchemaName);

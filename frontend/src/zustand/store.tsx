@@ -10,6 +10,10 @@ export const useStore = create<MapStore>((set) => ({
 		set((state) => ({ ...state, positions }));
 	},
 	userSession: null,
+	infoRouteSearch: null,
+	setInfoRouteSearch: (infoRouteSearch) => {
+		set((state) => ({ ...state, infoRouteSearch }));
+	},
 	setUserSession: (userSession) => {
 		set((state) => ({ ...state, userSession }));
 	},
@@ -29,7 +33,6 @@ export const useStore = create<MapStore>((set) => ({
 	setPositionAndBusStop: (positions, positionsBusStop) => {
 		set((state) => ({ ...state, positions, positionsBusStop }));
 	},
-	//RouteInfoView
 	isAllList: true,
 	infoRouteDetail: null,
 	setStateRouteInfoView: (payload) => {
@@ -55,6 +58,8 @@ interface MapStore {
 	positionsBusStop: CustomBusStopLatLngTuble[];
 	userSession: UserSession | null;
 	isOpen: boolean | null;
+	infoRouteSearch:RouteInfoSearchView | null;
+	setInfoRouteSearch: (value : RouteInfoSearchView) => void;
 	setIsOpen: (value: boolean) => void;
 	setUserSession: (value: UserSession) => void;
 	setPositions: (value: LatLngTuple[]) => void;
@@ -77,17 +82,32 @@ export type CustomBusStopLatLngTuble = {
 };
 
 export type RouteDetailInfo = {
-	routeInfo: {
-		name: string;
-		routeCode: string;
-		type: string;
-		routeRange: string;
-		busType: string;
-		timeRange: string;
-		unit: string;
-	};
+	routeInfo: RouteInfo;
 	forwardRouteStops: { name: string; position: Position }[];
 	forwardRoutePos: Position[];
 	backwardRouteStops: { name: string; position: Position }[];
 	backwardRoutePos: Position[];
 };
+
+export type RouteInfoSearchView = {
+	date : string;
+	infoRouteSearchList: RouteInfoSearch[];
+}
+
+export type RouteInfoSearch = {
+	isSearch : boolean;
+	departPoint :string;
+	destination:string;
+	timeSearch : string;
+	routeInfo: RouteInfo;
+}
+
+export type RouteInfo = {
+	name: string;
+	routeCode: string;
+	type: string;
+	routeRange: string;
+	busType: string;
+	timeRange: string;
+	unit: string;
+}

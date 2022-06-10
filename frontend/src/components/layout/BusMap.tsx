@@ -11,6 +11,7 @@ import { useMapControlStore } from "~/src/zustand/MapControlStore";
 import SearchMap from "~/src/components/layout/SearchMap";
 import HeaderView from "./HeaderView";
 import Overlay from "~/src/components/Overlay/Overlay";
+import HistoryDrawer from "./HistoryDrawer";
 
 const SIDE_BAR_WIDTH = 23;
 const BusMap: NextPage<any> = ({ children }) => {
@@ -104,6 +105,14 @@ const BusMap: NextPage<any> = ({ children }) => {
 					)}
 					{isFindPathMap ? <SearchMap /> : <Map ref={mapRef} />}
 				</div>
+				{/* <div
+				className="h-full border bg-white-800  absolute -right-0"
+				style={{
+					width:"25%"
+				}}
+				>
+					<HistoryDrawer isOpen={true} />
+				</div> */}
 			</div>
 		</div>
 	);

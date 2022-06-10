@@ -30,6 +30,13 @@ public static class AppEntitiesConfiguration
         {
             entity.HasKey(x => x.Id);
         });
+        builder.Entity<InfoRouteSearch>(entity =>
+        {
+            entity.HasKey(x => x.Id);
+            entity.HasOne(x => x.Route)
+                .WithMany()
+                .HasForeignKey(x => x.RouteId);
+        });
         
         builder.Entity<PathHistory>(entity =>
         {
@@ -52,20 +59,14 @@ public static class AppEntitiesConfiguration
                     a => a.HasOne(e => e.RouteDetail).WithMany(e => e.RouteStops).HasForeignKey(e => e.RouteDetailId).OnDelete(DeleteBehavior.Cascade)
                 );
         });
+        
         builder.Entity<Stop>(entity =>
         {
             entity.HasKey(x => x.Id);
             entity.Property(x => x.Id).ValueGeneratedOnAdd();
         });
         
-        builder.Entity<InfoRouteSearch>(entity =>
-        {
-            entity.HasKey(x => x.Id);
-            entity.HasOne(x => x.Route)
-                .WithMany()
-                .HasForeignKey(x => x.RouteId)
-                .OnDelete(DeleteBehavior.Cascade);   
-        });
+
         builder.Entity<Vertex>(entity =>
         {
             entity.HasKey(x => x.Id);

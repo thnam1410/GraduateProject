@@ -89,10 +89,10 @@ public class RouteController : ControllerBase
     }
 
     [HttpGet("get-info-search")]
-    public async Task<ApiResponse<List<InfoRouteSearch>>> HandleGetInfoSearchByUser()
+    public async Task<ApiResponse<List<InfoRouteSearchViewDto>>> HandleGetInfoSearchByUser()
     {
         var result = await _routeService.GetInfoRouteSearch("a");
-        return ApiResponse<List<InfoRouteSearch>>.Ok(result);
+        return ApiResponse<List<InfoRouteSearchViewDto>>.Ok(result);
     }
     [HttpGet("get-main-routes")]
     public async Task<ApiResponse<List<Domain.AppEntities.Entities.Route>>> HandleGetMainRoutes()
@@ -106,10 +106,10 @@ public class RouteController : ControllerBase
         return ApiResponse<object>.Ok(await _routeService.GetRouteDetailsByRouteId(routeId));
     }
     
-    [HttpGet("get-route-info-search/{routeId}")]
-    public async Task<ApiResponse<object>> HandleGetRouteInfoSearchByUser([FromRoute] int routeId)
+    [HttpGet("get-route-info-search/{userId}")]
+    public async Task<ApiResponse<object>> HandleGetRouteInfoSearchByUser([FromRoute] string userId)
     {
-        return ApiResponse<object>.Ok(await _routeService.GetRouteDetailsByRouteId(routeId));
+        return ApiResponse<object>.Ok(await _routeService.GetInfoRouteSearch(userId));
     }
 
     [HttpGet("get-bus-stop-nearby")]

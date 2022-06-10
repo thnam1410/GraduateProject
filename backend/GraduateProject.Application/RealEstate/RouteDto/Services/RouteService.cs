@@ -1,4 +1,5 @@
-﻿using GraduateProject.Application.Common.Dto;
+﻿using System.Globalization;
+using GraduateProject.Application.Common.Dto;
 using GraduateProject.Application.Extensions;
 using GraduateProject.Domain.AppEntities.Entities;
 using GraduateProject.Domain.AppEntities.Repositories;
@@ -118,15 +119,27 @@ public class RouteService : IRouteService
     }
     
     
-    public async Task<List<InfoRouteSearch>> GetInfoRouteSearch(string userId)
+    public async Task<List<InfoRouteSearchViewDto>> GetInfoRouteSearch(string userId)
     {
-    
         try
         {
-            var InfoRouteSearch = await _infoRouteSearchRepository.Queryable()
+            var result = new List<InfoRouteSearchViewDto>();
+            var infoRouteSearchList = await _infoRouteSearchRepository.Queryable()
+                .Where(x=>x.UserId.ToString() == userId)
                 .Include(x => x.Route)
-                .OrderBy(x => x.TimeSearch).ToListAsync();       
-            return InfoRouteSearch;
+                .OrderBy(x => x.TimeSearch).ToListAsync();
+            var dateList = infoRouteSearchList.Select(x => x.TimeSearch?.ToString("dd/MM/yyyy")).Distinct()
+                .ToList();
+            foreach (var date in dateList)
+            {
+                var infoRouteSearchView = new InfoRouteSearchViewDto();
+                var infoRouteSearch = infoRouteSearchList.Where(x => x.TimeSearch?.ToString("dd/MM/yyyy") == date)
+                    .ToList();
+                infoRouteSearchView.Date = date;
+                infoRouteSearchView.InfoRouteSearchList = infoRouteSearch;
+                result.Add(infoRouteSearchView);
+            }
+            return result;
         }
         catch (Exception e)
         {

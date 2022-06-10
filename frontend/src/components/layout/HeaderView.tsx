@@ -38,11 +38,11 @@ const HeaderView: NextPage<any> = ({ children }) => {
 			<>
 				{user ? (
 					<div className="flex">
-						<div className="group mt-4 mr-4 relative" data-tooltip-target="tooltip-top" data-tooltip-placement="top">
+						<div onClick={handleClick} className="group mt-4 mr-4" data-tooltip-target="tooltip-top" data-tooltip-placement="top">
 							<svg width="30" height="30" xmlns="http://www.w3.org/2000/svg">
 								<path fillRule="evenodd" d={PathHistory} />
 							</svg>
-							<span className="absolute z-50 hidden px-6 py-2 -mt-16 text-center text-gray-700 bg-grat-400 border border-orange-500 border-gray-600 rounded tooltip-text group-hover:block">
+							<span className="absolute z-50 hidden px-10 bg-slate-400 text-center text-gray-700 bg-grat-400 border border-orange-500 border-gray-600 rounded tooltip-text group-hover:block">
 								Lịch sử tìm kiếm
 							</span>
 						</div>

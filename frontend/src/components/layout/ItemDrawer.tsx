@@ -2,7 +2,7 @@ import { NextPage } from "next";
 
 const ItemDrawer: NextPage<any> = (props) => {
 
-    return (<>
+    return (<div style={{display:"flex",justifyContent:"center"}}>
     <div className="border border-gray-300 shadow rounded-md p-4 max-w-sm w-full mx-auto">
       <div className="animate-pulse flex space-x-4">
         <div className="rounded-full bg-gray-400 h-12 w-12"></div>
@@ -15,6 +15,6 @@ const ItemDrawer: NextPage<any> = (props) => {
         </div>
       </div>
     </div>
-    </>)
+    </div>)
 }
 export default ItemDrawer;
