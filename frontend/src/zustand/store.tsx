@@ -3,6 +3,7 @@ import _ from "lodash";
 import { LatLngTuple } from "leaflet";
 import { Position } from "~/src/types/Common";
 import { UserSession } from "../types/UserInfo";
+import { RouteInfoSearchView } from "../types/InfoRouteSearch";
 
 export const useStore = create<MapStore>((set) => ({
 	positions: [],
@@ -21,12 +22,12 @@ export const useStore = create<MapStore>((set) => ({
 	setPositionZoomIn: (positionZoomIn) => {
 		set((state) => ({ ...state, positionZoomIn }));
 	},
-	isOpen:false,
+	isOpen: false,
 
 	positionsBusStop: [],
-	setIsOpen :(isOpen) => {
-	set((state) => ({ ...state, isOpen }));
-	}, 
+	setIsOpen: (isOpen) => {
+		set((state) => ({ ...state, isOpen }));
+	},
 	setPositionsBusStop: (positionsBusStop) => {
 		set((state) => ({ ...state, positionsBusStop }));
 	},
@@ -58,8 +59,8 @@ interface MapStore {
 	positionsBusStop: CustomBusStopLatLngTuble[];
 	userSession: UserSession | null;
 	isOpen: boolean | null;
-	infoRouteSearch:RouteInfoSearchView | null;
-	setInfoRouteSearch: (value : RouteInfoSearchView) => void;
+	infoRouteSearch: RouteInfoSearchView[] | null;
+	setInfoRouteSearch: (value: RouteInfoSearchView[]) => void;
 	setIsOpen: (value: boolean) => void;
 	setUserSession: (value: UserSession) => void;
 	setPositions: (value: LatLngTuple[]) => void;
@@ -89,19 +90,6 @@ export type RouteDetailInfo = {
 	backwardRoutePos: Position[];
 };
 
-export type RouteInfoSearchView = {
-	date : string;
-	infoRouteSearchList: RouteInfoSearch[];
-}
-
-export type RouteInfoSearch = {
-	isSearch : boolean;
-	departPoint :string;
-	destination:string;
-	timeSearch : string;
-	routeInfo: RouteInfo;
-}
-
 export type RouteInfo = {
 	name: string;
 	routeCode: string;
@@ -110,4 +98,4 @@ export type RouteInfo = {
 	busType: string;
 	timeRange: string;
 	unit: string;
-}
+};

@@ -21,7 +21,6 @@ const HeaderView: NextPage<any> = ({ children }) => {
 	const [showOptions, setShowOptions] = useState<boolean>(false);
 	const session = useSession();
 	const user = session?.data?.user as UserSession;
-	console.log("🚀 ~ file: HeaderView.tsx ~ line 24 ~ user", user);
 	useEffect(() => {});
 	const handleClick = () => {
 		setShowOptions(!showOptions);
@@ -38,7 +37,12 @@ const HeaderView: NextPage<any> = ({ children }) => {
 			<>
 				{user ? (
 					<div className="flex">
-						<div onClick={handleClick} className="group mt-4 mr-4" data-tooltip-target="tooltip-top" data-tooltip-placement="top">
+						<div
+							onClick={handleClick}
+							className="group mt-4 mr-4"
+							data-tooltip-target="tooltip-top"
+							data-tooltip-placement="top"
+						>
 							<svg width="30" height="30" xmlns="http://www.w3.org/2000/svg">
 								<path fillRule="evenodd" d={PathHistory} />
 							</svg>

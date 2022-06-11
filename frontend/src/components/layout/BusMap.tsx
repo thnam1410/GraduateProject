@@ -47,11 +47,11 @@ const BusMap: NextPage<any> = ({ children }) => {
 	}, 300);
 
 	return (
-		<div className='flex flex-col w-full h-full'>
+		<div className="flex flex-col w-full h-full">
 			<div className="bg-emerald-500" style={{ height: "8%", width: "100%" }}>
 				<HeaderView />
 			</div>
-			<div className={'relative w-full h-full'}>
+			<div className={"relative w-full h-full"}>
 				<div
 					className="h-full border bg-white-800 flex items-start absolute duration-500 -left-0"
 					style={{
@@ -69,7 +69,7 @@ const BusMap: NextPage<any> = ({ children }) => {
 					</div>
 					<RouteInfoView />
 				</div>
-				
+
 				<div
 					className="h-full absolute bottom-0 right-0 duration-500"
 					style={{
@@ -106,10 +106,10 @@ const BusMap: NextPage<any> = ({ children }) => {
 					{isFindPathMap ? <SearchMap /> : <Map ref={mapRef} />}
 				</div>
 				{/* <div
-				className="h-full border bg-white-800  absolute -right-0"
-				style={{
-					width:"25%"
-				}}
+					className="h-full border bg-white-800  absolute -right-0"
+					style={{
+						width: "25%",
+					}}
 				>
 					<HistoryDrawer isOpen={true} />
 				</div> */}
