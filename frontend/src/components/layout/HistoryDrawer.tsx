@@ -27,7 +27,6 @@ const HisotryDrawer: NextPage<any> = (props) => {
 			.then((res) => {
 				if (res.data?.success) {
 					const data = res.data?.result as RouteInfoSearchView[];
-					console.log("🚀 ~ file: HistoryDrawer.tsx ~ line 24 ~ .then ~ data", data);
 					setInfoRouteSearch(data);
 				}
 			})
@@ -37,13 +36,12 @@ const HisotryDrawer: NextPage<any> = (props) => {
 	};
 
 	const renderItemDrawer = () => {
-		console.log("infoRouteSearch", infoRouteSearch);
 		return (
 			<>
 				{_.map(infoRouteSearch, (itemParent) => {
 					return (
 						<>
-							<p className="ml-4 font-bold text-lg" style={{ marginTop: "-10px" }}>
+							<p className="ml-4 font-bold text-lg" style={{ }}>
 								{itemParent.date}
 							</p>
 							{_.map(itemParent.infoRouteSearchList, (item) => {
@@ -67,8 +65,8 @@ const HisotryDrawer: NextPage<any> = (props) => {
 					" absolute overflow-hidden z-10 bg-white inset-0 transform ease-in-out  transition-opacity duration-500 translate-x-0"
 				}
 			>
-				<article className="relative max-w-lg flex flex-col space-y-6 overflow-y-scroll h-full">
-					<div style={{ display: "flex", justifyContent: "center" }}>
+				<article className="relative max-w-lg flex flex-col  overflow-y-scroll h-full">
+					<div style={{ display: "flex", justifyContent: "center" ,marginBottom:"-15px" }}>
 						<p className="p-4 font-bold text-xl">Lịch sử tìm kiếm</p>
 					</div>
 					{renderItemDrawer()}

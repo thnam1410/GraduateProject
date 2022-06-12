@@ -109,7 +109,7 @@ const BusMap: NextPage<any> = ({ children }) => {
 					{isFindPathMap ? <SearchMap /> : <Map ref={mapRef} />}
 				</div>
 				<div
-					className="h-full border bg-white-800  absolute -right-0"
+					className="h-full border bg-white-800 duration-500 absolute -right-0"
 					style={{
 						width: isOpenHistory ? "25%" : "0%",
 					}}

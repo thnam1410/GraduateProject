@@ -61,7 +61,7 @@ const ItemDrawer: NextPage<any> = (props) => {
 	};
 
 	return (
-		<div style={{ display: "flex", justifyContent: "center" }}>
+		<div className="mb-4" style={{ display: "flex", justifyContent: "center" }}>
 			<div className="border border-gray-300 shadow rounded-md p-4 max-w-sm w-full mx-auto">{renderBody()}</div>
 		</div>
 	);

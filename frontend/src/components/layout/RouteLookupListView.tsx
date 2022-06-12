@@ -5,6 +5,8 @@ import { ApiUtil, BASE_API_PATH, ConvertStringUnsign } from "~/src/utils/ApiUtil
 import { pathIconBus_1, pathIconBus_2, pathIconTime_1, pathIconTime_2, PathIconMoney } from "../pages/svg/Path";
 import { RouteDetailInfo, useStore } from "~/src/zustand/store";
 import { LatLngTuple } from "leaflet";
+import {  useSession } from "next-auth/react";
+import { UserSession } from "~/src/types/UserInfo";
 
 interface IGetMainRoute {
 	id: number;
@@ -30,7 +32,8 @@ const RouteLookupListView: NextPage<IProps> = (props) => {
 	const [infoRoutes, setInfoRoutes] = useState<IGetMainRoute[]>([]);
 	const setStateRouteInfoView = useStore((state) => state.setStateRouteInfoView);
 	const divRef = useRef<HTMLDivElement>(null);
-
+	const session = useSession();
+	const user = session?.data?.user as UserSession;
 	useEffect(() => {
 		ApiUtil.Axios.get(BASE_API_PATH + "/route/get-main-routes").then((res) => {
 			const result = res?.data?.result as Array<IGetMainRoute>;
@@ -77,6 +80,10 @@ const RouteLookupListView: NextPage<IProps> = (props) => {
 				console.log("err", err);
 			});
 	};
+
+	const onSaveHistorySearch = () =>{
+		
+	}
 
 	const renderList = () => {
 		return infoRoutes.map((infoRoute, idx) => {

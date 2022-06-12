@@ -1,7 +1,7 @@
 import { GetServerSideProps, NextPage } from "next";
 import Link from "next/link";
 import { signOut } from "next-auth/react";
-import { getSession, signIn, useSession } from "next-auth/react";
+import {useSession } from "next-auth/react";
 import { UserSession } from "../../types/UserInfo";
 
 import { urlUser } from "../pages/svg/UrlImage";
