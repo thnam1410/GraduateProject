@@ -4,6 +4,7 @@ using GraduateProject.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GraduateProject.Migrator.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220612140904_RenameCrawlTable")]
+    partial class RenameCrawlTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -49,64 +51,6 @@ namespace GraduateProject.Migrator.Migrations
                     b.ToTable("CrawlPath");
                 });
 
-            modelBuilder.Entity("GraduateProject.Domain.AppEntities.Entities.CrawlRoute", b =>
-                {
-                    b.Property<int>("RouteId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("RouteId"), 1L, 1);
-
-                    b.Property<double>("Distance")
-                        .HasColumnType("float");
-
-                    b.Property<string>("Headway")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("InBoundDescription")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("InBoundName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("NumOfSeats")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("OperationTime")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Orgs")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("OutBoundDescription")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("OutBoundName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("RouteName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("RouteNo")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Tickets")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("TimeOfTrip")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("TotalTrip")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Type")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("RouteId");
-
-                    b.ToTable("CrawlRoute");
-                });
-
             modelBuilder.Entity("GraduateProject.Domain.AppEntities.Entities.CrawlRouteDetail", b =>
                 {
                     b.Property<Guid>("Id")
@@ -114,25 +58,29 @@ namespace GraduateProject.Migrator.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasDefaultValueSql("NEWID()");
 
-                    b.Property<double>("Distance")
-                        .HasColumnType("float");
+                    b.Property<string>("Distance")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("EndStop")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("Outbound")
-                        .HasColumnType("bit");
+                    b.Property<string>("Outbound")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("RouteId")
-                        .HasColumnType("int");
+                    b.Property<string>("RouteId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("RouteNo")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("RouteVarId")
-                        .HasColumnType("int");
+                    b.Property<string>("RouteVarId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("RouteVarName")
                         .IsRequired()
@@ -142,8 +90,9 @@ namespace GraduateProject.Migrator.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("RunningTime")
-                        .HasColumnType("int");
+                    b.Property<string>("RunningTime")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("StartStop")
                         .IsRequired()

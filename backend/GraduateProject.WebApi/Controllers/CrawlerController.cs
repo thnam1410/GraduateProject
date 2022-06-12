@@ -44,7 +44,7 @@ public class CrawlerController : ControllerBase
         HttpClient client = new HttpClient();
         var listUrls = await ListUrls(client);
 
-        var listRoutes = new List<CrawlRoute>();
+        var listRoutes = new List<CrawlRouteDetail>();
         var listStops = new List<CrawlStop>();
         var listPath = new List<CrawlPathDto>();
         foreach (var url in listUrls)
@@ -70,11 +70,11 @@ public class CrawlerController : ControllerBase
                     _logger.LogInformation($"Fetching API: {routeUrl}");
                     var response = await client.GetAsync(routeUrl);
                     response.EnsureSuccessStatusCode();
-                    var routes = await response.Content.ReadFromJsonAsync<List<CrawlRoute>>() ?? new List<CrawlRoute>();
+                    var routes = await response.Content.ReadFromJsonAsync<List<CrawlRouteDetail>>() ?? new List<CrawlRouteDetail>();
                     if (routes.Any())
                     {
                         listRoutes.AddRange(routes);
-                        var routeVarIds = routes.Select(x => int.Parse(x.RouteVarId));
+                        var routeVarIds = routes.Select(x => x.RouteVarId);
                         foreach (var routeVarId in routeVarIds)
                         {
                             try
@@ -448,24 +448,24 @@ public class CrawlerController : ControllerBase
 
     private async Task<List<Route>> PreprocessRouteEntities()
     {
-        var routesDetails = await _crawlEntityRepository.GenericQueryable<CrawlRoute>().AsNoTracking().ToListAsync();
+        var routesDetails = await _crawlEntityRepository.GenericQueryable<CrawlRouteDetail>().AsNoTracking().ToListAsync();
         var routes = new List<Route>();
         foreach (var routeGroup in routesDetails.GroupBy(x => x.RouteId))
         {
             routes.Add(new Route()
             {
-                Id = int.Parse(routeGroup.Key),
+                Id = routeGroup.Key,
                 Name = string.Join("-", routeGroup.ToList().Select(x => x.RouteVarShortName)),
                 RouteDetails = routeGroup.ToList().Select(x => new RouteDetail()
                 {
-                    RouteVarId = int.Parse(x.RouteVarId),
+                    RouteVarId = x.RouteVarId,
                     RouteVarName = x.RouteVarName,
                     RouteNo = x.RouteNo,
-                    Distance = string.IsNullOrWhiteSpace(x.Distance) ? 0 : double.Parse(x.Distance),
+                    Distance = x.Distance,
                     EndStop = x.EndStop,
-                    Outbound = bool.Parse(x.Outbound),
+                    Outbound = x.Outbound,
                     RouteVarShortName = x.RouteVarShortName,
-                    RunningTime = string.IsNullOrWhiteSpace(x.RunningTime) ? 0 : int.Parse(x.RunningTime),
+                    RunningTime = x.RunningTime,
                     StartStop = x.StartStop,
                 }).ToList()
             });
@@ -527,8 +527,8 @@ public class CrawlerController : ControllerBase
                 Name = x.Name,
                 AddressNo = x.AddressNo,
                 Code = x.Code,
-                Lat = double.Parse(x.Lat),
-                Lng = double.Parse(x.Lng),
+                Lat = x.Lat,
+                Lng = x.Lng,
                 Routes = x.Routes,
                 Search = x.Search,
                 Status = x.Status,

@@ -81,7 +81,13 @@ public static class AppEntitiesConfiguration
             entity.HasKey(x => x.Id);
             entity.Property(x => x.Id).HasDefaultValueSql("NEWID()");
         });
+
         builder.Entity<CrawlRoute>(entity =>
+        {
+            entity.HasKey(x => x.RouteId);
+        });
+        
+        builder.Entity<CrawlRouteDetail>(entity =>
         {
             entity.HasKey(x => x.Id);
             entity.Property(x => x.Id).HasDefaultValueSql("NEWID()");
