@@ -1,5 +1,6 @@
 ﻿using GraduateProject.Domain.AppEntities.Entities;
 using GraduateProject.Domain.AppEntities.Repositories;
+using Microsoft.EntityFrameworkCore;
 
 namespace GraduateProject.Infrastructure.Repositories.Bus;
 
@@ -12,9 +13,9 @@ public class CrawlEntityRepository: ICrawlEntityRepository
         _dbContext = dbContext;
     }
 
-    public async Task AddRangeCrawlRouteAsync(List<CrawlRoute> entities)
+    public async Task AddRangeCrawlRouteDetailAsync(List<CrawlRouteDetail> entities)
     {
-        await _dbContext.Set<CrawlRoute>().AddRangeAsync(entities);
+        await _dbContext.Set<CrawlRouteDetail>().AddRangeAsync(entities);
         await _dbContext.SaveChangesAsync();
     }
     public async Task AddRangeCrawlPathAsync(List<CrawlPath> entities)
@@ -25,6 +26,13 @@ public class CrawlEntityRepository: ICrawlEntityRepository
     public async Task AddRangeCrawlStopAsync(List<CrawlStop> entities)
     {
         await _dbContext.Set<CrawlStop>().AddRangeAsync(entities);
+        await _dbContext.SaveChangesAsync();
+    }
+
+    public async Task AddRangeCrawlRouteAsync(List<CrawlRoute> entities)
+    {
+        await _dbContext.Database.ExecuteSqlRawAsync("SET IDENTITY_INSERT dbo.CrawlRoute ON;");
+        await _dbContext.Set<CrawlRoute>().AddRangeAsync(entities);
         await _dbContext.SaveChangesAsync();
     }
 

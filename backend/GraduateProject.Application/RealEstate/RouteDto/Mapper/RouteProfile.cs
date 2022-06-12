@@ -11,5 +11,7 @@ public class RouteProfile: Profile
         CreateMap<RouteDetail, RouteDetailDto>();
         CreateMap<Stop, StopDto>();
         CreateMap<InfoRouteSearch,InfoRouteSearchDto>();
+        
+        
     }
 }

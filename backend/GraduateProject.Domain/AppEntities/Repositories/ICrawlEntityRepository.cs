@@ -4,9 +4,11 @@ namespace GraduateProject.Domain.AppEntities.Repositories;
 
 public interface ICrawlEntityRepository
 {
-    Task AddRangeCrawlRouteAsync(List<CrawlRoute> entities);
+    Task AddRangeCrawlRouteDetailAsync(List<CrawlRouteDetail> entities);
     Task AddRangeCrawlPathAsync(List<CrawlPath> entities);
     Task AddRangeCrawlStopAsync(List<CrawlStop> entities);
+
+    Task AddRangeCrawlRouteAsync(List<CrawlRoute> entities);
 
     IQueryable<T> GenericQueryable<T>() where T: class;
 }

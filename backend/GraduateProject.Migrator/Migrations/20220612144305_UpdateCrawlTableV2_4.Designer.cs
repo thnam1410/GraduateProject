@@ -4,6 +4,7 @@ using GraduateProject.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GraduateProject.Migrator.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220612144305_UpdateCrawlTableV2_4")]
+    partial class UpdateCrawlTableV2_4
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -51,17 +53,14 @@ namespace GraduateProject.Migrator.Migrations
 
             modelBuilder.Entity("GraduateProject.Domain.AppEntities.Entities.CrawlRoute", b =>
                 {
-                    b.Property<int>("RouteId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("RouteId"), 1L, 1);
-
                     b.Property<double>("Distance")
                         .HasColumnType("float");
 
                     b.Property<string>("Headway")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("InBoundDescription")
                         .HasColumnType("nvarchar(max)");
@@ -84,6 +83,9 @@ namespace GraduateProject.Migrator.Migrations
                     b.Property<string>("OutBoundName")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("RouteId")
+                        .HasColumnType("int");
+
                     b.Property<string>("RouteName")
                         .HasColumnType("nvarchar(max)");
 
@@ -101,8 +103,6 @@ namespace GraduateProject.Migrator.Migrations
 
                     b.Property<string>("Type")
                         .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("RouteId");
 
                     b.ToTable("CrawlRoute");
                 });
