@@ -12,10 +12,13 @@ import SearchMap from "~/src/components/layout/SearchMap";
 import HeaderView from "./HeaderView";
 import Overlay from "~/src/components/Overlay/Overlay";
 import HistoryDrawer from "./HistoryDrawer";
+import { useStore } from "~/src/zustand/store";
 
 const SIDE_BAR_WIDTH = 23;
 const BusMap: NextPage<any> = ({ children }) => {
 	const [isOpenSideBar, setIsOpenSideBar] = useState(true);
+	const isOpenHistory = useStore((state) => state.isOpenHistory);
+
 	const mapRef = useRef<IMapRef>(null);
 	const isFindPathMap = useMapControlStore((state) => state.isFindPathMap);
 
@@ -105,14 +108,14 @@ const BusMap: NextPage<any> = ({ children }) => {
 					)}
 					{isFindPathMap ? <SearchMap /> : <Map ref={mapRef} />}
 				</div>
-				{/* <div
+				<div
 					className="h-full border bg-white-800  absolute -right-0"
 					style={{
-						width: "25%",
+						width: isOpenHistory ? "25%" : "0%",
 					}}
 				>
 					<HistoryDrawer isOpen={true} />
-				</div> */}
+				</div>
 			</div>
 		</div>
 	);

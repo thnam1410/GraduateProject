@@ -5,6 +5,6 @@ namespace GraduateProject.Application.RealEstate.RouteDto;
 public class InfoRouteSearchViewDto
 {
     public string Date { get; set; }
-    public List<InfoRouteSearch> InfoRouteSearchList { get; set; }
+    public List<InfoRouteSearchDto> InfoRouteSearchList { get; set; }
 
 }

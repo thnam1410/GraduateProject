@@ -3,7 +3,6 @@ import { pathIconBus_1, pathIconBus_2, PathMagnifyingGlass } from "../pages/svg/
 
 const ItemDrawer: NextPage<any> = (props) => {
 	const { data } = props;
-	console.log("🚀 ~ file: ItemDrawer.tsx ~ line 5 ~ item", data);
 
 	const renderBody = () => {
 		return (
@@ -14,6 +13,7 @@ const ItemDrawer: NextPage<any> = (props) => {
 	};
 
 	const renderRouteInfo = () => {
+		console.log("data", data);
 		return (
 			<>
 				<div className="animate-pulse rounded-full bg-gray-400 h-12 w-12">
@@ -27,13 +27,10 @@ const ItemDrawer: NextPage<any> = (props) => {
 					</div>
 				</div>
 				<div className="flex-1 space-y-4 py-1">
-					<div className="h-4 rounded">
-						<p className="text-sm font-bold leading-4 text-black/80">Đại học Nông Lâm-Bến xe Chợ Lớn</p>
-					</div>
-					<div className="space-y-2">
-						<div className="h-6 bg-gray-400 rounded"></div>
-						<div className="h-6 bg-gray-400 rounded w-5/6"></div>
-					</div>
+					<p className="text-sm font-bold leading-4 text-black/80">Tuyến số : {data?.route?.routeCode}</p>
+					<p className="text-sm leading-4 text-black/80">{data?.route?.name}</p>
+					<p className="text-sm leading-4 text-black/80">Thời gian chạy : {data?.route?.timeRange}</p>
+					<p className="text-sm leading-4 text-black/80">Thời gian tìm kiếm : {data?.timeSearchDto}</p>
 				</div>
 			</>
 		);
@@ -55,11 +52,9 @@ const ItemDrawer: NextPage<any> = (props) => {
 					</div>
 				</div>
 				<div className="flex-1 space-y-4 py-1">
-					<div className="h-4 bg-gray-400 rounded w-3/4"></div>
-					<div className="space-y-2">
-						<div className="h-4 bg-gray-400 rounded"></div>
-						<div className="h-4 bg-gray-400 rounded w-5/6"></div>
-					</div>
+					<p className="text-sm leading-4 text-black/80">Điểm đón : {data?.departPoint}</p>
+					<p className="text-sm leading-4 text-black/80">Điểm đến : {data?.destination}</p>
+					<p className="text-sm leading-4 text-black/80">Thời gian tìm kiếm : {data?.timeSearchDto}</p>
 				</div>
 			</>
 		);

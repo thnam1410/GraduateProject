@@ -135,8 +135,16 @@ public class RouteService : IRouteService
                 var infoRouteSearchView = new InfoRouteSearchViewDto();
                 var infoRouteSearch = infoRouteSearchList.Where(x => x.TimeSearch?.ToString("dd/MM/yyyy") == date)
                     .ToList();
+                var infoRouteSearchResult = new List<InfoRouteSearchDto>();
+                
+                foreach (var itemInfo in infoRouteSearch)
+                {
+                    var infoRouteSearchDto = _mapper.Map<InfoRouteSearch, InfoRouteSearchDto>(itemInfo);
+                    infoRouteSearchDto.TimeSearchDto = itemInfo.TimeSearch?.ToString("hh:mm tt");
+                    infoRouteSearchResult.Add(infoRouteSearchDto);
+                }
                 infoRouteSearchView.Date = date;
-                infoRouteSearchView.InfoRouteSearchList = infoRouteSearch;
+                infoRouteSearchView.InfoRouteSearchList = infoRouteSearchResult;
                 result.Add(infoRouteSearchView);
             }
             return result;

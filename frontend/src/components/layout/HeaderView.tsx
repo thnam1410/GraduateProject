@@ -21,6 +21,9 @@ const HeaderView: NextPage<any> = ({ children }) => {
 	const [showOptions, setShowOptions] = useState<boolean>(false);
 	const session = useSession();
 	const user = session?.data?.user as UserSession;
+	const isOpenHistory = useStore((state) => state.isOpenHistory);
+	const setIsOpenHistory = useStore((state) => state.setIsOpenHistory);
+
 	useEffect(() => {});
 	const handleClick = () => {
 		setShowOptions(!showOptions);
@@ -31,6 +34,9 @@ const HeaderView: NextPage<any> = ({ children }) => {
 		const data = await signOut({ redirect: false, callbackUrl: "/auth/login" });
 		router.push(data.url);
 	};
+	const onOpenHistory = () => {
+		setIsOpenHistory(!isOpenHistory);
+	};
 
 	const renderRightLogin = () => {
 		return (
@@ -38,7 +44,7 @@ const HeaderView: NextPage<any> = ({ children }) => {
 				{user ? (
 					<div className="flex">
 						<div
-							onClick={handleClick}
+							onClick={onOpenHistory}
 							className="group mt-4 mr-4"
 							data-tooltip-target="tooltip-top"
 							data-tooltip-placement="top"
@@ -62,7 +68,7 @@ const HeaderView: NextPage<any> = ({ children }) => {
 							{showOptions && (
 								<div
 									className="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none"
-									style={{ zIndex: 3, backgroundColor: "aqua" }}
+									style={{ zIndex: 99, backgroundColor: "aqua" }}
 									role="menu"
 									aria-orientation="vertical"
 									aria-labelledby="menu-button"

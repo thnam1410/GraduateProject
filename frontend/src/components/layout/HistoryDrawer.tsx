@@ -43,6 +43,9 @@ const HisotryDrawer: NextPage<any> = (props) => {
 				{_.map(infoRouteSearch, (itemParent) => {
 					return (
 						<>
+							<p className="ml-4 font-bold text-lg" style={{ marginTop: "-10px" }}>
+								{itemParent.date}
+							</p>
 							{_.map(itemParent.infoRouteSearchList, (item) => {
 								return (
 									<>
@@ -65,7 +68,9 @@ const HisotryDrawer: NextPage<any> = (props) => {
 				}
 			>
 				<article className="relative max-w-lg flex flex-col space-y-6 overflow-y-scroll h-full">
-					<p className="p-4 font-bold text-lg">Lịch sử tìm kiếm</p>
+					<div style={{ display: "flex", justifyContent: "center" }}>
+						<p className="p-4 font-bold text-xl">Lịch sử tìm kiếm</p>
+					</div>
 					{renderItemDrawer()}
 				</article>
 			</main>

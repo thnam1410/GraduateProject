@@ -12,6 +12,10 @@ export const useStore = create<MapStore>((set) => ({
 	},
 	userSession: null,
 	infoRouteSearch: null,
+	isOpenHistory: false,
+	setIsOpenHistory: (isOpenHistory) => {
+		set((state) => ({ ...state, isOpenHistory }));
+	},
 	setInfoRouteSearch: (infoRouteSearch) => {
 		set((state) => ({ ...state, infoRouteSearch }));
 	},
@@ -60,6 +64,8 @@ interface MapStore {
 	userSession: UserSession | null;
 	isOpen: boolean | null;
 	infoRouteSearch: RouteInfoSearchView[] | null;
+	isOpenHistory: boolean;
+	setIsOpenHistory: (isOpenHistory: boolean) => void;
 	setInfoRouteSearch: (value: RouteInfoSearchView[]) => void;
 	setIsOpen: (value: boolean) => void;
 	setUserSession: (value: UserSession) => void;
