@@ -74,8 +74,6 @@ const MasterData: NextPage<IProps> = (props) => {
 				headerName: "Hành động",
 				field: "action",
 				cellRenderer: (params: any, value: any) => {
-					console.log("params", params);
-					console.log("value", value);
 					return (
 						<div className="flex items-center justify-center">
 							<GridButtonBase type={"edit"} onClick={() => onSave(params.data)} />
@@ -89,7 +87,6 @@ const MasterData: NextPage<IProps> = (props) => {
 							<GridButtonBase
 								type={"delete"}
 								onClick={() => {
-									console.log("check");
 									setVisibel(true);
 								}}
 							/>

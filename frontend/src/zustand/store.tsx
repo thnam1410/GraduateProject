@@ -48,6 +48,7 @@ export const useStore = create<MapStore>((set) => ({
 			positions: payload.positions,
 			positionZoomIn: payload.positionZoomIn,
 			positionsBusStop: payload.positionsBusStop,
+			infoRouteSearch: null,
 		}));
 	},
 	setStateRouteActionBackInfoView: (payload) => {

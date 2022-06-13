@@ -10,4 +10,5 @@ public interface IRouteService
     Task<object> GetRouteDetailsByRouteId(int routeId);
     Task<object> GetBusStopNearby(Position position);
     Task<List<InfoRouteSearchViewDto>> GetInfoRouteSearch(string userId);
+    Task CreateInfoRouteSearch(InfoRouteSearchDto request);
 }

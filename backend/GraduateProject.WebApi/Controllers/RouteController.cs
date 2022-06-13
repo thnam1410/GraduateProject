@@ -36,6 +36,14 @@ public class RouteController : ControllerBase
         }
     }
 
+    [HttpPost("create-info-route-search")]
+    public async Task<ApiResponse> HandleCreateRouteSearch([FromBody] InfoRouteSearchDto request)
+    {
+        await _routeService.CreateInfoRouteSearch(request);
+        return ApiResponse.Ok();
+
+    }
+
     //Test
     [HttpGet("get-path-by-route-detail-id")]
     public async Task<ApiResponse<List<Position>>> HandleGetRoutePathByRouteDetailId([FromQuery] int routeDetailId)

@@ -4,11 +4,13 @@ export type RouteInfoSearchView = {
 };
 
 export type RouteInfoSearch = {
-	isSearch: boolean;
-	departPoint: string;
-	destination: string;
-	timeSearch: string;
-	routeInfo: RouteInfo;
+	userId: string | null;
+	routeId: number | null;
+	isSearch: boolean | null;
+	departPoint: string | null;
+	destination: string | null;
+	timeSearch: string | null;
+	routeInfo: RouteInfo | null;
 };
 
 export type RouteInfo = {

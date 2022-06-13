@@ -1,12 +1,13 @@
 import { debounce, cloneDeep } from "lodash";
 import { GetServerSideProps, NextPage } from "next";
-import {RefObject, useCallback, useEffect, useRef, useState} from "react";
+import { RefObject, useCallback, useEffect, useRef, useState } from "react";
 import { ApiUtil, BASE_API_PATH, ConvertStringUnsign } from "~/src/utils/ApiUtil";
 import { pathIconBus_1, pathIconBus_2, pathIconTime_1, pathIconTime_2, PathIconMoney } from "../pages/svg/Path";
 import { RouteDetailInfo, useStore } from "~/src/zustand/store";
 import { LatLngTuple } from "leaflet";
-import {  useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { UserSession } from "~/src/types/UserInfo";
+import { RouteInfoSearch } from "~/src/types/InfoRouteSearch";
 
 interface IGetMainRoute {
 	id: number;
@@ -67,6 +68,7 @@ const RouteLookupListView: NextPage<IProps> = (props) => {
 						name: x.name,
 						pos: [x.position.lat, x.position.lng] as [number, number],
 					}));
+					if (user) onSaveHistorySearch(routeId);
 					setStateRouteInfoView({
 						isAllList: false,
 						infoRouteDetail,
@@ -81,9 +83,18 @@ const RouteLookupListView: NextPage<IProps> = (props) => {
 			});
 	};
 
-	const onSaveHistorySearch = () =>{
-		
-	}
+	const onSaveHistorySearch = (infoRouteDetailId: number) => {
+		const params: RouteInfoSearch = {
+			userId: user.user.id,
+			routeId: infoRouteDetailId,
+			departPoint: null,
+			destination: null,
+			isSearch: false,
+			routeInfo: null,
+			timeSearch: null,
+		};
+		ApiUtil.Axios.post(BASE_API_PATH + "/route/create-info-route-search", params);
+	};
 
 	const renderList = () => {
 		return infoRoutes.map((infoRoute, idx) => {
@@ -147,14 +158,14 @@ const RouteLookupListView: NextPage<IProps> = (props) => {
 				required
 			/>
 			<div ref={divRef} className="w-full h-full">
-				{
-					divRef.current?.clientHeight != null && <div
+				{divRef.current?.clientHeight != null && (
+					<div
 						className="list-items container mb-2 w-full items-center justify-center"
 						style={{ maxHeight: divRef.current?.clientHeight - 100, overflowY: "scroll" }}
 					>
 						<div className="flex flex-col p-3">{renderList()}</div>
 					</div>
-				}
+				)}
 			</div>
 		</div>
 	);

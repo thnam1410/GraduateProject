@@ -3,6 +3,7 @@ using GraduateProject.Application.Common.Dto;
 using GraduateProject.Application.Extensions;
 using GraduateProject.Domain.AppEntities.Entities;
 using GraduateProject.Domain.AppEntities.Repositories;
+using GraduateProject.Domain.Common;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
@@ -18,12 +19,12 @@ public class RouteService : IRouteService
     private readonly IOptionsSnapshot<ConfigDistance> _configDistance;
     private readonly IRouteRepository _routeRepository;
     private readonly IInfoRouteSearchRepository _infoRouteSearchRepository;
+    private readonly IUnitOfWork _unitOfWork;
 
     private readonly IObjectMapper _mapper;
     private readonly IPathHistoryRepository _pathHistoryRepository;
 
-    public RouteService(IRouteDetailRepository routeDetailRepository, IVertexRepository vertexRepository, IStopRepository stopRepository,
-        IOptionsSnapshot<ConfigDistance> configDistance, IRouteRepository routeRepository, IObjectMapper mapper, IPathHistoryRepository pathHistoryRepository,IInfoRouteSearchRepository infoRouteSearchRepository)
+    public RouteService(IRouteDetailRepository routeDetailRepository, IVertexRepository vertexRepository, IStopRepository stopRepository, IUnitOfWork unitOfWork,IOptionsSnapshot<ConfigDistance> configDistance, IRouteRepository routeRepository, IObjectMapper mapper, IPathHistoryRepository pathHistoryRepository,IInfoRouteSearchRepository infoRouteSearchRepository)
     {
         _routeDetailRepository = routeDetailRepository;
         _vertexRepository = vertexRepository;
@@ -31,6 +32,7 @@ public class RouteService : IRouteService
         _configDistance = configDistance;
         _routeRepository = routeRepository;
         _mapper = mapper;
+        _unitOfWork = unitOfWork;
         _pathHistoryRepository = pathHistoryRepository;
         _infoRouteSearchRepository = infoRouteSearchRepository;
     }
@@ -311,6 +313,24 @@ public class RouteService : IRouteService
         return _routeRepository.Queryable().Where(x => x.RouteDetails.Any()).ToListAsync();
     }
 
+    public async Task CreateInfoRouteSearch(InfoRouteSearchDto request)
+    {
+        try
+        {
+            await _unitOfWork.BeginTransactionAsync();
+            var infoRouteSearch = _mapper.Map<InfoRouteSearchDto, InfoRouteSearch>(request);
+            infoRouteSearch.TimeSearch = DateTime.Now;
+            await _infoRouteSearchRepository.AddAsync(infoRouteSearch);
+            await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.CommitTransactionAsync();
+        }
+        catch (Exception e)
+        {
+            await _unitOfWork.RollBackTransactionAsync();
+            throw new Exception(e.Message);
+        }
+    }
+
     public async Task<object> GetRouteDetailsByRouteId(int routeId)
     {
         var routes = await _routeDetailRepository.Queryable()
@@ -352,53 +372,6 @@ public class RouteService : IRouteService
                 backwardRoutePos = backwardRoute.Vertices.OrderBy(x => x.Rank).Select(x => new Position() {Lat = x.Lat, Lng = x.Lng}),
             };
         }
-
-        throw new Exception();
-    }
-    
-    
-    public async Task<object> GetRouteSearchDetails(int userId)
-    {
-        
-        // var routes = await _routeDetailRepository.Queryable()
-        //     .Where(x => x.RouteId == routeId)
-        //     .Include(x => x.Stops)
-        //     .Include(x => x.Vertices)
-        //     .Include(x => x.Route)
-        //     .OrderBy(x => x.RouteVarId)
-        //     .ToListAsync();
-        // if (routes.Any())
-        // {
-        //     var forwardRoute = routes[0];
-        //     var backwardRoute = routes[1];
-        //     var parentRoute = forwardRoute.Route;
-        //     return new
-        //     {
-        //         routeInfo = new
-        //         {
-        //             parentRoute.Name, // Ten tuyen
-        //             parentRoute.RouteCode, // Ma so tuyen
-        //             parentRoute.Type, //Loại hình hoạt động
-        //             parentRoute.RouteRange, // Cu ly
-        //             parentRoute.BusType, // Loai xe
-        //             parentRoute.TimeRange, //Tgian hoat dong
-        //             parentRoute.Unit, // Don vi dam nhan
-        //         },
-        //         forwardRouteStops = forwardRoute.Stops.Select(x => new
-        //         {
-        //             x.Name,
-        //             position = new Position() {Lat = x.Lat, Lng = x.Lng},
-        //         }), // cac tram dung -> hien marker
-        //         forwardRoutePos = forwardRoute.Vertices.OrderBy(x => x.Rank).Select(x => new Position() {Lat = x.Lat, Lng = x.Lng}),
-        //
-        //         backwardRouteStops = backwardRoute.Stops.Select(x => new
-        //         {
-        //             x.Name,
-        //             position = new Position() {Lat = x.Lat, Lng = x.Lng},
-        //         }),
-        //         backwardRoutePos = backwardRoute.Vertices.OrderBy(x => x.Rank).Select(x => new Position() {Lat = x.Lat, Lng = x.Lng}),
-        //     };
-        // }
 
         throw new Exception();
     }
