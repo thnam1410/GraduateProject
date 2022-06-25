@@ -2,8 +2,10 @@ import React, { useRef } from "react";
 import { MapContainer, Marker, Polyline, Popup, TileLayer, ZoomControl } from "react-leaflet";
 import L, { Map as LeafletMap } from "leaflet";
 import { RoutePathDetailDto, useMapControlStore } from "~/src/zustand/MapControlStore";
-import { isEmpty } from "lodash";
+import _, { isEmpty } from "lodash";
 import { urlBusStop } from "../pages/svg/UrlImage";
+import { useMapControlStoreV2 } from "~/src/zustand/MapControlStoreV2";
+import shallow from "zustand/shallow";
 
 const iconBusStop = L.icon({
 	iconUrl: urlBusStop,
@@ -11,29 +13,26 @@ const iconBusStop = L.icon({
 });
 const SearchMap = () => {
 	const leafletMap = useRef<LeafletMap>(null);
-	const routePaths = useMapControlStore((state) => state.routePaths);
-
-
+	const { positions, stops } = useMapControlStoreV2(({ stops, positions }) => ({ positions, stops }), shallow);
 
 	const renderRoutes = () => {
-		if (!routePaths || isEmpty(routePaths)) return null;
-		return Object.keys(routePaths.paths).map((key) => {
-			const item = routePaths.paths[parseInt(key)] as RoutePathDetailDto;
-			let extraProps = {};
-			if (item.isSwitch) {
-				extraProps = {
-					dashArray: [20, 20],
-					dashOffset: "5",
-				};
-			}
-			return <Polyline key={key} positions={item.positions} pathOptions={{ color: "purple" }} {...extraProps} />;
-		});
+		return (
+			<Polyline
+				positions={positions.map((x) => [x.lat || _.get(x, "Lat"), x.lng || _.get(x, "Lng")])}
+				pathOptions={{ color: "purple" }}
+			/>
+		);
 	};
 
 	const renderStops = () => {
-		return (routePaths?.stops || []).map((stop) => {
+		return stops.map((stop) => {
 			return (
-				<Marker position={[stop.lat, stop.lng]} key={stop.addressNo} draggable={false} icon={iconBusStop}>
+				<Marker
+					position={[stop.lat || _.get(stop, "Lat"), stop.lng || _.get(stop, "Lng")]}
+					key={stop.addressNo}
+					draggable={false}
+					icon={iconBusStop}
+				>
 					<Popup>
 						<div className={"w-full h-full"}>
 							<h4 className="font-bold">{stop.name}</h4>

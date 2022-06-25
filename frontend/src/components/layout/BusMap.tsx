@@ -1,18 +1,17 @@
 import "leaflet/dist/leaflet.css";
 import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css";
 import "leaflet-defaulticon-compatibility";
-import React, { useEffect, useRef, useState } from "react";
-import { GetServerSideProps, NextPage } from "next";
-import GooglePlacesAutocomplete, { geocodeByPlaceId } from "react-google-places-autocomplete";
+import React, {useRef, useState} from "react";
+import {GetServerSideProps, NextPage} from "next";
+import GooglePlacesAutocomplete, {geocodeByPlaceId} from "react-google-places-autocomplete";
 import RouteInfoView from "./RouteInfoView";
-import { debounce } from "lodash";
-import Map, { IMapRef } from "~/src/components/Map";
-import { useMapControlStore } from "~/src/zustand/MapControlStore";
+import {debounce} from "lodash";
+import Map, {IMapRef} from "~/src/components/Map";
 import SearchMap from "~/src/components/layout/SearchMap";
 import HeaderView from "./HeaderView";
-import Overlay from "~/src/components/Overlay/Overlay";
 import HistoryDrawer from "./HistoryDrawer";
-import { useStore } from "~/src/zustand/store";
+import {useStore} from "~/src/zustand/store";
+import {useMapControlStoreV2} from '~/src/zustand/MapControlStoreV2';
 
 const SIDE_BAR_WIDTH = 23;
 const BusMap: NextPage<any> = ({ children }) => {
@@ -20,7 +19,7 @@ const BusMap: NextPage<any> = ({ children }) => {
 	const isOpenHistory = useStore((state) => state.isOpenHistory);
 
 	const mapRef = useRef<IMapRef>(null);
-	const isFindPathMap = useMapControlStore((state) => state.isFindPathMap);
+	const isFindPathMap = useMapControlStoreV2((state) => state.isFindPathMap);
 
 	const onChangeAddress = debounce(async (address) => {
 		mapRef.current?.leafletMap?.current?.fitBounds([[10.7756587, 106.7004238]]);

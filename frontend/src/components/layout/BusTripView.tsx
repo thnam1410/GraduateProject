@@ -4,9 +4,10 @@ import { useStore } from "~/src/zustand/store";
 import { PathIconBack, pathIconBus_1, pathIconBus_2 } from "../pages/svg/Path";
 import InfoDetailTabView from "./InfoDetailTabView";
 import { useMapControlStore } from "~/src/zustand/MapControlStore";
+import {useMapControlStoreV2} from '~/src/zustand/MapControlStoreV2';
 
 const BusTripView: NextPage<any> = () => {
-	const routePaths = useMapControlStore((state) => state.routePaths);
+	const stops = useMapControlStoreV2((state) => state.stops);
 	return (
 		<div className="h-full w-full mt-3">
 			<div className=" relative w-full flex flex-col min-w-0 break-words bg-white w-full mb-6 shadow-lg rounded">
@@ -23,7 +24,7 @@ const BusTripView: NextPage<any> = () => {
 							</div>
 						</div>
 						<div className="guide-paths mt-3" style={{maxHeight: 550, overflowY: "scroll"}}>
-							{(routePaths?.stops || []).map((stop) => {
+							{(stops || []).map((stop) => {
 								return (
 									<div className="guide-item flex px-2 py-1 rounded border-gray-400" key={stop.name + stop.addressNo}>
 										<div className={"icon"} style={{width: 65}}>

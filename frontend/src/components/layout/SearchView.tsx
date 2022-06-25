@@ -7,12 +7,13 @@ import { RoutePathDto, useMapControlStore } from "~/src/zustand/MapControlStore"
 import { isEmpty } from "lodash";
 import BusTripView from "./BusTripView";
 import Overlay, { OverlayRef } from "~/src/components/Overlay/Overlay";
+import { MapControlStoreV2, useMapControlStoreV2 } from "~/src/zustand/MapControlStoreV2";
 
 const SearchView = () => {
 	const [startPosition, setStartPosition] = useState<GoogleAddress | null>(null);
 	const [endPosition, setEndPosition] = useState<GoogleAddress | null>(null);
 	const [isDisableButton, setIsDisableButton] = useState<boolean>(false);
-	const setRoutePath = useMapControlStore((state) => state.setRoutePath);
+	const setPath = useMapControlStoreV2((state) => state.setPath);
 	const overlayRef = useRef<OverlayRef>(null);
 	const onChangePoint = (setStateFn: React.Dispatch<React.SetStateAction<GoogleAddress | null>>) => (address: GoogleAddress) => {
 		setStateFn(address);
@@ -34,24 +35,25 @@ const SearchView = () => {
 						lng: resEnd[0]?.geometry?.location?.lng(),
 					},
 				};
-				ApiUtil.Axios.post(BASE_API_PATH + "/route", formBody)
+				ApiUtil.Axios.post(BASE_API_PATH + "/route/find-path-v2", formBody)
 					.then((res) => {
-						const result = res?.data?.result as RoutePathDto;
+						const result = res?.data?.result as Pick<MapControlStoreV2, "positions" | "stops">;
 						if (!isEmpty(result)) {
-							setRoutePath(result);
+							console.log('result',result)
+							setPath(result);
 						}
 					})
 					.catch((err) => {
 						throw err;
-					}).finally(() => {
-					overlayRef.current?.close();
-				});
+					})
+					.finally(() => {
+						overlayRef.current?.close();
+					});
 			})
 			.catch((err) => {
 				console.log("err", err);
 				ApiUtil.ToastError("Có lỗi xảy ra!");
-			})
-
+			});
 	};
 
 	return (

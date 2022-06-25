@@ -8,6 +8,7 @@ import useMergeState from "~/src/hooks/useMergeState";
 import { useStore } from "~/src/zustand/store";
 import SearchView from "~/src/components/layout/SearchView";
 import { useMapControlStore } from "~/src/zustand/MapControlStore";
+import {useMapControlStoreV2} from '~/src/zustand/MapControlStoreV2';
 
 interface IState {
 	isAllList: boolean;
@@ -18,7 +19,7 @@ const RouteInfoView: NextPage<any> = (props) => {
 	const [openTab, setOpenTab] = useState<number>(1);
 	const divRef = useRef<HTMLDivElement>(null);
 	const isAllList = useStore((state) => state.isAllList);
-	const switchMap = useMapControlStore((state) => state.switchMap);
+	const switchMap = useMapControlStoreV2((state) => state.switchMap);
 
 	return (
 		<>

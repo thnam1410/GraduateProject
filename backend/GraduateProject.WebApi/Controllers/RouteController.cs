@@ -39,16 +39,16 @@ public class RouteController : ControllerBase
         }
     }    
     
-    [HttpPost("test")]
-    public async Task<ApiResponse<object>> HandleGetRoutesTest([FromBody] FindRouteRequestDto request)
+    [HttpPost("find-path-v2")]
+    public async Task<ApiResponse<RouteResponseDtoV2>> HandleGetRoutesTest([FromBody] FindRouteRequestDto request)
     {
         try
         {
-            return ApiResponse<object>.Ok(await _findRouteService.GetRoute(request));
+            return ApiResponse<RouteResponseDtoV2>.Ok(await _findRouteService.GetRoute(request));
         }
         catch (Exception e)
         {
-            return ApiResponse<object>.Fail(e.Message);
+            return ApiResponse<RouteResponseDtoV2>.Fail(e.Message);
         }
     }
 

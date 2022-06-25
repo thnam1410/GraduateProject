@@ -2,16 +2,18 @@
 using AutoMapper.QueryableExtensions;
 using GraduateProject.Application.Common.Dto;
 using GraduateProject.Application.Extensions;
+using GraduateProject.Domain.AppEntities.Entities;
 using GraduateProject.Domain.AppEntities.Repositories;
 using GraduateProject.Domain.Common;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 using Z.EntityFramework.Plus;
 
 namespace GraduateProject.Application.RealEstate.RouteDto.Services;
 
-public class FindRouteService: IFindRouteService
+public class FindRouteService : IFindRouteService
 {
     private readonly IVertexRepository _vertexRepository;
     private readonly IStopRepository _stopRepository;
@@ -19,9 +21,11 @@ public class FindRouteService: IFindRouteService
     private readonly IMapper _mapper;
     private readonly IAStarService _aStarService;
     private readonly ILogger<FindRouteService> _logger;
+    private readonly IPathHistoryRepository _pathHistoryRepository;
 
 
-    public FindRouteService(IVertexRepository vertexRepository, IOptionsSnapshot<ConfigDistance> configDistance, IStopRepository stopRepository, IMapper mapper, IAStarService aStarService, ILogger<FindRouteService> logger)
+    public FindRouteService(IVertexRepository vertexRepository, IOptionsSnapshot<ConfigDistance> configDistance, IStopRepository stopRepository, IMapper mapper,
+        IAStarService aStarService, ILogger<FindRouteService> logger, IPathHistoryRepository pathHistoryRepository)
     {
         _vertexRepository = vertexRepository;
         _configDistance = configDistance;
@@ -29,23 +33,63 @@ public class FindRouteService: IFindRouteService
         _mapper = mapper;
         _aStarService = aStarService;
         _logger = logger;
+        _pathHistoryRepository = pathHistoryRepository;
     }
 
-    public async Task<object> GetRoute(FindRouteRequestDto request)
+    public async Task<RouteResponseDtoV2> GetRoute(FindRouteRequestDto request)
     {
-        var limitSearchRadius = _configDistance.Value.SearchRadius;
-        var stops = await _stopRepository.Queryable().ProjectTo<StopDto>(_mapper.ConfigurationProvider).ToListAsync();
-        var stopPaths = await GetBusStopList(request, stops, limitSearchRadius);
-        var results = new List<Position>();
-        await GetRoutePathList(stopPaths, limitSearchRadius, results);
-
-        results.Insert(0, request.StartPoint);
-        results.Add(request.EndPoint);
-        return new
+        var pathHistory = await _pathHistoryRepository.Queryable().FirstOrDefaultAsync(x =>
+            x.StartLat.Equals(request.StartPoint.Lat) &&
+            x.StartLng.Equals(request.StartPoint.Lng) &&
+            x.EndLat.Equals(request.EndPoint.Lat) &&
+            x.EndLng.Equals(request.EndPoint.Lng)
+        );
+        if (pathHistory is not null)
         {
-            results,
-            stops = stops.Where(x => stopPaths.Select(y => y.Id).Contains(x.Id))
-        };
+            if (pathHistory.IsError) throw new Exception(pathHistory.ErrorMessage);
+            return JsonConvert.DeserializeObject<RouteResponseDtoV2>(pathHistory.JsonPath ?? "{}");
+        }
+
+        try
+        {
+            var limitSearchRadius = _configDistance.Value.SearchRadius;
+            var stops = await _stopRepository.Queryable().ProjectTo<StopDto>(_mapper.ConfigurationProvider).ToListAsync();
+            var stopPaths = await GetBusStopList(request, stops, limitSearchRadius);
+            var results = new List<Position>();
+            await GetRoutePathList(stopPaths, limitSearchRadius, results);
+
+            results.Insert(0, request.StartPoint);
+            results.Add(request.EndPoint);
+            var responseDto = new RouteResponseDtoV2()
+            {
+                Positions = results,
+                Stops = stops.Where(x => stopPaths.Select(y => y.Id).Contains(x.Id)).ToList()
+            };
+            await _pathHistoryRepository.AddAsync(new PathHistory()
+            {
+                StartLat = request.StartPoint.Lat,
+                StartLng = request.StartPoint.Lng,
+                EndLat = request.EndPoint.Lat,
+                EndLng = request.EndPoint.Lng,
+                IsError = false,
+                JsonPath = JsonConvert.SerializeObject(responseDto)
+            }, true);
+            return responseDto;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            await _pathHistoryRepository.AddAsync(new PathHistory()
+            {
+                StartLat = request.StartPoint.Lat,
+                StartLng = request.StartPoint.Lng,
+                EndLat = request.EndPoint.Lat,
+                EndLng = request.EndPoint.Lng,
+                IsError = true,
+                ErrorMessage = e.Message
+            }, true);
+            throw;
+        }
     }
 
     private async Task GetRoutePathList(List<AStarNodeBusStop> stopPaths, double limitSearchRadius, List<Position> pathPos)
@@ -119,8 +163,8 @@ public class FindRouteService: IFindRouteService
         var stopPaths = await _aStarService.StartAlgorithmsBusStopPaths(startPoint, endPoint, stops);
         return stopPaths;
     }
-    
-    
+
+
     private async Task<List<EdgeDto>> GetEdges()
     {
         var edges = await _vertexRepository.GetEdgeQueryable().AsNoTracking()

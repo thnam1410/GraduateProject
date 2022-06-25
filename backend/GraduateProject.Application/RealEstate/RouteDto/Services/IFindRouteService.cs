@@ -4,6 +4,6 @@ namespace GraduateProject.Application.RealEstate.RouteDto.Services;
 
 public interface IFindRouteService
 {
-    Task<object> GetRoute(FindRouteRequestDto request);
+    Task<RouteResponseDtoV2> GetRoute(FindRouteRequestDto request);
 
 }
