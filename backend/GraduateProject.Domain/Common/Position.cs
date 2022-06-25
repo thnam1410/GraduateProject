@@ -1,4 +1,4 @@
-﻿namespace GraduateProject.Application.Common.Dto;
+﻿namespace GraduateProject.Domain.Common;
 
 public class Position
 {

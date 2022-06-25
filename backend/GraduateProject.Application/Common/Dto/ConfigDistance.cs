@@ -2,5 +2,5 @@
 
 public class ConfigDistance
 {
-    public int SearchRadius { get; set; }
+    public double SearchRadius { get; set; }
 }

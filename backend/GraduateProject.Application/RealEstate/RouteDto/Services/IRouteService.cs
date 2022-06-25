@@ -1,5 +1,6 @@
 ﻿using GraduateProject.Application.Common.Dto;
 using GraduateProject.Domain.AppEntities.Entities;
+using GraduateProject.Domain.Common;
 
 namespace GraduateProject.Application.RealEstate.RouteDto.Services;
 

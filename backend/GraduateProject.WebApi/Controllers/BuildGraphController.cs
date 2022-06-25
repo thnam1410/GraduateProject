@@ -9,19 +9,22 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GraduateProject.Controllers;
 
-public class BuildGraphController: ControllerBase
+public class BuildGraphController : ControllerBase
 {
+    private readonly ILogger<BuildGraphController> _logger;
     private readonly IRouteDetailRepository _routeDetailRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IVertexRepository _vertexRepository;
-    private readonly ILogger<BuildGraphController> _logger;
+    private readonly IStopRepository _stopRepository;
 
-    public BuildGraphController(IRouteDetailRepository routeDetailRepository, IUnitOfWork unitOfWork, IVertexRepository vertexRepository, ILogger<BuildGraphController> logger)
+    public BuildGraphController(IRouteDetailRepository routeDetailRepository, IUnitOfWork unitOfWork, IVertexRepository vertexRepository,
+        ILogger<BuildGraphController> logger, IStopRepository stopRepository)
     {
         _routeDetailRepository = routeDetailRepository;
         _unitOfWork = unitOfWork;
         _vertexRepository = vertexRepository;
         _logger = logger;
+        _stopRepository = stopRepository;
     }
 
 
@@ -76,9 +79,8 @@ public class BuildGraphController: ControllerBase
             return ApiResponse.Fail(e.Message);
         }
     }
-    
-    
-    
+
+
     [HttpGet("build-connect-graph")]
     public async Task<ApiResponse> HandleBuildConnectGraph()
     {
@@ -97,7 +99,8 @@ public class BuildGraphController: ControllerBase
             var pointA = new Position() {Lat = currentVertex.Lat, Lng = currentVertex.Lng};
             var nearestVertex = vertices
                 .Where(loopItemVertex => loopItemVertex.RouteId != currentVertex.RouteId &&
-                                         CalculateUtil.Distance(pointA, new Position() {Lng = loopItemVertex.Lng, Lat = loopItemVertex.Lat}) <= litmitDistance).Distinct()
+                                         CalculateUtil.Distance(pointA, new Position() {Lng = loopItemVertex.Lng, Lat = loopItemVertex.Lat}) <= litmitDistance)
+                .Distinct()
                 .ToList();
             if (nearestVertex.Any())
             {
@@ -144,7 +147,51 @@ public class BuildGraphController: ControllerBase
             return ApiResponse.Fail(e.Message);
         }
     }
-    
+
+    [HttpGet("build-bus-stop-graph")]
+    public async Task<ApiResponse> HandleBuildGraphBusStop()
+    {
+        var busStops = await _stopRepository.Queryable().AsNoTracking().ToListAsync();
+        var listEdgeBusStop = new List<BusStopEdge>();
+        double litmitDistance = 1; //1km
+        foreach (var stop in busStops)
+        {
+            var currentStopPos = new Position() {Lat = stop.Lat, Lng = stop.Lng};
+            var edges = busStops.Where(x => x.Id != stop.Id)
+                .Where(x =>
+                {
+                    var nearbyStopPos = new Position() {Lat = x.Lat, Lng = x.Lng};
+                    return CalculateUtil.Distance(currentStopPos, nearbyStopPos) <= litmitDistance;
+                })
+                .Select(x => new BusStopEdge()
+                {
+                    PointAId = stop.Id,
+                    PointBId = x.Id,
+                    Distance = CalculateUtil.Distance(new Position() {Lat = stop.Lat, Lng = stop.Lng}, new Position() {Lat = x.Lat, Lng = x.Lng})
+                });
+            // edges = edges.Where(x =>
+            // {
+            //     var isAlreadyExistEdge = listEdgeBusStop.Any(y => (y.PointAId == x.PointAId && y.PointBId == x.PointBId) ||
+            //                                                       (y.PointAId == x.PointBId && y.PointBId == x.PointAId));
+            //     return !isAlreadyExistEdge;
+            // });
+            listEdgeBusStop.AddRange(edges);
+        }
+
+        try
+        {
+            await _unitOfWork.BeginTransactionAsync();
+            await _vertexRepository.AddEdgeBusStopList(listEdgeBusStop, true);
+            await _unitOfWork.CommitTransactionAsync();
+            return ApiResponse.Ok();
+        }
+        catch (Exception e)
+        {
+            await _unitOfWork.RollBackTransactionAsync();
+            return ApiResponse.Fail(e.Message);
+        }
+    }
+
     private class EdgeSimpleDto
     {
         public Guid Id { get; set; }

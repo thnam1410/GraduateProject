@@ -3,6 +3,7 @@ using GraduateProject.Application.RealEstate.RouteDto;
 using GraduateProject.Application.RealEstate.RouteDto.Services;
 using GraduateProject.Domain.AppEntities.Entities;
 using GraduateProject.Domain.AppEntities.Repositories;
+using GraduateProject.Domain.Common;
 using GraduateProject.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -15,11 +16,13 @@ public class RouteController : ControllerBase
 {
     private readonly IRouteService _routeService;
     private readonly IVertexRepository _vertexRepository;
+    private readonly IFindRouteService _findRouteService;
 
-    public RouteController(IRouteService routeService, IVertexRepository vertexRepository)
+    public RouteController(IRouteService routeService, IVertexRepository vertexRepository, IFindRouteService findRouteService)
     {
         _routeService = routeService;
         _vertexRepository = vertexRepository;
+        _findRouteService = findRouteService;
     }
 
 
@@ -33,6 +36,19 @@ public class RouteController : ControllerBase
         catch (Exception e)
         {
             return ApiResponse<RouteResponseDto>.Fail(e.Message);
+        }
+    }    
+    
+    [HttpPost("test")]
+    public async Task<ApiResponse<object>> HandleGetRoutesTest([FromBody] FindRouteRequestDto request)
+    {
+        try
+        {
+            return ApiResponse<object>.Ok(await _findRouteService.GetRoute(request));
+        }
+        catch (Exception e)
+        {
+            return ApiResponse<object>.Fail(e.Message);
         }
     }
 

@@ -65,6 +65,8 @@ public static class AppEntitiesConfiguration
             entity.HasKey(x => x.Id);
             entity.Property(x => x.Id).ValueGeneratedOnAdd();
         });
+
+
         
 
         builder.Entity<Vertex>(entity =>
@@ -122,6 +124,20 @@ public static class AppEntitiesConfiguration
                 .WithMany()
                 .HasForeignKey(x => x.ParentRouteDetailId)
                 .OnDelete(DeleteBehavior.Cascade);
+        });
+        
+        builder.Entity<BusStopEdge>(entity =>
+        {
+            entity.HasKey(x => new {x.PointAId, x.PointBId});
+            entity.HasOne(x => x.PointA)
+                .WithMany()
+                .HasForeignKey(x => x.PointAId)
+                .OnDelete(DeleteBehavior.Restrict);
+            
+            entity.HasOne(x => x.PointB)
+                .WithMany()
+                .HasForeignKey(x => x.PointBId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
     }
 }

@@ -1,5 +1,6 @@
 ﻿using GraduateProject.Application.Common.Dto;
 using GraduateProject.Application.RealEstate.RouteDto;
+using GraduateProject.Domain.Common;
 
 namespace GraduateProject.Application.Extensions;
 
@@ -42,6 +43,14 @@ public static class CalculateUtil
 
 
     public static double DistanceNode(AStarNode nodeA, AStarNode nodeB)
+    {
+        return Distance(
+            new Position() {Lat = nodeA.Lat, Lng = nodeA.Lng},
+            new Position() {Lat = nodeB.Lat, Lng = nodeB.Lng}
+        );
+    }
+    
+    public static double DistanceNodeBusStop(AStarNodeBusStop nodeA, AStarNodeBusStop nodeB)
     {
         return Distance(
             new Position() {Lat = nodeA.Lat, Lng = nodeA.Lng},

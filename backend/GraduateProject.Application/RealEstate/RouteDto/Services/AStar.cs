@@ -60,9 +60,7 @@ public class AStar
     private void GenerateNeighborsToOpenList(AStarNode currentNode)
     {
         var neighbors = _graph.GetAStarNeighbors(startNode, targetNode, currentNode);
-        // var mainRouteNeighbors = neighbors.Where(x => x.IsSwitchRouteNode == false).ToList();
-        // var switchRouteNeighbors = neighbors.Where(x => x.IsSwitchRouteNode == true).ToList();
-
+        
         //High priority for main routes
         var isAddedMainRoute = AddNeighborsToOpenList(currentNode, neighbors);
     }

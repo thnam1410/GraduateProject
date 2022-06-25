@@ -1,12 +1,11 @@
-﻿using GraduateProject.Application.Common.Dto;
-using GraduateProject.Application.Extensions;
+﻿using GraduateProject.Application.Extensions;
 using GraduateProject.Domain.Common;
 
 namespace GraduateProject.Application.RealEstate.RouteDto;
 
-public class AStarNode : IHeapItem<AStarNode>
+public class AStarNodeBusStop: IHeapItem<AStarNodeBusStop>
 {
-    public Guid Id { get; set; }
+    public int Id { get; set; }
     public double Lat { get; set; }
     public double Lng { get; set; }
 
@@ -20,24 +19,12 @@ public class AStarNode : IHeapItem<AStarNode>
             return GCost + HCost;
         }
     }
-
-    public AStarNode? ParentNode { get; set; }
-    public bool IsSwitchRouteNode { get; set; } = false;
+    
+    public AStarNodeBusStop? ParentNode { get; set; }
     public Position Position { get; set; }
 
-    public AStarNode()
-    {
-    }
-
-    public AStarNode(Guid id, double lat, double lng)
-    {
-        Id = id;
-        Lat = lat;
-        Lng = lng;
-        Position = new Position() {Lng = lng, Lat = lat};
-    }
-
-    public AStarNode(Guid id, double lat, double lng, VertexDto vertex)
+        
+    public AStarNodeBusStop(int id, double lat, double lng, StopDto targetStop)
     {
         Id = id;
         Lat = lat;
@@ -45,12 +32,20 @@ public class AStarNode : IHeapItem<AStarNode>
         GCost = 0;
         HCost = CalculateUtil.Distance(
             new Position() {Lat = lat, Lng = lng},
-            new Position() {Lat = vertex.Lat, Lng = vertex.Lng}
+            new Position() {Lat = targetStop.Lat, Lng = targetStop.Lng}
         );
         Position = new Position() {Lng = lng, Lat = lat};
     }
-
-    public AStarNode(Guid id, double lat, double lng, AStarNode startNode, AStarNode targetNode)
+    
+    public AStarNodeBusStop(int id, double lat, double lng)
+    {
+        Id = id;
+        Lat = lat;
+        Lng = lng;
+        Position = new Position() {Lng = lng, Lat = lat};
+    }
+    
+    public AStarNodeBusStop(int id, double lat, double lng, AStarNodeBusStop startNode, AStarNodeBusStop targetNode)
     {
         Id = id;
         Lat = lat;
@@ -65,10 +60,10 @@ public class AStarNode : IHeapItem<AStarNode>
         );
         Position = new Position() {Lng = lng, Lat = lat};
     }
-
+    
     public int HeapIndex { get; set; }
 
-    public int CompareTo(AStarNode? other)
+    public int CompareTo(AStarNodeBusStop? other)
     {
         if (other is null) return -1;
         int compare = FCost.CompareTo(other.FCost);
@@ -76,13 +71,6 @@ public class AStarNode : IHeapItem<AStarNode>
         {
             compare = HCost.CompareTo(other.HCost);
         }
-
-        if (IsSwitchRouteNode && other.IsSwitchRouteNode == false)
-            return -1; // A<B
-
-        if (IsSwitchRouteNode == false && other.IsSwitchRouteNode == true)
-            return 1; // A>B
-        
         return -compare;
     }
 }

@@ -11,6 +11,8 @@ public static class RealEstateServiceCollectionExtensions
     {
         services.AddTransient<IMasterDataService, MasterDataService>();
         services.AddTransient<IRouteService, RouteService>();
+        services.AddTransient<IFindRouteService, FindRouteService>();
+        services.AddTransient<IAStarService, AStarService>();
         return services;
     }
 }
