@@ -25,6 +25,7 @@ const BusTripView: NextPage<any> = () => {
 						</div>
 						<div className="guide-paths mt-3" style={{maxHeight: 550, overflowY: "scroll"}}>
 							{(stops || []).map((stop) => {
+								console.log('stop',stop)
 								return (
 									<div className="guide-item flex px-2 py-1 rounded border-gray-400" key={stop.name + stop.addressNo}>
 										<div className={"icon"} style={{width: 65}}>
@@ -41,7 +42,7 @@ const BusTripView: NextPage<any> = () => {
 											</div>
 										</div>
 										<div className={"flex-1"}>
-											<h3 className='font-bold'>{stop.name} - Mã Tuyến: {stop.routeCode}</h3>
+											<h3 className='font-bold'>{stop.name} - Mã Tuyến: {stop.routes}</h3>
 											<p>Địa chỉ: {stop.addressNo}</p>
 										</div>
 									</div>

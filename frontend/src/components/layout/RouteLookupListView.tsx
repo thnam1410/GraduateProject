@@ -1,6 +1,6 @@
 import { debounce, cloneDeep } from "lodash";
 import { GetServerSideProps, NextPage } from "next";
-import { RefObject, useCallback, useEffect, useRef, useState } from "react";
+import React, { RefObject, useCallback, useEffect, useRef, useState } from "react";
 import { ApiUtil, BASE_API_PATH, ConvertStringUnsign } from "~/src/utils/ApiUtil";
 import { pathIconBus_1, pathIconBus_2, pathIconTime_1, pathIconTime_2, PathIconMoney } from "../pages/svg/Path";
 import { RouteDetailInfo, useStore } from "~/src/zustand/store";
@@ -8,6 +8,7 @@ import { LatLngTuple } from "leaflet";
 import { useSession } from "next-auth/react";
 import { UserSession } from "~/src/types/UserInfo";
 import { RouteInfoSearch } from "~/src/types/InfoRouteSearch";
+import Overlay, {OverlayRef} from '~/src/components/Overlay/Overlay';
 
 interface IGetMainRoute {
 	id: number;
@@ -35,6 +36,8 @@ const RouteLookupListView: NextPage<IProps> = (props) => {
 	const divRef = useRef<HTMLDivElement>(null);
 	const session = useSession();
 	const user = session?.data?.user as UserSession;
+	const overlayRef = useRef<OverlayRef>(null);
+
 	useEffect(() => {
 		ApiUtil.Axios.get(BASE_API_PATH + "/route/get-main-routes").then((res) => {
 			const result = res?.data?.result as Array<IGetMainRoute>;
@@ -58,6 +61,7 @@ const RouteLookupListView: NextPage<IProps> = (props) => {
 	};
 
 	const handleOnChangeRoute = (routeId: number) => () => {
+		overlayRef.current?.open("Hệ thống đang xử lý, vui lòng chờ trong giây lát...");
 		ApiUtil.Axios.get(BASE_API_PATH + `/route/get-route-info/` + routeId)
 			.then((res) => {
 				if (res.data?.success) {
@@ -80,6 +84,10 @@ const RouteLookupListView: NextPage<IProps> = (props) => {
 			})
 			.catch((err) => {
 				console.log("err", err);
+				ApiUtil.ToastError("Có lỗi xảy ra!");
+			})
+			.finally(() => {
+				overlayRef.current?.close();
 			});
 	};
 
@@ -167,6 +175,7 @@ const RouteLookupListView: NextPage<IProps> = (props) => {
 					</div>
 				)}
 			</div>
+			<Overlay ref={overlayRef} />
 		</div>
 	);
 };

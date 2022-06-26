@@ -7,7 +7,7 @@ import { RoutePathDto, useMapControlStore } from "~/src/zustand/MapControlStore"
 import { isEmpty } from "lodash";
 import BusTripView from "./BusTripView";
 import Overlay, { OverlayRef } from "~/src/components/Overlay/Overlay";
-import { MapControlStoreV2, useMapControlStoreV2 } from "~/src/zustand/MapControlStoreV2";
+import { Destination, MapControlStoreV2, useMapControlStoreV2 } from "~/src/zustand/MapControlStoreV2";
 
 const SearchView = () => {
 	const [startPosition, setStartPosition] = useState<GoogleAddress | null>(null);
@@ -25,22 +25,38 @@ const SearchView = () => {
 		overlayRef.current?.open("Hệ thống đang xử lý, vui lòng chờ trong giây lát...");
 		Promise.all([geocodeByPlaceId(startPosition?.value?.place_id), geocodeByPlaceId(endPosition?.value?.place_id)])
 			.then(([resStart, resEnd]) => {
+				const startLat = resStart[0]?.geometry?.location?.lat();
+				const startLng = resStart[0]?.geometry?.location?.lng();
+
+				const endLat = resEnd[0]?.geometry?.location?.lat();
+				const endLng = resEnd[0]?.geometry?.location?.lng();
 				const formBody = {
 					startPoint: {
-						lat: resStart[0]?.geometry?.location?.lat(),
-						lng: resStart[0]?.geometry?.location?.lng(),
+						lat: startLat,
+						lng: startLng,
 					},
 					endPoint: {
-						lat: resEnd[0]?.geometry?.location?.lat(),
-						lng: resEnd[0]?.geometry?.location?.lng(),
+						lat: endLat,
+						lng: endLng,
 					},
 				};
 				ApiUtil.Axios.post(BASE_API_PATH + "/route/find-path-v2", formBody)
 					.then((res) => {
 						const result = res?.data?.result as Pick<MapControlStoreV2, "positions" | "stops">;
 						if (!isEmpty(result)) {
-							console.log('result',result)
-							setPath(result);
+							const destination: Destination[] = [
+								{
+									position: { lat: startLat, lng: startLng },
+									address: resStart[0]?.formatted_address,
+									title: "Điểm đi",
+								},
+								{
+									position: { lat: endLat, lng: endLng },
+									address: resEnd[0]?.formatted_address,
+									title: "Điểm đến",
+								},
+							];
+							setPath(result, destination);
 						}
 					})
 					.catch((err) => {

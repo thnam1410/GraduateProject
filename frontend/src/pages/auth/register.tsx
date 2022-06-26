@@ -30,7 +30,7 @@ export default function Register() {
 	const onCheckbox = () => {
 		// v will be true or false
 	};
-	const onRedirectLogin = () => router.push("/login");
+	const onRedirectLogin = () => router.push("/auth/login");
 	const onFinishFailed = (errorInfo: any) => {
 		console.log("Failed:", errorInfo);
 	};

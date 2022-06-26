@@ -13,7 +13,10 @@ const iconBusStop = L.icon({
 });
 const SearchMap = () => {
 	const leafletMap = useRef<LeafletMap>(null);
-	const { positions, stops } = useMapControlStoreV2(({ stops, positions }) => ({ positions, stops }), shallow);
+	const { positions, stops, destination } = useMapControlStoreV2(
+		({ stops, positions, destination }) => ({ positions, stops, destination }),
+		shallow
+	);
 
 	const renderRoutes = () => {
 		return (
@@ -25,7 +28,8 @@ const SearchMap = () => {
 	};
 
 	const renderStops = () => {
-		return stops.map((stop) => {
+		console.log('destination',destination)
+		const markers = stops.map((stop, idx) => {
 			return (
 				<Marker
 					position={[stop.lat || _.get(stop, "Lat"), stop.lng || _.get(stop, "Lng")]}
@@ -42,6 +46,19 @@ const SearchMap = () => {
 				</Marker>
 			);
 		});
+		destination.forEach((dest) => {
+			markers.push(
+				<Marker position={[dest.position.lat, dest.position.lng]} key={dest.address} draggable={false}>
+					<Popup>
+						<div className={"w-full h-full"}>
+							<h4 className="font-bold">{dest.title}</h4>
+							<h3>{dest.address}</h3>
+						</div>
+					</Popup>
+				</Marker>
+			);
+		});
+		return markers;
 	};
 	return (
 		<MapContainer
