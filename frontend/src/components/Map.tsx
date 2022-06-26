@@ -42,13 +42,13 @@ interface Stop {
 	code: string;
 }
 
-const GetIconBusStop =  (urlImg:string) =>{
+const GetIconBusStop = (urlImg: string) => {
 	return L.icon({
 		iconUrl: urlImg,
-		iconSize:[40,50],
+		iconSize: [40, 50],
 		// iconAnchor:[22,94],
-	})
-}
+	});
+};
 
 const Map = forwardRef<any, IProps>((props, ref) => {
 	const leafletMap = useRef<LeafletMap>(null);
@@ -112,7 +112,14 @@ const Map = forwardRef<any, IProps>((props, ref) => {
 					);
 				case "SubStop":
 					return (
-						<Marker position={point.pos} draggable={false}>
+						<Marker
+							position={point.pos}
+							draggable={false}
+							icon={L.icon({
+								iconUrl: urlBusStop,
+								iconSize: [40, 50],
+							})}
+						>
 							<Popup>
 								<h3 className="font-bold">
 									{`${isEmpty(point?.detail?.code) ? "" : `[${point?.detail?.code}]`} 
@@ -154,7 +161,7 @@ const Map = forwardRef<any, IProps>((props, ref) => {
 		return positionsBusStop?.map((point: any) => {
 			return (
 				<>
-					<Marker position={point.pos} draggable={false}  icon={GetIconBusStop(urlBusStop)}>
+					<Marker position={point.pos} draggable={false} icon={GetIconBusStop(urlBusStop)}>
 						<Popup>
 							<div className={"w-full h-full"}>
 								<h4 className="font-bold">{point?.name}</h4>
