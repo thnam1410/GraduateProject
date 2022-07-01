@@ -17,7 +17,7 @@ public class FindRouteService : IFindRouteService
 {
     private readonly IVertexRepository _vertexRepository;
     private readonly IStopRepository _stopRepository;
-    private readonly IOptionsSnapshot<ConfigDistance> _configDistance;
+    private readonly ConfigDistance _configDistance;
     private readonly IMapper _mapper;
     private readonly IAStarService _aStarService;
     private readonly ILogger<FindRouteService> _logger;
@@ -28,7 +28,7 @@ public class FindRouteService : IFindRouteService
         IAStarService aStarService, ILogger<FindRouteService> logger, IPathHistoryRepository pathHistoryRepository)
     {
         _vertexRepository = vertexRepository;
-        _configDistance = configDistance;
+        _configDistance = configDistance.Value;
         _stopRepository = stopRepository;
         _mapper = mapper;
         _aStarService = aStarService;
@@ -38,43 +38,40 @@ public class FindRouteService : IFindRouteService
 
     public async Task<RouteResponseDtoV2> GetRoute(FindRouteRequestDto request)
     {
-        var pathHistory = await _pathHistoryRepository.Queryable().FirstOrDefaultAsync(x =>
-            x.StartLat.Equals(request.StartPoint.Lat) &&
-            x.StartLng.Equals(request.StartPoint.Lng) &&
-            x.EndLat.Equals(request.EndPoint.Lat) &&
-            x.EndLng.Equals(request.EndPoint.Lng)
-        );
-        if (pathHistory is not null)
-        {
-            if (pathHistory.IsError) throw new Exception(pathHistory.ErrorMessage);
-            return JsonConvert.DeserializeObject<RouteResponseDtoV2>(pathHistory.JsonPath ?? "{}");
-        }
+        // var pathHistory = await _pathHistoryRepository.Queryable().FirstOrDefaultAsync(x =>
+        //     x.StartLat.Equals(request.StartPoint.Lat) &&
+        //     x.StartLng.Equals(request.StartPoint.Lng) &&
+        //     x.EndLat.Equals(request.EndPoint.Lat) &&
+        //     x.EndLng.Equals(request.EndPoint.Lng)
+        // );
+        // if (pathHistory is not null)
+        // {
+        //     if (pathHistory.IsError) throw new Exception(pathHistory.ErrorMessage);
+        //     return JsonConvert.DeserializeObject<RouteResponseDtoV2>(pathHistory.JsonPath ?? "{}");
+        // }
 
         try
         {
-            var limitSearchRadius = _configDistance.Value.SearchRadius;
             var stops = await _stopRepository.Queryable().ProjectTo<StopDto>(_mapper.ConfigurationProvider).ToListAsync();
-            var stopPaths = await GetBusStopList(request, stops, limitSearchRadius);
-            var results = new List<Position>();
-            await GetRoutePathList(stopPaths, limitSearchRadius, results);
-
+            var stopPaths = await GetBusStopList(request, stops);
+            var results = stopPaths.Select(x => x.Position).ToList();
             results.Insert(0, request.StartPoint);
             results.Add(request.EndPoint);
-            var responseDto = new RouteResponseDtoV2()
+
+            double totalDistance = 0;
+            for (int i = 0; i < results.Count - 1; i++)
+            {
+                totalDistance += CalculateUtil.Distance(results[i], results[i + 1]);
+            }
+
+            double distanceStraightFromStartToEnd = CalculateUtil.Distance(request.StartPoint, request.EndPoint);
+            
+            return new RouteResponseDtoV2()
             {
                 Positions = results,
-                Stops = stops.Where(x => stopPaths.Select(y => y.Id).Contains(x.Id)).ToList()
+                Stops = stopPaths.Select(x => stops.First(y => y.Id == x.Id)).ToList(),
+                Weight = Math.Round(totalDistance / distanceStraightFromStartToEnd, 3)
             };
-            await _pathHistoryRepository.AddAsync(new PathHistory()
-            {
-                StartLat = request.StartPoint.Lat,
-                StartLng = request.StartPoint.Lng,
-                EndLat = request.EndPoint.Lat,
-                EndLng = request.EndPoint.Lng,
-                IsError = false,
-                JsonPath = JsonConvert.SerializeObject(responseDto)
-            }, true);
-            return responseDto;
         }
         catch (Exception e)
         {
@@ -134,36 +131,33 @@ public class FindRouteService : IFindRouteService
         }
     }
 
-    private async Task<List<AStarNodeBusStop>> GetBusStopList(FindRouteRequestDto request, List<StopDto> stops, double limitSearchRadius)
+    private async Task<List<AStarNodeBusStop>> GetBusStopList(FindRouteRequestDto request, List<StopDto> stops)
     {
-        var startPointNeighborVertices = new List<StopDto>();
-        var endPointNeighborVertices = new List<StopDto>();
-        foreach (var stop in stops)
-        {
-            var distanceToStart = CalculateUtil.Distance(request.StartPoint, stop.Position);
-            var distanceToEnd = CalculateUtil.Distance(request.EndPoint, stop.Position);
-            if (distanceToStart <= limitSearchRadius)
-            {
-                stop.DistanceToStart = distanceToStart;
-                stop.DistanceToEnd = CalculateUtil.Distance(request.EndPoint, stop.Position);
-                startPointNeighborVertices.Add(stop);
-            }
-
-            if (distanceToEnd <= limitSearchRadius)
-            {
-                stop.DistanceToEnd = distanceToEnd;
-                endPointNeighborVertices.Add(stop);
-            }
-        }
-
-        if (!startPointNeighborVertices.Any()) throw new Exception("Stop nearby not found!");
-        var startPoint = startPointNeighborVertices.OrderBy(x => x.DistanceToStart).First();
-        var endPoint = endPointNeighborVertices.OrderBy(x => x.DistanceToEnd).First();
-
+        StartPointNeighborVertices(request, stops, out var startPoint, out var endPoint);
+        if (startPoint is null) throw new Exception("Can not find nearby start point!");
+        if (endPoint is null) throw new Exception("Can not find nearby end point!");
         var stopPaths = await _aStarService.StartAlgorithmsBusStopPaths(startPoint, endPoint, stops);
         return stopPaths;
     }
 
+    private void StartPointNeighborVertices(FindRouteRequestDto request, List<StopDto> stops, out StopDto? startPoint,
+        out StopDto? endPoint)
+    {
+        startPoint = null;
+        endPoint = null;
+        foreach (var stop in stops)
+        {
+            var distanceToStart = CalculateUtil.Distance(request.StartPoint, stop.Position);
+            var distanceToEnd = CalculateUtil.Distance(request.EndPoint, stop.Position);
+            stop.DistanceToStart = distanceToStart;
+            stop.DistanceToEnd = distanceToEnd;
+        }
+
+        startPoint = stops.OrderBy(x => x.DistanceToStart).FirstOrDefault();
+        endPoint = stops.OrderBy(x => x.DistanceToEnd).FirstOrDefault();
+        if (startPoint is not null && startPoint.DistanceToStart > _configDistance.Limit) throw new Exception("Nearest stop from start higher than 500m!");
+        if (endPoint is not null && endPoint.DistanceToEnd > _configDistance.Limit) throw new Exception("Nearest stop from end higher than 500m!");
+    }
 
     private async Task<List<EdgeDto>> GetEdges()
     {

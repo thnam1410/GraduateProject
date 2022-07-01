@@ -42,7 +42,8 @@ const BusTripView: NextPage<any> = () => {
 											</div>
 										</div>
 										<div className={"flex-1"}>
-											<h3 className='font-bold'>{stop.name} - Mã Tuyến: {stop.routes}</h3>
+											<h3 className='font-bold'>{stop.name}</h3>
+											<h4 className='font-bold'>Mã Tuyến: {stop.routes}</h4>
 											<p>Địa chỉ: {stop.addressNo}</p>
 										</div>
 									</div>
