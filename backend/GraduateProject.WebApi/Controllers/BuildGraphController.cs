@@ -151,33 +151,51 @@ public class BuildGraphController : ControllerBase
     [HttpGet("build-bus-stop-graph")]
     public async Task<ApiResponse> HandleBuildGraphBusStop()
     {
-        var busStops = await _stopRepository.Queryable().AsNoTracking().ToListAsync();
+        // var busStops = await _stopRepository.Queryable().AsNoTracking().ToListAsync();
         var listEdgeBusStop = new List<BusStopEdge>();
-        double litmitDistance = 1; //1km
-        foreach (var stop in busStops)
-        {
-            var currentStopPos = new Position() {Lat = stop.Lat, Lng = stop.Lng};
-            var edges = busStops.Where(x => x.Id != stop.Id)
-                .Where(x =>
-                {
-                    var nearbyStopPos = new Position() {Lat = x.Lat, Lng = x.Lng};
-                    return CalculateUtil.Distance(currentStopPos, nearbyStopPos) <= litmitDistance;
-                })
-                .Select(x => new BusStopEdge()
-                {
-                    PointAId = stop.Id,
-                    PointBId = x.Id,
-                    Distance = CalculateUtil.Distance(new Position() {Lat = stop.Lat, Lng = stop.Lng}, new Position() {Lat = x.Lat, Lng = x.Lng})
-                });
-            // edges = edges.Where(x =>
-            // {
-            //     var isAlreadyExistEdge = listEdgeBusStop.Any(y => (y.PointAId == x.PointAId && y.PointBId == x.PointBId) ||
-            //                                                       (y.PointAId == x.PointBId && y.PointBId == x.PointAId));
-            //     return !isAlreadyExistEdge;
-            // });
-            listEdgeBusStop.AddRange(edges);
-        }
+        // double litmitDistance = 1; //1km
+        // foreach (var stop in busStops)
+        // {
+        //     var currentStopPos = new Position() {Lat = stop.Lat, Lng = stop.Lng};
+        //     var edges = busStops.Where(x => x.Id != stop.Id)
+        //         .Where(x =>
+        //         {
+        //             var nearbyStopPos = new Position() {Lat = x.Lat, Lng = x.Lng};
+        //             return CalculateUtil.Distance(currentStopPos, nearbyStopPos) <= litmitDistance;
+        //         })
+        //         .Select(x => new BusStopEdge()
+        //         {
+        //             PointAId = stop.Id,
+        //             PointBId = x.Id,
+        //             Distance = CalculateUtil.Distance(new Position() {Lat = stop.Lat, Lng = stop.Lng}, new Position() {Lat = x.Lat, Lng = x.Lng})
+        //         });
+        //     // edges = edges.Where(x =>
+        //     // {
+        //     //     var isAlreadyExistEdge = listEdgeBusStop.Any(y => (y.PointAId == x.PointAId && y.PointBId == x.PointBId) ||
+        //     //                                                       (y.PointAId == x.PointBId && y.PointBId == x.PointAId));
+        //     //     return !isAlreadyExistEdge;
+        //     // });
+        //     listEdgeBusStop.AddRange(edges);
+        // }
 
+        var routeDetails = await _routeDetailRepository.Queryable().Include(x => x.Stops).ToListAsync();
+        foreach (var routeDetail in routeDetails)
+        {
+            var stops = routeDetail.Stops.OrderBy(x => x.Rank).ToList();
+            for (int i = 0; i < stops.Count - 1; i++)
+            {
+                var currStop = stops[i];
+                var nextStop = stops[i + 1];
+                var newEdge = new BusStopEdge()
+                {
+                    PointAId = currStop.Id,
+                    PointBId = nextStop.Id,
+                    Distance = CalculateUtil.Distance(currStop.Position, nextStop.Position)
+                };
+                if(!listEdgeBusStop.Any(x => x.PointAId == newEdge.PointAId && x.PointBId == newEdge.PointBId)) listEdgeBusStop.Add(newEdge);
+            }
+        }
+        
         try
         {
             await _unitOfWork.BeginTransactionAsync();

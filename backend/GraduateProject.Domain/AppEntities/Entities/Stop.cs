@@ -15,6 +15,10 @@ public class Stop : Entity<int>
     public string StopType { get; set; }
     public string Street { get; set; }
     public int RouteVarId { get; set; }
+    public int RouteId { get; set; }
+
+    public int Rank { get; set; }
+
     
     public Position Position => new() {Lat = this.Lat, Lng = this.Lng};
 

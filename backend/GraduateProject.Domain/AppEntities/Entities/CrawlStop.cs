@@ -18,4 +18,7 @@ public class CrawlStop: Entity<Guid>
     public string? Ward { get; set; }
     public string? Zone { get; set; }
     public int RouteVarId { get; set; }
+    public int RouteId { get; set; }
+    public int Rank { get; set; }
+    
 }

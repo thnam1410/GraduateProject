@@ -8,6 +8,7 @@ import {useMapControlStoreV2} from '~/src/zustand/MapControlStoreV2';
 
 const BusTripView: NextPage<any> = () => {
 	const stops = useMapControlStoreV2((state) => state.stops);
+	console.log('stops',stops)
 	return (
 		<div className="h-full w-full mt-3">
 			<div className=" relative w-full flex flex-col min-w-0 break-words bg-white w-full mb-6 shadow-lg rounded">

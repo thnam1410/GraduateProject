@@ -1,17 +1,22 @@
-﻿using GraduateProject.Application.Extensions;
+﻿using GraduateProject.Application.Common.Dto;
+using GraduateProject.Application.Extensions;
 using GraduateProject.Domain.AppEntities.Entities;
 using GraduateProject.Domain.AppEntities.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using Z.EntityFramework.Plus;
 
 namespace GraduateProject.Application.RealEstate.RouteDto.Services;
 
 public class AStarService : IAStarService
 {
     private readonly IVertexRepository _vertexRepository;
+    private readonly ConfigDistance _configDistance;
 
-    public AStarService(IVertexRepository vertexRepository)
+    public AStarService(IVertexRepository vertexRepository, IOptionsSnapshot<ConfigDistance> configDistance)
     {
         _vertexRepository = vertexRepository;
+        _configDistance = configDistance.Value;
     }
 
 
@@ -21,12 +26,11 @@ public class AStarService : IAStarService
     {
         CustomHeap<AStarNodeBusStop> _openList = new CustomHeap<AStarNodeBusStop>(1_000_000);
         List<int> _closeList = new List<int>();
-        AStarNodeBusStop _startNode = new AStarNodeBusStop(startPoint.Id, startPoint.Lat, startPoint.Lng, endPoint);
-        ;
+        AStarNodeBusStop _startNode = new AStarNodeBusStop(startPoint.Id, startPoint.Lat, startPoint.Lng, endPoint);        ;
         AStarNodeBusStop _targetNode = new AStarNodeBusStop(endPoint.Id, endPoint.Lat, endPoint.Lng);
         AStarNodeBusStop _tempCurrentNode;
 
-        var edges = await _vertexRepository.GetBusStopEdgeQueryable().ToListAsync();
+        var edges = (await _vertexRepository.GetBusStopEdgeQueryable().Include(x => x.PointA).FromCacheAsync()).ToList();
 
         _openList.Add(_startNode);
 
@@ -39,7 +43,7 @@ public class AStarService : IAStarService
             _tempCurrentNode = currentNode;
             _closeList.Add(currentNode.Id);
 
-            if (currentNode.Id == _targetNode.Id) // 1m
+            if (currentNode.Id == _targetNode.Id || CalculateUtil.Distance(currentNode.Position, _targetNode.Position) <= _configDistance.Limit) 
             {
                 _targetNode.ParentNode = _tempCurrentNode;
                 return RetracePathBusStop(_startNode, _targetNode);
@@ -91,7 +95,7 @@ public class AStarService : IAStarService
         List<BusStopEdge> busStopEdges, List<StopDto> stopDtos)
     {
         var edges = busStopEdges
-            .Where(x => x.PointAId == currentNode.Id)
+            .Where(x => x.PointA.Lat.Equals(currentNode.Lat) && x.PointA.Lng.Equals(currentNode.Lng))
             .ToList();
         var pointBIds = edges
             .Select(x => x.PointBId)

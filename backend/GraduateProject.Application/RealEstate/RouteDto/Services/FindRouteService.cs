@@ -36,7 +36,7 @@ public class FindRouteService : IFindRouteService
         _pathHistoryRepository = pathHistoryRepository;
     }
 
-    public async Task<RouteResponseDtoV2> GetRoute(FindRouteRequestDto request)
+    public async Task<RouteResponseDtoV2?> GetRoute(FindRouteRequestDto request)
     {
         // var pathHistory = await _pathHistoryRepository.Queryable().FirstOrDefaultAsync(x =>
         //     x.StartLat.Equals(request.StartPoint.Lat) &&
@@ -53,25 +53,19 @@ public class FindRouteService : IFindRouteService
         try
         {
             var stops = await _stopRepository.Queryable().ProjectTo<StopDto>(_mapper.ConfigurationProvider).ToListAsync();
-            var stopPaths = await GetBusStopList(request, stops);
-            var results = stopPaths.Select(x => x.Position).ToList();
-            results.Insert(0, request.StartPoint);
-            results.Add(request.EndPoint);
+            var blackListStartPoint = new List<StopDto>();
+            var blackListEndPoint = new List<StopDto>();
 
-            double totalDistance = 0;
-            for (int i = 0; i < results.Count - 1; i++)
+            var listResultPaths = new List<RouteResponseDtoV2?>();
+            while (true)
             {
-                totalDistance += CalculateUtil.Distance(results[i], results[i + 1]);
+                var newResultPaths = await GeneratePathResult(request, stops, blackListStartPoint, blackListEndPoint);
+                if (newResultPaths is null) break;
+                listResultPaths.Add(newResultPaths);
+                if (newResultPaths?.Weight <= 1.5) return newResultPaths;
             }
 
-            double distanceStraightFromStartToEnd = CalculateUtil.Distance(request.StartPoint, request.EndPoint);
-            
-            return new RouteResponseDtoV2()
-            {
-                Positions = results,
-                Stops = stopPaths.Select(x => stops.First(y => y.Id == x.Id)).ToList(),
-                Weight = Math.Round(totalDistance / distanceStraightFromStartToEnd, 3)
-            };
+            return listResultPaths.OrderBy(x => x?.Weight).FirstOrDefault();
         }
         catch (Exception e)
         {
@@ -87,6 +81,32 @@ public class FindRouteService : IFindRouteService
             }, true);
             throw;
         }
+    }
+
+    private async Task<RouteResponseDtoV2?> GeneratePathResult(FindRouteRequestDto request, List<StopDto> stops, List<StopDto> blackListStartPoint,
+        List<StopDto> blackListEndPoint)
+    {
+        var stopPaths = await GetBusStopList(request, stops, blackListStartPoint, blackListEndPoint);
+        if (stopPaths is null) return null;
+        var results = stopPaths.Select(x => x.Position).ToList();
+        results.Insert(0, request.StartPoint);
+        results.Add(request.EndPoint);
+
+        double totalDistance = 0;
+        for (int i = 0; i < results.Count - 1; i++)
+        {
+            totalDistance += CalculateUtil.Distance(results[i], results[i + 1]);
+        }
+
+        double distanceStraightFromStartToEnd = CalculateUtil.Distance(request.StartPoint, request.EndPoint);
+
+        var newResult = new RouteResponseDtoV2()
+        {
+            Positions = results,
+            Stops = stopPaths.Select(x => stops.First(y => y.Id == x.Id)).ToList(),
+            Weight = Math.Round(totalDistance / distanceStraightFromStartToEnd, 3)
+        };
+        return newResult;
     }
 
     private async Task GetRoutePathList(List<AStarNodeBusStop> stopPaths, double limitSearchRadius, List<Position> pathPos)
@@ -131,20 +151,21 @@ public class FindRouteService : IFindRouteService
         }
     }
 
-    private async Task<List<AStarNodeBusStop>> GetBusStopList(FindRouteRequestDto request, List<StopDto> stops)
+    private async Task<List<AStarNodeBusStop>?> GetBusStopList(FindRouteRequestDto request, List<StopDto> stops, List<StopDto> blackListStartPoint,
+        List<StopDto> blackListEndPoint)
     {
-        StartPointNeighborVertices(request, stops, out var startPoint, out var endPoint);
-        if (startPoint is null) throw new Exception("Can not find nearby start point!");
-        if (endPoint is null) throw new Exception("Can not find nearby end point!");
+        var (listStartPoint, listEndPoint) = StartPointNeighborVertices(request, stops);
+        var startPoint = listStartPoint.Where(x => !blackListStartPoint.Select(y => y.Id).Contains(x.Id)).OrderBy(x => x.DistanceToStart).FirstOrDefault();
+        var endPoint = listEndPoint.OrderBy(x => x.DistanceToEnd).FirstOrDefault();
+        if (startPoint is null || endPoint is null) return null;
+        blackListStartPoint.AddRange(listStartPoint.Where(x => x.Lat.Equals(startPoint.Lat) && x.Lng.Equals(startPoint.Lng)));
+        blackListEndPoint.Add(endPoint);
         var stopPaths = await _aStarService.StartAlgorithmsBusStopPaths(startPoint, endPoint, stops);
         return stopPaths;
     }
 
-    private void StartPointNeighborVertices(FindRouteRequestDto request, List<StopDto> stops, out StopDto? startPoint,
-        out StopDto? endPoint)
+    private (List<StopDto>, List<StopDto>) StartPointNeighborVertices(FindRouteRequestDto request, List<StopDto> stops)
     {
-        startPoint = null;
-        endPoint = null;
         foreach (var stop in stops)
         {
             var distanceToStart = CalculateUtil.Distance(request.StartPoint, stop.Position);
@@ -153,10 +174,9 @@ public class FindRouteService : IFindRouteService
             stop.DistanceToEnd = distanceToEnd;
         }
 
-        startPoint = stops.OrderBy(x => x.DistanceToStart).FirstOrDefault();
-        endPoint = stops.OrderBy(x => x.DistanceToEnd).FirstOrDefault();
-        if (startPoint is not null && startPoint.DistanceToStart > _configDistance.Limit) throw new Exception("Nearest stop from start higher than 500m!");
-        if (endPoint is not null && endPoint.DistanceToEnd > _configDistance.Limit) throw new Exception("Nearest stop from end higher than 500m!");
+        var listStartPoint = stops.Where(x => x.DistanceToStart <= _configDistance.Limit).ToList();
+        var listEndPoint = stops.Where(x => x.DistanceToEnd <= _configDistance.Limit).ToList();
+        return (listStartPoint, listEndPoint);
     }
 
     private async Task<List<EdgeDto>> GetEdges()
