@@ -13,22 +13,25 @@ const iconBusStop = L.icon({
 });
 const SearchMap = () => {
 	const leafletMap = useRef<LeafletMap>(null);
-	const { positions, stops, destination } = useMapControlStoreV2(
-		({ stops, positions, destination }) => ({ positions, stops, destination }),
+	const { positions, stops, destination, resultPositions } = useMapControlStoreV2(
+		({ stops, positions, destination, resultPositions }) => ({ positions, stops, destination, resultPositions }),
 		shallow
 	);
-
+	console.log("resultPositions", resultPositions);
 	const renderRoutes = () => {
-		return (
-			<Polyline
-				positions={positions.map((x) => [x.lat || _.get(x, "Lat"), x.lng || _.get(x, "Lng")])}
-				pathOptions={{ color: "purple" }}
-			/>
-		);
+		return resultPositions.map(({ item1, item2, item3 }, key) => {
+			const extraProps =
+				item3 === "Switch"
+					? {
+							dashArray: [20, 20],
+							dashOffset: "5",
+					  }
+					: {};
+			return <Polyline key={key} positions={[item1, item2]} pathOptions={{ color: "purple" }} {...extraProps} />;
+		});
 	};
 
 	const renderStops = () => {
-		console.log('destination',destination)
 		const markers = stops.map((stop, idx) => {
 			return (
 				<Marker

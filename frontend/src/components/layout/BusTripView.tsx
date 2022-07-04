@@ -4,11 +4,12 @@ import { useStore } from "~/src/zustand/store";
 import { PathIconBack, pathIconBus_1, pathIconBus_2 } from "../pages/svg/Path";
 import InfoDetailTabView from "./InfoDetailTabView";
 import { useMapControlStore } from "~/src/zustand/MapControlStore";
-import {useMapControlStoreV2} from '~/src/zustand/MapControlStoreV2';
+import { useMapControlStoreV2 } from "~/src/zustand/MapControlStoreV2";
 
 const BusTripView: NextPage<any> = () => {
 	const stops = useMapControlStoreV2((state) => state.stops);
-	console.log('stops',stops)
+	const weight = useMapControlStoreV2((state) => state.weight);
+	console.log("stops", stops);
 	return (
 		<div className="h-full w-full mt-3">
 			<div className=" relative w-full flex flex-col min-w-0 break-words bg-white w-full mb-6 shadow-lg rounded">
@@ -23,13 +24,14 @@ const BusTripView: NextPage<any> = () => {
 							>
 								Lộ trình
 							</div>
+							{weight != null && <span className='font-bold'>Hệ số kết quả tìm kiếm: <span className={'text-red-500'}>{weight}</span></span>}
 						</div>
-						<div className="guide-paths mt-3" style={{maxHeight: 550, overflowY: "scroll"}}>
+						<div className="guide-paths mt-3" style={{ maxHeight: 550, overflowY: "scroll" }}>
 							{(stops || []).map((stop) => {
-								console.log('stop',stop)
+								console.log("stop", stop);
 								return (
 									<div className="guide-item flex px-2 py-1 rounded border-gray-400" key={stop.name + stop.addressNo}>
-										<div className={"icon"} style={{width: 65}}>
+										<div className={"icon"} style={{ width: 65 }}>
 											{" "}
 											<div className="bg-blue-light shadow-border p-3 w-4 h-4">
 												<svg
@@ -43,8 +45,8 @@ const BusTripView: NextPage<any> = () => {
 											</div>
 										</div>
 										<div className={"flex-1"}>
-											<h3 className='font-bold'>{stop.name}</h3>
-											<h4 className='font-bold'>Mã Tuyến: {stop.routes}</h4>
+											<h3 className="font-bold">{stop.name}</h3>
+											<h4 className="font-bold">Mã Tuyến: {stop.routes}</h4>
 											<p>Địa chỉ: {stop.addressNo}</p>
 										</div>
 									</div>

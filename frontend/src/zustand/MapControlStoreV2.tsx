@@ -8,14 +8,23 @@ export type Destination = {
 	address: string;
 	title: string;
 };
-
+export type ResultPosition = {
+	item1: Position;
+	item2: Position;
+	item3: "Main" | "Switch";
+};
 export type MapControlStoreV2 = {
 	positions: Position[];
 	stops: StopDto[];
 	destination: Destination[];
 	isFindPathMap: boolean;
 	switchMap: () => void;
-	setPath: (data: Pick<MapControlStoreV2, "positions" | "stops">, destinationData: Destination[]) => void;
+	resultPositions: ResultPosition[];
+	weight: number | null;
+	setPath: (
+		data: Pick<MapControlStoreV2, "positions" | "stops" | "resultPositions" | 'weight'>,
+		destinationData: Destination[],
+	) => void;
 };
 
 export const useMapControlStoreV2 = create<MapControlStoreV2>((set, get) => ({
@@ -23,6 +32,8 @@ export const useMapControlStoreV2 = create<MapControlStoreV2>((set, get) => ({
 	positions: [],
 	stops: [],
 	destination: [],
+	resultPositions: [],
+	weight: null,
 	switchMap: () =>
 		set((state) => ({
 			...state,

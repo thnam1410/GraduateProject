@@ -42,7 +42,7 @@ const SearchView = () => {
 				};
 				ApiUtil.Axios.post(BASE_API_PATH + "/route/find-path-v2", formBody)
 					.then((res) => {
-						const result = res?.data?.result as Pick<MapControlStoreV2, "positions" | "stops">;
+						const result = res?.data?.result as Pick<MapControlStoreV2, "positions" | "stops" | 'resultPositions' | 'weight'>;
 						if (!isEmpty(result)) {
 							const destination: Destination[] = [
 								{

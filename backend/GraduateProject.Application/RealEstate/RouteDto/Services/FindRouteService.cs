@@ -57,6 +57,7 @@ public class FindRouteService : IFindRouteService
             var blackListEndPoint = new List<StopDto>();
 
             var listResultPaths = new List<RouteResponseDtoV2?>();
+            RouteResponseDtoV2 result = null;
             while (true)
             {
                 var newResultPaths = await GeneratePathResult(request, stops, blackListStartPoint, blackListEndPoint);
@@ -88,24 +89,58 @@ public class FindRouteService : IFindRouteService
     {
         var stopPaths = await GetBusStopList(request, stops, blackListStartPoint, blackListEndPoint);
         if (stopPaths is null) return null;
-        var results = stopPaths.Select(x => x.Position).ToList();
-        results.Insert(0, request.StartPoint);
-        results.Add(request.EndPoint);
+        var positions = stopPaths.Select(x => x.Position).ToList();
 
-        double totalDistance = 0;
-        for (int i = 0; i < results.Count - 1; i++)
-        {
-            totalDistance += CalculateUtil.Distance(results[i], results[i + 1]);
-        }
 
         double distanceStraightFromStartToEnd = CalculateUtil.Distance(request.StartPoint, request.EndPoint);
 
+        var resultPos = new List<(Position, Position, string)>();
+        for (int i = 0; i < stopPaths.Count - 1; i++)
+        {
+            var currStop = stops.First(x => x.Id == stopPaths[i].Id);
+            var nextStop = stops.First(x => x.Id == stopPaths[i + 1].Id);
+
+            var currStopRoutes = currStop.Routes.Split(",").Select(x => x.Trim());
+            var nextStopRoutes = nextStop.Routes.Split(",").Select(x => x.Trim());
+
+            var intersectionList = currStopRoutes.Intersect(nextStopRoutes).ToList();
+            if (intersectionList.Any())
+            {
+                currStop.Routes = string.Join(", ", intersectionList);
+                resultPos.Add((currStop.Position, nextStop.Position, "Main"));
+            }
+            else
+            {
+                resultPos.Add((currStop.Position, nextStop.Position, "Switch"));
+            }
+
+            if (i == 0)
+            {
+                resultPos.Add((request.StartPoint, currStop.Position, "Switch"));
+            }
+
+            if (i == stopPaths.Count - 2)
+            {
+                resultPos.Add((stopPaths[i + 1].Position, request.EndPoint, "Switch"));
+            }
+        }
+
+
+        double totalDistance = 0;
+        for (int i = 0; i < positions.Count - 1; i++)
+        {
+            totalDistance += CalculateUtil.Distance(positions[i], positions[i + 1]);
+        }
+
         var newResult = new RouteResponseDtoV2()
         {
-            Positions = results,
+            Positions = positions,
             Stops = stopPaths.Select(x => stops.First(y => y.Id == x.Id)).ToList(),
-            Weight = Math.Round(totalDistance / distanceStraightFromStartToEnd, 3)
+            Weight = Math.Round(totalDistance / distanceStraightFromStartToEnd, 3),
+            ResultPositions = resultPos,
         };
+        positions.Insert(0, request.StartPoint);
+        positions.Add(request.EndPoint);
         return newResult;
     }
 
