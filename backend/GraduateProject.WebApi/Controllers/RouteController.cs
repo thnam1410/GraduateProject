@@ -44,7 +44,8 @@ public class RouteController : ControllerBase
     {
         try
         {
-            return ApiResponse<RouteResponseDtoV2>.Ok(await _findRouteService.GetRoute(request));
+            var result = await _findRouteService.GetRoute(request);
+            return ApiResponse<RouteResponseDtoV2>.Ok(result);
         }
         catch (Exception e)
         {

@@ -71,15 +71,15 @@ public class FindRouteService : IFindRouteService
         catch (Exception e)
         {
             Console.WriteLine(e);
-            await _pathHistoryRepository.AddAsync(new PathHistory()
-            {
-                StartLat = request.StartPoint.Lat,
-                StartLng = request.StartPoint.Lng,
-                EndLat = request.EndPoint.Lat,
-                EndLng = request.EndPoint.Lng,
-                IsError = true,
-                ErrorMessage = e.Message
-            }, true);
+            // await _pathHistoryRepository.AddAsync(new PathHistory()
+            // {
+            //     StartLat = request.StartPoint.Lat,
+            //     StartLng = request.StartPoint.Lng,
+            //     EndLat = request.EndPoint.Lat,
+            //     EndLng = request.EndPoint.Lng,
+            //     IsError = true,
+            //     ErrorMessage = e.Message
+            // }, true);
             throw;
         }
     }
@@ -91,22 +91,21 @@ public class FindRouteService : IFindRouteService
         if (stopPaths is null) return null;
         var positions = stopPaths.Select(x => x.Position).ToList();
 
-
+        var cloneStops = JsonConvert.DeserializeObject<List<StopDto>>(JsonConvert.SerializeObject(stops)) ?? new List<StopDto>();
         double distanceStraightFromStartToEnd = CalculateUtil.Distance(request.StartPoint, request.EndPoint);
 
         var resultPos = new List<(Position, Position, string)>();
         for (int i = 0; i < stopPaths.Count - 1; i++)
         {
-            var currStop = stops.First(x => x.Id == stopPaths[i].Id);
-            var nextStop = stops.First(x => x.Id == stopPaths[i + 1].Id);
+            var currStop = cloneStops.First(x => x.Id == stopPaths[i].Id);
+            var nextStop = cloneStops.First(x => x.Id == stopPaths[i + 1].Id);
 
-            var currStopRoutes = currStop.Routes.Split(",").Select(x => x.Trim());
-            var nextStopRoutes = nextStop.Routes.Split(",").Select(x => x.Trim());
+            var currStopRoutes = currStop.Routes.Split(",").Select(x => x.Trim()).ToList();
+            var nextStopRoutes = nextStop.Routes.Split(",").Select(x => x.Trim()).ToList();
 
             var intersectionList = currStopRoutes.Intersect(nextStopRoutes).ToList();
             if (intersectionList.Any())
             {
-                currStop.Routes = string.Join(", ", intersectionList);
                 resultPos.Add((currStop.Position, nextStop.Position, "Main"));
             }
             else
@@ -123,6 +122,34 @@ public class FindRouteService : IFindRouteService
             {
                 resultPos.Add((stopPaths[i + 1].Position, request.EndPoint, "Switch"));
             }
+
+            for (int j = i + 1; j < stopPaths.Count - 1; j++)
+            {
+                var forwardStop = cloneStops.First(x => x.Id == stopPaths[j].Id);
+                var forwardRoutes = forwardStop.Routes.Split(",").Select(x => x.Trim());
+                var intersectionForwardList = currStopRoutes.Intersect(forwardRoutes).ToList();
+                if (intersectionForwardList.Any())
+                {
+                    currStop.Routes = string.Join(", ", intersectionList);
+                }
+                else break;
+            }
+        }
+
+        for (int i = 0; i < stopPaths.Count - 1; i++)
+        {
+            var currStop = cloneStops.First(x => x.Id == stopPaths[i].Id);
+            var nextStop = cloneStops.First(x => x.Id == stopPaths[i + 1].Id);
+            var currStopRoutes = currStop.Routes.Split(",").Select(x => x.Trim()).ToList();
+            var nextStopRoutes = nextStop.Routes.Split(",").Select(x => x.Trim()).ToList();
+            var intersectionList = currStopRoutes.Intersect(nextStopRoutes).ToList();
+            if (intersectionList.Any()) currStop.Routes = string.Join(", ", intersectionList);
+            if (i > 0)
+            {
+                var previousNextStopRoutes = cloneStops.First(x => x.Id == stopPaths[i - 1].Id).Routes.Split(",").Select(x => x.Trim()).ToList();
+                var intersectionWithPrevious = currStop.Routes.Split(",").Select(x => x.Trim()).ToList().Intersect(previousNextStopRoutes).ToList();
+                if (intersectionWithPrevious.Any()) currStop.Routes = string.Join(", ", intersectionWithPrevious);
+            }
         }
 
 
@@ -135,7 +162,7 @@ public class FindRouteService : IFindRouteService
         var newResult = new RouteResponseDtoV2()
         {
             Positions = positions,
-            Stops = stopPaths.Select(x => stops.First(y => y.Id == x.Id)).ToList(),
+            Stops = stopPaths.Select(x => cloneStops.First(y => y.Id == x.Id)).ToList(),
             Weight = Math.Round(totalDistance / distanceStraightFromStartToEnd, 3),
             ResultPositions = resultPos,
         };
